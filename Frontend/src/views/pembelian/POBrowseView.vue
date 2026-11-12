@@ -1,0 +1,499 @@
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useToast } from "vue-toastification";
+import { isAuthExpiredError } from "@/api/axios";
+import BaseBrowse from "@/components/BaseBrowse.vue";
+import { useBrowse } from "@/composables/useBrowse";
+import { poApi, type PORow, type PODetailRow } from "@/api/pembelian/poApi";
+import { IconShoppingCart, IconLock } from "@tabler/icons-vue";
+import { useEscClose } from "@/composables/useEscClose";
+import DsDatePicker from "@/components/DsDatePicker.vue";
+
+const router = useRouter();
+const toast = useToast();
+
+// ── Periode (sessionStorage persist) ─────────────────────────────────
+const STORAGE_KEY = "finance_periode_po";
+
+const getLocal = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
+};
+
+const getSaved = () => {
+  try {
+    const s = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || "null");
+    if (s?.startDate && s?.endDate) return s;
+  } catch {
+    /* silent */
+  }
+  return null;
+};
+
+const now = new Date();
+const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+const saved = getSaved();
+
+const startDate = ref(saved?.startDate ?? getLocal(firstDay));
+const endDate = ref(saved?.endDate ?? getLocal(now));
+
+// ── useBrowse (Permission + Data) ────────────────────────────────────
+const {
+  items,
+  isLoading,
+  selected,
+  canInsert,
+  canEdit,
+  canDelete,
+  canExport,
+  fetchData,
+} = useBrowse<PORow>({
+  fetchApi: () => poApi.getBrowse(startDate.value, endDate.value),
+  deleteApi: (nomor: string) => poApi.delete(nomor),
+  getDetailApi: (nomor: string) => poApi.getDetail(nomor),
+  exportTitle: "Purchase Order (PO)",
+  columns: [
+    { key: "Nomor", title: "Nomor", width: 18 },
+    { key: "Tanggal", title: "Tanggal", width: 12, align: "center" },
+    { key: "Dateline", title: "Dateline", width: 12, align: "center" },
+    { key: "Memo", title: "Memo", width: 25 },
+    { key: "Supplier", title: "Supplier", width: 25 },
+    { key: "Pemesan", title: "Pemesan", width: 15 },
+    { key: "Closed", title: "Closed", width: 10, align: "center" },
+    { key: "Total", title: "Total", width: 16, numFmt: "#,##0" },
+    { key: "Ppn", title: "PPN", width: 14, numFmt: "#,##0" },
+    { key: "User_create", title: "User", width: 10 },
+    { key: "date_create", title: "Tgl Input", width: 18, align: "center" },
+  ],
+  detailColumns: [
+    { key: "Kode", title: "Kode", width: 12 },
+    { key: "Nama", title: "Nama Barang", width: 30 },
+    { key: "Satuan", title: "Satuan", width: 10, align: "center" },
+    { key: "Jumlah", title: "Jumlah", width: 12, numFmt: "#,##0.00" },
+    { key: "Kurang", title: "Kurang", width: 12, numFmt: "#,##0.00" },
+    { key: "Harga", title: "Harga", width: 14, numFmt: "#,##0" },
+    { key: "Disc", title: "Disc%", width: 8, numFmt: "#,##0.00" },
+    { key: "Nilai", title: "Nilai", width: 16, numFmt: "#,##0" },
+  ],
+});
+
+const isSingleSelected = computed(() => selected.value.length === 1);
+const selectedItem = computed(() => selected.value[0] ?? null);
+
+// ── Watch periode → fetch data ───────────────────────────────────────
+watch([startDate, endDate], ([s, e]) => {
+  try {
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ startDate: s, endDate: e })
+    );
+  } catch {
+    /* silent */
+  }
+});
+
+// ── Headers ────────────────────────────────
+const headers = [
+  { key: "Nomor", title: "Nomor", width: "170px" },
+  { key: "Tanggal", title: "Tanggal", width: "100px", align: "center" as const },
+  { key: "Dateline", title: "Dateline", width: "100px", align: "center" as const },
+  { key: "Memo", title: "Memo", width: "200px" },
+  { key: "Supplier", title: "Supplier", minWidth: "180px" },
+  { key: "Pemesan", title: "Pemesan", width: "130px" },
+  { key: "Closed", title: "Closed", width: "70px", align: "center" as const },
+  { key: "Total", title: "Total", width: "140px", align: "right" as const },
+  { key: "Ppn", title: "PPN", width: "120px", align: "right" as const },
+  { key: "User_create", title: "User", width: "80px" },
+  { key: "date_create", title: "Tgl Input", width: "140px", align: "center" as const },
+];
+
+// ── Expand Detail ────────────────────────────────────────────────────
+const expanded = ref<any[]>([]);
+const detailMap = ref<Record<string, PODetailRow[]>>({});
+const expandedLoading = ref<Record<string, boolean>>({});
+
+const onUpdateExpanded = async (newExpanded: any[]) => {
+  const keys = newExpanded.map((e) => (typeof e === "object" ? e.Nomor : e));
+  expanded.value = newExpanded;
+
+  for (const nomor of keys) {
+    if (detailMap.value[nomor] || expandedLoading.value[nomor]) continue;
+    expandedLoading.value = { ...expandedLoading.value, [nomor]: true };
+    try {
+      detailMap.value = {
+        ...detailMap.value,
+        [nomor]: await poApi.getDetail(nomor),
+      };
+    } catch (e: any) {
+      if (isAuthExpiredError(e)) return;
+      toast.error(e.response?.data?.message || `Gagal memuat rincian untuk ${nomor}`);
+    } finally {
+      expandedLoading.value = { ...expandedLoading.value, [nomor]: false };
+    }
+  }
+};
+
+// ── Actions ──────────────────────────────────────────────────────────
+const onAdd = () => {
+  router.push({ name: "poCreate" });
+};
+
+const onEdit = (item: PORow) => {
+  if (item.Closed === "1" || item.Closed === "Sudah") {
+    toast.error("Transaksi ini sudah closed, tidak dapat diedit.");
+    return;
+  }
+  router.push({
+    name: "poEdit",
+    params: { nomor: encodeURIComponent(item.Nomor) },
+  });
+};
+
+const onDelete = async (item: PORow) => {
+  if (item.Closed === "1" || item.Closed === "Sudah") {
+    toast.error("Transaksi ini sudah closed, tidak dapat dihapus.");
+    return;
+  }
+  try {
+    await poApi.delete(item.Nomor);
+    toast.success("Berhasil dihapus.");
+    fetchData();
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error(e.response?.data?.message || "Gagal menghapus PO.");
+  }
+};
+
+// ── Close / Unclose PO ──────────────────────────────────────────────
+const isClosing = ref(false);
+const closeTarget = ref<PORow | null>(null);
+const showCloseDialog = ref(false);
+useEscClose(showCloseDialog, () => (showCloseDialog.value = false));
+const closeActionLabel = computed(() => {
+  if (!closeTarget.value) return "";
+  return closeTarget.value.Closed === "Sudah" || closeTarget.value.Closed === "1" ? "Buka Close" : "Close";
+});
+
+const doClose = () => {
+  if (!isSingleSelected.value) {
+    toast.warning("Pilih satu data PO terlebih dahulu.");
+    return;
+  }
+  closeTarget.value = selectedItem.value;
+  showCloseDialog.value = true;
+};
+
+const confirmClose = async () => {
+  if (!closeTarget.value) return;
+  showCloseDialog.value = false;
+  isClosing.value = true;
+  try {
+    await poApi.toggleClose(closeTarget.value.Nomor);
+    fetchData();
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error(e.response?.data?.message || "Gagal mengubah status closed.");
+  } finally {
+    isClosing.value = false;
+    closeTarget.value = null;
+  }
+};
+
+// ── Formatting ───────────────────────────────────────────────────────
+const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+
+const fmtDate = (val: string | null) => {
+  if (!val) return "-";
+  try {
+    const dt = new Date(val);
+    if (isNaN(dt.getTime())) return val;
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth() + 1).padStart(2, "0");
+    const d = String(dt.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  } catch {
+    return val;
+  }
+};
+
+const fmtDateTime = (val: string) => {
+  if (!val) return "-";
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return val;
+  return `${String(d.getDate()).padStart(2, "0")}-${String(d.getMonth() + 1).padStart(2, "0")}-${d.getFullYear()} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+const fmtQty = (v: number) =>
+  Number(v || 0).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
+// ── Row props ────────────────────────────────────────────────────────
+const rowPropsFn = (data: any) => {
+  const row = data.item?.raw || data.item;
+  const closed = row?.Closed;
+  if (closed === "Sudah" || closed === "1") return { class: "row-closed" };
+  return {};
+};
+</script>
+
+<template>
+  <BaseBrowse
+    title="Purchase Order (PO)"
+    :icon="IconShoppingCart"
+    :headers="headers"
+    :items="items"
+    :is-loading="isLoading"
+    :fixed-layout="false"
+    :show-expand="true"
+    :expanded="expanded"
+    @update:expanded="onUpdateExpanded"
+    item-value="Nomor"
+    v-model:selected="selected"
+    :row-props-fn="rowPropsFn"
+    :can-insert="canInsert"
+    :can-edit="canEdit"
+    :can-delete="canDelete"
+    :can-export="canExport"
+    :summary-columns="[
+      { key: 'Total', label: 'Total PO', numFmt: '#,##0' },
+      { key: 'Ppn', label: 'Total PPN', numFmt: '#,##0' },
+    ]"
+    @refresh="fetchData"
+    @add="onAdd"
+    @edit="onEdit"
+    @delete="onDelete"
+  >
+    <!-- ── Filter Periode ── -->
+    <template #filter-left>
+      <div class="filter-group">
+        <span class="filter-lbl">Periode</span>
+        <DsDatePicker v-model="startDate" variant="toolbar" />
+        <span class="filter-sep">s/d</span>
+        <DsDatePicker v-model="endDate" variant="toolbar" />
+      </div>
+    </template>
+
+    <!-- ── Extra Actions ── -->
+    <template #extra-actions>
+      <v-btn
+        size="small"
+        class="tb-btn tb-btn-neutral"
+        :loading="isClosing"
+        :disabled="!isSingleSelected"
+        @click="doClose"
+      >
+        <template #prepend>
+          <IconLock :size="13" :stroke-width="1.8" />
+        </template>
+        {{ selectedItem?.Closed === 'Sudah' || selectedItem?.Closed === '1' ? 'Buka Close' : 'Close' }}
+      </v-btn>
+    </template>
+
+    <!-- ── Custom cells ── -->
+    <template #item.Tanggal="{ value }">
+      <span>{{ fmtDate(value) }}</span>
+    </template>
+
+    <template #item.Dateline="{ value }">
+      <span>{{ fmtDate(value) }}</span>
+    </template>
+
+    <template #item.Total="{ value }">
+      <span class="num-cell">{{ fmt(value) }}</span>
+    </template>
+
+    <template #item.Ppn="{ value }">
+      <span class="num-cell">{{ fmt(value) }}</span>
+    </template>
+
+    <template #item.date_create="{ value }">
+      <span>{{ fmtDateTime(value) }}</span>
+    </template>
+
+    <template #item.Closed="{ value }">
+      <span :class="value === 'Sudah' || value === '1' ? 'badge-closed' : 'badge-open'">
+        {{ value === "1" ? "Sudah" : value }}
+      </span>
+    </template>
+
+    <!-- ── Expanded Detail ── -->
+    <template #detail="{ item }">
+      <div class="detail-wrap">
+        <div v-if="expandedLoading[item.Nomor]" class="detail-loading">
+          <v-progress-circular indeterminate color="primary" size="18" />
+          <span>Memuat rincian...</span>
+        </div>
+        <table v-else class="detail-tbl">
+          <thead>
+            <tr>
+              <th style="width: 80px">Kode</th>
+              <th style="min-width: 200px">Nama Barang</th>
+              <th style="width: 70px" class="tc">Satuan</th>
+              <th style="width: 90px" class="tr">Jumlah</th>
+              <th style="width: 90px" class="tr">Kurang</th>
+              <th style="width: 120px" class="tr">Harga</th>
+              <th style="width: 60px" class="tr">Disc%</th>
+              <th style="width: 140px" class="tr">Nilai</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(d, idx) in detailMap[item.Nomor] || []" :key="idx">
+              <td class="mono">{{ d.Kode }}</td>
+              <td class="bold">{{ d.Nama }}</td>
+              <td class="tc">{{ d.Satuan }}</td>
+              <td class="tr">{{ fmtQty(d.Jumlah) }}</td>
+              <td class="tr">{{ fmtQty(d.Kurang) }}</td>
+              <td class="tr">{{ fmt(d.Harga) }}</td>
+              <td class="tr">{{ d.Disc }}%</td>
+              <td class="tr bold accent">{{ fmt(d.Nilai) }}</td>
+            </tr>
+            <tr v-if="!detailMap[item.Nomor]?.length">
+              <td colspan="8" class="empty-td">Tidak ada detail barang.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </template>
+  </BaseBrowse>
+
+  <!-- ── Konfirmasi Close/Unclose ── -->
+  <v-dialog v-model="showCloseDialog" max-width="340" persistent>
+    <v-card rounded="false">
+      <v-card-text class="pa-5 text-center">
+        <v-icon
+          :color="closeTarget?.Closed === 'Sudah' || closeTarget?.Closed === '1' ? 'warning' : 'success'"
+          size="44"
+          class="mb-3"
+        >
+          <IconLock :size="44" :stroke-width="1.5" />
+        </v-icon>
+        <div class="text-subtitle-1 font-weight-bold mb-1">
+          Yakin {{ closeActionLabel }} PO ?
+        </div>
+        <div class="text-caption text-medium-emphasis mb-4">
+          Nomor: {{ closeTarget?.Nomor }}
+        </div>
+        <div class="d-flex gap-2 justify-center">
+          <v-btn size="small" variant="outlined" @click="showCloseDialog = false">
+            Batal
+          </v-btn>
+          <v-btn
+            size="small"
+            :color="closeTarget?.Closed === 'Sudah' || closeTarget?.Closed === '1' ? 'warning' : 'success'"
+            variant="flat"
+            @click="confirmClose"
+          >
+            Ya, {{ closeActionLabel }}
+          </v-btn>
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+</template>
+
+<style scoped>
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.filter-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+.filter-sep {
+  font-size: 12px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.tc {
+  text-align: center;
+}
+.tr {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.num-cell {
+  font-variant-numeric: tabular-nums;
+}
+.mono {
+  font-family: monospace;
+}
+.bold {
+  font-weight: 700;
+}
+.accent {
+  color: var(--ds-primary, #D97706);
+}
+
+:deep(.row-closed td) {
+  color: #9e9e9e !important;
+}
+
+.badge-closed {
+  background: #E0E4EA;
+  color: var(--ds-text-secondary, #5A6A7E);
+  padding: 1px 8px;
+  border-radius: 0;
+  font-size: 10px;
+  font-weight: 700;
+}
+.badge-open {
+  background: #E8EDF5;
+  color: var(--ds-primary, #D97706);
+  padding: 1px 8px;
+  border-radius: 0;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.detail-wrap {
+  padding: 4px 0;
+}
+.detail-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  font-size: 12px;
+  color: #6b7280;
+}
+.detail-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.detail-tbl thead tr {
+  background: var(--ds-primary, #D97706);
+}
+.detail-tbl th {
+  color: white;
+  font-weight: 700;
+  padding: 4px 8px;
+  white-space: nowrap;
+  text-align: left;
+}
+.detail-tbl td {
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--ds-border-light, #C4CAD3);
+  white-space: nowrap;
+}
+.detail-tbl tbody tr:hover td {
+  background: rgba(59, 89, 152, 0.05);
+}
+.empty-td {
+  text-align: center;
+  color: #9e9e9e;
+  font-style: italic;
+  padding: 12px;
+}
+</style>

@@ -1,0 +1,14 @@
+// routes/penjualan/fakturPajakRoutes.js
+const express = require("express");
+const router = express.Router();
+const ctrl = require("../../controllers/penjualan/fakturPajakController");
+const { verifyToken, checkPermission } = require("../../middleware/authMiddleware");
+const { resolveMenuId } = require("../../middleware/resolveMenuId");
+
+router.use(resolveMenuId);
+
+router.get("/", verifyToken, checkPermission("view"), ctrl.getBrowse);
+router.get("/detail/:nomor", verifyToken, checkPermission("view"), ctrl.getBrowseDetail);
+router.delete("/:nomor", verifyToken, checkPermission("delete"), ctrl.deleteData);
+
+module.exports = router;

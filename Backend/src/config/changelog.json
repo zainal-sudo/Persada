@@ -1,0 +1,87 @@
+{
+  "history": [
+    {
+      "version": "1.0.8",
+      "notes": [
+        "Cetak Serah Terima Ekspedisi (STE/STE2): rapikan layout mengikuti fr3, blok titik-titik jadi 1×, urutan ttd & kolom STE2 diperbaiki, BERAT/KUBIKASI dikosongkan sesuai desain Delphi.",
+        "Faktur Pajak V3 (export Excel DetailFaktur): hitung DPP/DPP Nilai Lain/PPN dari qty setelah retur (paritas Delphi). Jumlah tetap net, diskon tetap dari qty bruto.",
+        "Mutasi Cabang Out — Tambah Detail: perbaiki pemilihan baris (composite key sku|expired), klik baris bisa toggle checkbox."
+      ]
+    },
+    {
+      "version": "1.0.7",
+      "notes": [
+        "Laporan Daftar Hutang, dipindahkan dari MANKSI. Disertai penambahan card Hutang pada Dashboard"
+      ]
+    },
+    {
+      "version": "1.0.6",
+      "notes": [
+        "Modul baru Mutasi Out Garmen, dipindahkan dari MANKSI",
+        "Perbaikan dari hasil meeting (Part 1)"
+      ]
+    },
+    {
+      "version": "1.0.5",
+      "notes": [
+        "Perbaikan dan Stabilisasi Sistem"
+      ]
+    },
+    {
+      "version": "1.0.4",
+      "notes": [
+        "Modul baru Voucher Pembayaran dan Realisasi Voucher Pembayaran"
+      ]
+    },
+    {
+      "version": "1.0.3",
+      "notes": [
+        "Update User Experience"
+      ]
+    },
+    {
+      "version": "1.0.2",
+      "notes": [
+        "Update Master User dan Ganti Password"
+      ]
+    },
+    {
+      "version": "1.0.1",
+      "notes": [
+        "Menu Laporan selesai, dan Perbaikan Tampilan serta Dashboard"
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "notes": [
+        "Rilis awal sistem Finance"
+      ]
+    },
+    {
+      "version": "1.0.9",
+      "date": "2026-10-14",
+      "notes": [
+        "Pengumuman versi baru: saat versi naik, aplikasi menampilkan daftar perubahan versi tersebut, termasuk perubahan yang belum sempat Anda baca.",
+        "Riwayat perubahan bisa dibuka kapan saja lewat versi aplikasi di sudut kiri atas sidebar.",
+        "Pengumuman tidak lagi muncul berulang setiap berpindah halaman."
+      ]
+    },
+    {
+      "version": "1.0.10",
+      "date": "2026-10-14",
+      "notes": [
+        "Setelah rilis baru, aplikasi memuat ulang sendiri ketika halaman yang dibuka berasal dari versi lama, jadi tidak perlu lagi menekan Ctrl+R.",
+        "Kalau masih ada form berisi yang belum tersimpan, muat ulang tidak dijalankan otomatis. Muncul pemberitahuan supaya isian disimpan lebih dulu.",
+        "Muat ulang otomatis dihentikan bila berkas versi baru berkali-kali tidak ditemukan, disertai pesan untuk menghubungi admin."
+      ]
+    },
+    {
+      "version": "1.0.11",
+      "date": "2026-10-14",
+      "notes": [
+        "Ditambahkan Cetak Serah Terima Ekspedisi",
+        "Ditambah cetak FOS"
+      ]
+    }
+  ]
+}
