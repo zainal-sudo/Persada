@@ -11,11 +11,13 @@ const getBrowse = async (startDate, endDate) => {
     `SELECT
        h.bpb_nomor AS Nomor,
        DATE_FORMAT(h.bpb_tanggal, '%Y-%m-%d') AS Tanggal,
-       IFNULL(h.bpb_po_nomor, '') AS NomorPO,
+       IFNULL(h.bpb_po_nomor, '') AS PO,
        IFNULL(s.sup_nama, '') AS Supplier,
-       IF(h.bpb_isinvoice = 0, 'Belum', 'Sudah') AS Invoiced,
+       IF(h.bpb_isinvoice = 0, 'Belum', 'Sudah') AS Status,
        IFNULL(h.bpb_memo, '') AS Memo,
-       IFNULL(g.gdg_nama, '') AS Gudang
+       IFNULL(g.gdg_nama, '') AS Gudang,
+       IFNULL(h.user_create, '') AS User_create,
+       DATE_FORMAT(h.date_create, '%Y-%m-%d %H:%i:%s') AS date_create
      FROM tbpb_hdr h
      INNER JOIN tpo_hdr p ON p.po_nomor = h.bpb_po_nomor
      INNER JOIN tsupplier s ON s.sup_kode = p.po_sup_kode
@@ -59,18 +61,54 @@ const getBrowseDetail = async (nomor) => {
  */
 const deleteData = async (nomor) => {
   const [[bpb]] = await db.query(
-    `SELECT bpb_isinvoice FROM tbpb_hdr WHERE bpb_nomor = ?`,
+    `SELECT bpb_isinvoice, bpb_po_nomor FROM tbpb_hdr WHERE bpb_nomor = ?`,
     [nomor]
   );
   if (!bpb) throw new Error("Data BPB tidak ditemukan.");
   if (Number(bpb.bpb_isinvoice) === 1)
     throw new Error("Transaksi ini sudah ada Invoice, tidak dapat dihapus.");
+  const poNomor = bpb.bpb_po_nomor;
 
   const conn = await db.getConnection();
   await conn.beginTransaction();
   try {
     await conn.query(`DELETE FROM tbpb_dtl WHERE bpbd_bpb_nomor = ?`, [nomor]);
     await conn.query(`DELETE FROM tbpb_hdr WHERE bpb_nomor = ?`, [nomor]);
+
+    // Pengembalian qty terima PO tidak hanya mengandalkan trigger
+    // tbpb_dtl_after_delete — dihitung ulang eksplisit dari BPB yang
+    // masih ada supaya selalu kembali utuh.
+    await conn.query(
+      `UPDATE tpo_dtl d
+       LEFT JOIN (
+         SELECT b.bpbd_brg_kode AS brg, SUM(b.bpbd_qty) AS q
+         FROM tbpb_dtl b JOIN tbpb_hdr h2 ON h2.bpb_nomor = b.bpbd_bpb_nomor
+         WHERE h2.bpb_po_nomor = ?
+         GROUP BY b.bpbd_brg_kode
+       ) r ON r.brg = d.pod_brg_kode
+       SET d.pod_qty_terima = IFNULL(r.q, 0)
+       WHERE d.pod_po_nomor = ?`,
+      [poNomor, poNomor]
+    );
+    await conn.query(
+      `UPDATE tpo_dtl
+       SET pod_isclosed = IF(pod_qty > 0 AND pod_qty_terima < pod_qty, 0, 1)
+       WHERE pod_po_nomor = ?`,
+      [poNomor]
+    );
+    await conn.query(
+      `UPDATE tpo_hdr h
+       LEFT JOIN (
+         SELECT MAX(pod_qty_terima > 0) AS ada,
+                SUM(pod_isclosed = 0) AS open_rows
+         FROM tpo_dtl WHERE pod_po_nomor = ?
+       ) s ON 1 = 1
+       SET h.po_status_rec = IF(IFNULL(s.ada, 0) = 1, 1, 0),
+           h.po_isclosed = IF(IFNULL(s.ada, 0) = 1 AND IFNULL(s.open_rows, 0) = 0, 1, 0)
+       WHERE h.po_nomor = ?`,
+      [poNomor, poNomor]
+    );
+
     await conn.commit();
   } catch (e) {
     await conn.rollback();

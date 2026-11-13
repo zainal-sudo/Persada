@@ -1746,17 +1746,21 @@ textarea:focus-visible {
 /* Scrollbar detail grid dibikin jelas terlihat (5px global terlalu tipis
    sehingga scroll horizontal mudah tidak terdeteksi). */
 .detail-table-body::-webkit-scrollbar {
-  width: 10px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
 }
 .detail-table-body::-webkit-scrollbar-track {
   background: #E0E4EA;
 }
 .detail-table-body::-webkit-scrollbar-thumb {
   background: #8A94A6;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 .detail-table-body::-webkit-scrollbar-thumb:hover {
   background: #6A7689;
+  background-clip: content-box;
 }
 
 .detail-table {

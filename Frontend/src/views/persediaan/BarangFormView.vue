@@ -16,16 +16,18 @@ import {
 
 const route = useRoute();
 const router = useRouter();
-const { handlePostSave } = useAfterSave({ onReset: () => { /* TODO: reset form */ } });
 const toast = useToast();
 const authStore = useAuthStore();
 
-const isEdit = computed(() => !!route.params.kode);
+const isEdit = computed(() => !!route.params.kode || !!route.params.nomor);
+const editKode = computed(() =>
+  String(route.params.kode ?? route.params.nomor ?? ""),
+);
 const isLoading = ref(false);
 const isSaving = ref(false);
 
 // ── Form State ───────────────────────────────────────────────────────
-const form = ref<BarangForm>({
+const emptyForm = (): BarangForm => ({
   isEdit: false,
   kode: "",
   nama: "",
@@ -48,6 +50,8 @@ const form = ref<BarangForm>({
   detail: [],
 });
 
+const form = ref<BarangForm>(emptyForm());
+
 // ── Lookup Options ───────────────────────────────────────────────────
 const tipeBarangOptions = ref<{ kode: number; nama: string }[]>([]);
 const kategoriOptions = ref<{ kode: string; nama: string }[]>([]);
@@ -61,27 +65,40 @@ const canEditHET = computed(() => {
 
 // ── Load Lookup Options ──────────────────────────────────────────────
 const loadOptions = async () => {
-  try {
-    const [tipe, kategori, gudang, supplier] = await Promise.all([
-      barangFormApi.getTipeBarang(),
-      barangFormApi.getKategori(),
-      barangFormApi.getGudang(),
-      barangFormApi.getSupplier(),
-    ]);
-    tipeBarangOptions.value = tipe;
-    kategoriOptions.value = kategori;
-    gudangOptions.value = gudang;
-    supplierOptions.value = supplier;
-  } catch (e: any) {
-    if (isAuthExpiredError(e)) return;
-    toast.error("Gagal memuat data lookup.");
+  const [tipe, kategori, gudang, supplier] = await Promise.allSettled([
+    barangFormApi.getTipeBarang(),
+    barangFormApi.getKategori(),
+    barangFormApi.getGudang(),
+    barangFormApi.getSupplier(),
+  ]);
+  tipeBarangOptions.value = tipe.status === "fulfilled" ? tipe.value : [];
+  kategoriOptions.value =
+    kategori.status === "fulfilled" ? kategori.value : [];
+  gudangOptions.value = gudang.status === "fulfilled" ? gudang.value : [];
+  supplierOptions.value =
+    supplier.status === "fulfilled" ? supplier.value : [];
+
+  const failed = [
+    ["Tipe Barang", tipe],
+    ["Kategori", kategori],
+    ["Gudang", gudang],
+    ["Supplier", supplier],
+  ].filter(
+    ([, r]) =>
+      (r as PromiseSettledResult<any>).status === "rejected",
+  ).map(([label]) => label as string);
+  const expired =
+    [tipe, kategori, gudang, supplier].some(
+      (r) => r.status === "rejected" && isAuthExpiredError(r.reason),
+    );
+  if (failed.length && !expired) {
+    toast.error(`Gagal memuat data lookup: ${failed.join(", ")}.`);
   }
 };
 
 // ── Load Data ────────────────────────────────────────────────────────
 const loadData = async () => {
-  const kode = route.params.kode as string;
-  if (!kode) {
+  if (!isEdit.value) {
     form.value.isEdit = false;
     await loadMaxKode();
     await loadHargaJualJenis("");
@@ -90,17 +107,27 @@ const loadData = async () => {
 
   isLoading.value = true;
   try {
-    const data = await barangFormApi.getDetailForm(decodeURIComponent(kode));
+    const data = await barangFormApi.getDetailForm(
+      decodeURIComponent(editKode.value),
+    );
     form.value = {
       ...form.value,
       ...data,
       isEdit: true,
-      kode: data.kode || kode,
+      kode: String(data.kode || editKode.value),
+      grKode: Number(data.grKode) || 1,
+      hargaBeli: Number(data.hargaBeli) || 0,
+      hargaJual: Number(data.hargaJual) || 0,
+      minStok: Number(data.minStok) || 0,
+      maxStok: Number(data.maxStok) || 0,
+      discSales: Number(data.discSales) || 0,
+      het: Number(data.het) || 0,
       isAktif: Boolean(data.isAktif),
       isStok: Boolean(data.isStok),
       isExpired: Boolean(data.isExpired),
       isProductFocus: Boolean(data.isProductFocus),
     };
+    await loadHargaJualJenis(editKode.value);
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message || "Gagal memuat data barang.");
@@ -207,6 +234,18 @@ const onDetailInput = (d: HargaJualJenis, key: string, e: Event) => {
   rawInputValues[key] = val;
   d.hargajual = parseInput(val);
 };
+
+// ── Reset form (Simpan & Baru) ───────────────────────────────────────
+const resetForm = async () => {
+  // Buang sisa buffer input terformat agar grid & field tampil 0/kosong.
+  for (const key of Object.keys(rawInputValues)) delete rawInputValues[key];
+  form.value = emptyForm();
+  bgFocusCell.value = null;
+  await loadMaxKode();
+  await loadHargaJualJenis("");
+};
+
+const { handlePostSave } = useAfterSave({ onReset: resetForm });
 
 // ── Init ─────────────────────────────────────────────────────────────
 onMounted(async () => {

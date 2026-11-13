@@ -16,7 +16,10 @@ const route = useRoute();
 const router = useRouter();
 const { handlePostSave } = useAfterSave({ onReset: () => { /* TODO: reset form */ } });
 const toast = useToast();
-const isEdit = computed(() => !!route.params.kode);
+const isEdit = computed(() => !!route.params.kode || !!route.params.nomor);
+const editKode = computed(() =>
+  String(route.params.kode ?? route.params.nomor ?? ""),
+);
 const isLoading = ref(false);
 const isSaving = ref(false);
 
@@ -207,7 +210,7 @@ onMounted(async () => {
 
     if (isEdit.value) {
       const d = await masterUserFormApi.getDetail(
-        decodeURIComponent(route.params.kode as string),
+        decodeURIComponent(editKode.value),
       );
       form.value = {
         kode: d.kode,

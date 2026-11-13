@@ -7,6 +7,7 @@ export interface ListJualPerFakturRow {
   Tahun: number;
   Tanggal: string;
   JthTempo: string;
+  Area: string;
   Salesman: string;
   Customer: string;
   Total: number;

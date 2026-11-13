@@ -3,7 +3,7 @@ import axios from "axios";
 let isExpiredHandled = false; // cegah double dispatch
 
 const api = axios.create({
-  baseURL: "/persada-api",
+  baseURL: "/api",
   timeout: 300000,
   headers: { "Content-Type": "application/json" },
 });

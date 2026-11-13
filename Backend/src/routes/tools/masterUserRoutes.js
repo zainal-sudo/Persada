@@ -6,13 +6,11 @@ const {
   checkPermission,
 } = require("../../middleware/authMiddleware");
 
-const menuId = 1;
-
-router.get("/", verifyToken, checkPermission(menuId, "view"), ctrl.getBrowse);
+router.get("/", verifyToken, checkPermission("view"), ctrl.getBrowse);
 router.delete(
   "/:kode",
   verifyToken,
-  checkPermission(menuId, "delete"),
+  checkPermission("delete"),
   ctrl.deleteUser,
 );
 

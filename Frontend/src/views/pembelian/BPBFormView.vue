@@ -150,11 +150,29 @@ const removeRow = (idx: number) => {
   hitung();
 };
 
-const updateRow = (d: BPBDetail) => {
-  const max = Number(d.kurang) || 0;
+const splitRow = (idx: number) => {
+  const src = form.value.detail[idx];
+  if (!src) return;
+  form.value.detail.splice(idx + 1, 0, {
+    ...src,
+    qty: 0,
+    total: 0,
+    idBatch: "",
+    expired: "",
+  });
+  form.value.detail.forEach((d: any, i: number) => (d.no = i + 1));
+  hitung();
+  toast.info("Baris batch baru ditambahkan. Isi Qty, Id Batch dan Expired (harus beda dengan baris lain).");
+};
+
+const updateRow = (d: BPBDetail, idx: number) => {
+  const otherQty = form.value.detail.reduce((sum: number, x: any, i: number) => {
+    return i !== idx && Number(x.brgKode) === Number(d.brgKode) ? sum + (Number(x.qty) || 0) : sum;
+  }, 0);
+  const max = (Number(d.kurang) || 0) - otherQty;
   if (Number(d.qty) > max) {
-    d.qty = max;
-    toast.warning("Qty tidak boleh lebih dari sisa kurang.");
+    d.qty = Math.max(max, 0);
+    toast.warning(`Qty tidak boleh lebih dari sisa kurang SKU ini (tersisa ${max}).`);
   }
   if (Number(d.qty) < 0) d.qty = 0;
   d.total = (d.qty * d.harga * (100 - d.discPr)) / 100;
@@ -346,7 +364,7 @@ onMounted(async () => {
               <td class="tr">{{ fmtInt(d.kurang + d.sudah) }}</td>
               <td class="tr">{{ fmtInt(d.sudah) }}</td>
               <td>
-                <input v-model="d.qty" type="number" class="ds-cell-input tr" @input="(e: any) => { d.qty = parseInput(e.target.value); updateRow(d); }" />
+                <input v-model="d.qty" type="number" class="ds-cell-input tr" @input="(e: any) => { d.qty = parseInput(e.target.value); updateRow(d, idx); }" />
               </td>
               <td class="tc">
                 <input v-model="d.idBatch" class="ds-cell-input tc" />
@@ -355,6 +373,9 @@ onMounted(async () => {
                 <input v-model="d.expired" type="date" class="ds-cell-input tc" />
               </td>
               <td class="tc">
+                <v-btn icon size="x-small" color="primary" title="Tambah baris batch untuk SKU ini" @click="splitRow(idx)">
+                  <IconPlus :size="12" />
+                </v-btn>
                 <v-btn icon size="x-small" color="error" @click="removeRow(idx)">
                   <IconTrash :size="12" />
                 </v-btn>

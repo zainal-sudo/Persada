@@ -111,6 +111,12 @@ const rekeningFormRoutes = require("./daftar/rekeningFormRoutes");
 const salesmanRoutes = require("./daftar/salesmanRoutes");
 const salesmanFormRoutes = require("./daftar/salesmanFormRoutes");
 
+const salesmanAktifRoutes = require("./daftar/salesmanAktifRoutes");
+const salesmanAktifFormRoutes = require("./daftar/salesmanAktifFormRoutes");
+
+const supplierRoutes = require("./daftar/supplierRoutes");
+const supplierFormRoutes = require("./daftar/supplierFormRoutes");
+
 const customerRoutes = require("./daftar/customerRoutes");
 const customerFormRoutes = require("./daftar/customerFormRoutes");
 
@@ -287,6 +293,12 @@ router.use("/laporan/inkaso-bawah-het", inkasoBawahHetRoutes);
 // daftar
 router.use("/daftar/salesman", salesmanRoutes);
 router.use("/daftar/salesman/form", salesmanFormRoutes);
+
+router.use("/daftar/salesman-aktif", salesmanAktifRoutes);
+router.use("/daftar/salesman-aktif/form", salesmanAktifFormRoutes);
+
+router.use("/daftar/supplier", supplierRoutes);
+router.use("/daftar/supplier/form", supplierFormRoutes);
 
 router.use("/daftar/customer", customerRoutes);
 router.use("/daftar/customer/form", customerFormRoutes);

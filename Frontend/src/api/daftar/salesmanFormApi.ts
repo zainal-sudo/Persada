@@ -26,7 +26,7 @@ export const salesmanFormApi = {
 
   getDetailForm: async (kode: string): Promise<SalesmanForm> => {
     const { data } = await api.get(
-      `/daftar/salesman/form/${encodeURIComponent(kode)}`
+      `/daftar/salesman/form/detail/${encodeURIComponent(kode)}`
     );
     return data.data;
   },

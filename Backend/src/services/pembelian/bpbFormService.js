@@ -255,17 +255,28 @@ const saveData = async (payload, user) => {
 
     // Cek status expired per barang (paritas Delphi cekdata)
     let nourut = 1;
+    const seen = new Set();
     for (const d of detail) {
       const qty = Number(d.qty) || 0;
       const brgKode = Number(d.brgKode) || 0;
       if (!brgKode) throw new Error(`SKU Baris : ${nourut} Belum dipilih`);
       if (qty <= 0) continue; // Paritas Delphi: hanya baris qty > 0 disimpan
 
+      // PK tbpb_dtl = (nomor, brg_kode, expired): 1 baris per SKU+expired
+      const expKey = String(d.expired || "");
+      const key = `${brgKode}|${expKey}`;
+      if (expKey && seen.has(key))
+        throw new Error(
+          `SKU ${brgKode} dengan Expired ${expKey} sudah ada di baris lain. Gunakan tanggal expired berbeda untuk batch baru.`
+        );
+      if (expKey) seen.add(key);
+
       // Cek status expired per barang (paritas Delphi cekdata)
       const isExp = await getStatusexpired(brgKode);
       if (isExp === 1 && !d.expired)
         throw new Error(`Expired Baris : ${nourut} Belum diisi`);
 
+      await conn.query(
         `INSERT INTO tbpb_dtl
            (bpbd_bpb_nomor, bpbd_brg_kode, bpbd_brg_satuan, bpbd_qty,
             bpbd_tgl_expired, bpbd_nourut, bpbd_status, bpbd_idbatch)
@@ -274,6 +285,7 @@ const saveData = async (payload, user) => {
           actualNomor, brgKode, d.satuan, qty,
           d.expired || null, nourut, Number(d.closed) || 0, d.idBatch || "",
         ]
+      );
       nourut++;
     }
 

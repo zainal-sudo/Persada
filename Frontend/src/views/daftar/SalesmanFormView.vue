@@ -67,7 +67,7 @@ const loadData = async () => {
     await loadTargetBulanan();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
-    toast.error(e.response?.data?.message || "Gagal memuat data salesman.");
+    toast.error(e.response?.data?.message || "Gagal memuat data area/rayon.");
     router.push({ name: "salesmanBrowse" });
   } finally {
     isLoading.value = false;
@@ -79,7 +79,7 @@ const loadMaxKode = async () => {
     form.value.kode = await salesmanFormApi.getMaxKode();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
-    toast.error("Gagal generate kode salesman.");
+    toast.error("Gagal generate kode area/rayon.");
   }
 };
 
@@ -119,7 +119,7 @@ const confirmSave = async (action: "new" | "close") => {
     handlePostSave(action, form.value.kode);
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
-    toast.error(e.response?.data?.message || "Gagal menyimpan data salesman.");
+    toast.error(e.response?.data?.message || "Gagal menyimpan data area/rayon.");
   } finally {
     isSaving.value = false;
   }
@@ -146,6 +146,7 @@ const { handlePostSave } = useAfterSave({ onReset: resetForm });
 
 // ── Init ─────────────────────────────────────────────────────────────
 onMounted(() => {
+  loadData();
 });
 
 // ── Formatting ───────────────────────────────────────────────────────
@@ -154,7 +155,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 
 <template>
   <BaseForm
-    :title="isEdit ? 'Ubah Salesman' : 'Tambah Salesman Baru'"
+    :title="isEdit ? 'Ubah Area/Rayon' : 'Tambah Area/Rayon Baru'"
     :icon="IconUsers"
     :is-loading="isLoading"
     :is-saving="isSaving"
@@ -168,12 +169,12 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
         <input :value="form.kode" class="form-input readonly" readonly />
       </div>
       <div class="form-row">
-        <label class="form-label">Nama <span class="req">*</span></label>
+        <label class="form-label">Nama Area/Rayon <span class="req">*</span></label>
         <input
           v-model="form.nama"
           class="form-input"
           maxlength="50"
-          placeholder="Nama salesman..."
+          placeholder="Nama area/rayon..."
         />
       </div>
       <div class="form-row">
@@ -212,7 +213,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
     <!-- ═══ TARGET SALESMAN ═══ -->
     <div class="target-section">
       <div class="target-header">
-        <span class="target-title">Target Salesman</span>
+        <span class="target-title">Target Area/Rayon</span>
         <div class="target-tahun">
           <label class="form-label">Tahun Periode</label>
           <select v-model="tahun" class="tahun-select" @change="onTahunChange">

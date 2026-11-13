@@ -26,12 +26,12 @@ const {
 } = useBrowse<SalesmanRow>({
   fetchApi: () => salesmanApi.getBrowse(authStore.userCabang),
   immediate: true,
-  exportTitle: "Salesman",
+  exportTitle: "Area/Rayon",
 });
 
 const headers = [
   { key: "Kode", title: "Kode", width: "100px" },
-  { key: "Nama", title: "Nama", width: "200px" },
+  { key: "Nama", title: "Nama Area/Rayon", width: "200px" },
   { key: "Alamat", title: "Alamat", minWidth: "200px" },
   { key: "Kota", title: "Kota", width: "100px" },
   { key: "Telp", title: "Telp", width: "100px" },
@@ -57,14 +57,14 @@ const fmtDate = (val: string | null) => {
     const y = dt.getFullYear();
     const m = String(dt.getMonth() + 1).padStart(2, "0");
     const d = String(dt.getDate()).padStart(2, "0");
-    return ;
+      return `${y}-${m}-${d}`;
   } catch { return val; }
 };
 </script>
 
 <template>
   <BaseBrowse
-    title="Daftar Salesman"
+    title="Daftar Area/Rayon"
     :icon="IconUsers"
     :headers="headers"
     :items="items"
@@ -77,7 +77,7 @@ const fmtDate = (val: string | null) => {
     :can-delete="canDelete"
     :can-export="canExport"
     :show-refresh="false"
-    search-placeholder="Cari salesman..."
+    search-placeholder="Cari area/rayon..."
     @refresh="fetchData"
     @add="onAdd"
     @edit="onEdit"

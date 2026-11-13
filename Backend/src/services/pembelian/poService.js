@@ -44,7 +44,8 @@ const getBrowseDetail = async (nomor) => {
        IFNULL(d.pod_harga, 0) AS Harga,
        IFNULL(d.pod_discpr, 0) AS Disc,
        ROUND(IFNULL(d.pod_harga, 0) * IFNULL(d.pod_qty, 0) * (100 - IFNULL(d.pod_discpr, 0)) / 100, 2) AS Nilai,
-       IFNULL(d.pod_qty_terima, 0) AS Terima
+       IFNULL(d.pod_qty_terima, 0) AS Terima,
+       GREATEST(IFNULL(d.pod_qty, 0) - IFNULL(d.pod_qty_terima, 0), 0) AS Kurang
      FROM tpo_dtl d
      INNER JOIN tpo_hdr h ON h.po_nomor = d.pod_po_nomor
      INNER JOIN tbarang b ON b.brg_kode = d.pod_brg_kode

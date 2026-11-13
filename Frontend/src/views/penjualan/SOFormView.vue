@@ -82,7 +82,8 @@ const rekeningOptions = ref<any[]>([]);
 const barangOptions = ref<any[]>([]);
 const customerLoading = ref(false);
 const barangLoading = ref(false);
-const salesmanOptions = ref<any[]>([]);
+// Rayon milik salesman yang dipilih (dari tsalesmanaktif_dtl)
+const rayonOptions = ref<{ kode: string; nama: string }[]>([]);
 
 // ── Modal State ──────────────────────────────────────────────────────
 const showCustomerModal = ref(false);
@@ -322,12 +323,7 @@ const loadNomor = async () => {
 // ── Load Lookup Options ──────────────────────────────────────────────
 const loadOptions = async () => {
   try {
-    const [aktif, semua] = await Promise.all([
-      soFormApi.getSalesmanAktif(),
-      soFormApi.getSalesman(),
-    ]);
-    salesmanAktifOptions.value = aktif;
-    salesmanOptions.value = semua;
+    salesmanAktifOptions.value = await soFormApi.getSalesmanAktif();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error("Gagal memuat data salesman.");
@@ -391,12 +387,19 @@ const selectCustomer = async (cust: any) => {
 const selectSalesman = (sla: any) => {
   form.value.slaKode = sla.kode;
   form.value.slaNama = sla.nama;
-  form.value.slsKode = sla.slsKode;
 
-  const rayon = salesmanOptions.value.find(s => s.kode === sla.slsKode);
-  form.value.slsNama = rayon?.nama || "";
+  // Rayon bisa dipilih — default rayon pertama salesman ini
+  rayonOptions.value = sla.rayons || [];
+  const first = rayonOptions.value[0];
+  form.value.slsKode = first?.kode || "";
+  form.value.slsNama = first?.nama || "";
 
   showSalesmanModal.value = false;
+};
+
+const onRayonChange = () => {
+  const rayon = rayonOptions.value.find(r => r.kode === form.value.slsKode);
+  form.value.slsNama = rayon?.nama || "";
 };
 
 const selectRekening = (rek: any) => {
@@ -917,14 +920,15 @@ const selectAmbilSO = async (item: any) => {
       form.value.slsKode = details[0].slsKode;
       form.value.slaKode = details[0].slaKode;
 
-      // Set salesman aktif
+      // Set salesman aktif + rayon options
       const salesman = salesmanAktifOptions.value.find(s => s.kode === details[0].slaKode);
       if (salesman) {
         form.value.slaNama = salesman.nama;
+        rayonOptions.value = salesman.rayons || [];
       }
 
-      // Set rayon (dari salesmanOptions)
-      const rayon = salesmanOptions.value.find(s => s.kode === details[0].slsKode);
+      // Set rayon (dari detail SO yang diambil)
+      const rayon = rayonOptions.value.find(r => r.kode === details[0].slsKode);
       form.value.slsNama = rayon?.nama || "";
     }
 
@@ -996,6 +1000,14 @@ const loadData = async () => {
       detail: data.detail || [],
     };
 
+    // Sinkronkan rayon options dari salesman aktif yang dipilih
+    const salesman = salesmanAktifOptions.value.find(s => s.kode === form.value.slaKode);
+    rayonOptions.value = salesman?.rayons || [];
+    if (form.value.slsKode) {
+      const rayon = rayonOptions.value.find(r => r.kode === form.value.slsKode);
+      if (rayon) form.value.slsNama = rayon.nama;
+    }
+
     // Set customer options (kalau belum ada)
     if (form.value.cusKode && !customerOptions.value.find(c => c.kode === form.value.cusKode)) {
       customerOptions.value.push({
@@ -1046,6 +1058,7 @@ const resetForm = () => {
     isProforma: 0,
     detail: [],
   };
+  rayonOptions.value = [];
   loadNomor();
   nextTick(() => {
     document.querySelector<HTMLButtonElement>(".so-header .btn-search")?.focus();
@@ -1137,8 +1150,19 @@ onMounted(async () => {
             <div class="f-row">
               <label class="f-lbl">Rayon</label>
               <div class="combo-group">
-                <input :value="form.slsKode" class="f-inp combo-kode disabled-bg" readonly disabled placeholder="Kode" />
-                <input :value="form.slsNama" class="f-inp combo-nama disabled-bg" readonly disabled placeholder="Otomatis" />
+                <select
+                  v-model="form.slsKode"
+                  class="f-inp combo-nama"
+                  :disabled="rayonOptions.length === 0"
+                  @change="onRayonChange"
+                >
+                  <option v-if="rayonOptions.length === 0" value="">
+                    {{ form.slaKode ? 'Salesman tanpa rayon' : 'Pilih Salesman dulu...' }}
+                  </option>
+                  <option v-for="r in rayonOptions" :key="r.kode" :value="r.kode">
+                    {{ r.nama || r.kode }}
+                  </option>
+                </select>
               </div>
             </div>
           </div>

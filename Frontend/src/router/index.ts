@@ -709,6 +709,72 @@ const router = createRouter({
     browseRoute: "salesmanBrowse",
   },
 },
+// ── Master Salesman (Aktif) ──────────────────────────────────────
+{
+  path: "/daftar/salesman-aktif",
+  name: "salesmanAktifBrowse",
+  component: () => import("@/views/daftar/SalesmanAktifView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Daftar Salesman",
+  },
+},
+{
+  path: "/daftar/salesman-aktif/create",
+  name: "salesmanAktifCreate",
+  component: () => import("@/views/daftar/SalesmanAktifFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Tambah Salesman",
+    browseRoute: "salesmanAktifBrowse",
+  },
+},
+{
+  path: "/daftar/salesman-aktif/edit/:kode",
+  name: "salesmanAktifEdit",
+  component: () => import("@/views/daftar/SalesmanAktifFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Ubah Salesman",
+    browseRoute: "salesmanAktifBrowse",
+  },
+},
+// ── Daftar Supplier ──────────────────────────────────────────────
+{
+  path: "/daftar/supplier",
+  name: "supplierBrowse",
+  component: () => import("@/views/daftar/SupplierView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Daftar Supplier",
+  },
+},
+{
+  path: "/daftar/supplier/create",
+  name: "supplierCreate",
+  component: () => import("@/views/daftar/SupplierFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Tambah Supplier",
+    browseRoute: "supplierBrowse",
+  },
+},
+{
+  path: "/daftar/supplier/edit/:kode",
+  name: "supplierEdit",
+  component: () => import("@/views/daftar/SupplierFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Ubah Supplier",
+    browseRoute: "supplierBrowse",
+  },
+},
 // ── Daftar Customer ──────────────────────────────────────────────
 // ── Daftar Customer ──────────────────────────────────────────────
 {

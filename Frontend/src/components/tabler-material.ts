@@ -206,5 +206,6 @@ export const IconTrashX = make("IconTrashX");
 export const IconTruck = make("IconTruck");
 export const IconTruckDelivery = make("IconTruckDelivery");
 export const IconUser = make("IconUser");
+export const IconUserCheck = make("IconUserCheck");
 export const IconUsers = make("IconUsers");
 export const IconX = make("IconX");

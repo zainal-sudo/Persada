@@ -9,7 +9,8 @@ router.use(resolveMenuId);
 
 router.get("/get-max-kode", verifyToken, checkPermission("view"), ctrl.getMaxKode);
 router.get("/target-bulanan", verifyToken, checkPermission("view"), ctrl.getTargetBulanan);
+router.get("/detail/:kode", verifyToken, checkPermission("view"), ctrl.getDetailForm);
 router.get("/:kode", verifyToken, checkPermission("view"), ctrl.getDetailForm);
-router.post("/save", verifyToken, checkPermission("insert"), ctrl.saveData);
+router.post("/save", verifyToken, checkPermission("save"), ctrl.saveData);
 
 module.exports = router;

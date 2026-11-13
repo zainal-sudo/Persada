@@ -102,6 +102,7 @@ const exportColumns: ExportColumn[] = [
   { key: "Tahun", title: "Tahun", width: 8, align: "center" },
   { key: "Tanggal", title: "Tanggal", width: 14, align: "center" },
   { key: "JthTempo", title: "Jth Tempo", width: 14, align: "center" },
+  { key: "Area", title: "Area", width: 15 },
   { key: "Salesman", title: "Salesman", width: 15 },
   { key: "Customer", title: "Customer", width: 25 },
   { key: "Total", title: "Total", width: 16, numFmt: "#,##0" },
@@ -149,6 +150,7 @@ const headers: {
   { key: "Tahun", title: "Tahun", width: "60px", align: "center" },
   { key: "Tanggal", title: "Tanggal", width: "100px", align: "center" },
   { key: "JthTempo", title: "Jth Tempo", width: "100px", align: "center" },
+  { key: "Area", title: "Area", width: "120px" },
   { key: "Salesman", title: "Salesman", width: "120px" },
   { key: "Customer", title: "Customer", minWidth: "180px" },
   { key: "Total", title: "Total", width: "120px", align: "end" },
@@ -169,7 +171,7 @@ const chartCanvasRef = ref<HTMLCanvasElement | null>(null);
 let chartInstance: any = null;
 
 const getPivotConfig = () => ({
-  rows: ["Salesman"] as string[],
+  rows: ["Area"] as string[],
   cols: ["Bulan"] as string[],
   vals: ["Riil"] as string[],
   aggregatorName: "Sum",
@@ -177,6 +179,7 @@ const getPivotConfig = () => ({
 
 const buildPlainData = () => {
   return items.value.map((r) => ({
+    Area: r.Area,
     Salesman: r.Salesman,
     Customer: r.Customer,
     Bulan: String(r.Bulan),
@@ -193,7 +196,7 @@ const chartData = computed(() => {
   const { rows, vals, aggregatorName } = getPivotConfig();
   const plainData = buildPlainData() as Record<string, any>[];
   const valField = vals[0] ?? "Riil";
-  const rowKey = rows[0] ?? "Salesman";
+  const rowKey = rows[0] ?? "Area";
 
   const map = new Map<string, number>();
 
@@ -484,7 +487,7 @@ const fmtDate = (val: string) => {
               :data="pivotData"
               theme="light"
               font-size="sm"
-              :default-row-fields="['Salesman']"
+              :default-row-fields="['Area']"
               :default-column-fields="['Bulan']"
               :default-value-fields="[{ field: 'Riil', aggregation: 'sum' }]"
               class="tiny-pivot-penjualan-faktur"

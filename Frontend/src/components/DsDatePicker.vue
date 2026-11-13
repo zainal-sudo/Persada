@@ -63,9 +63,8 @@ function onPick(v: unknown) {
   const y = val.getFullYear();
   const m = String(val.getMonth() + 1).padStart(2, "0");
   const d = String(val.getDate()).padStart(2, "0");
-  // Tidak menutup popup: pengguna bisa mengganti-ganti tanggal dulu.
-  // Tutup dengan klik di luar, Escape, atau Enter (seperti input native).
   setValue(`${y}-${m}-${d}`);
+  menu.value = false;
 }
 
 // Ketik manual dd/mm/yyyy; selain itu teks dikembalikan ke nilai ter-format.

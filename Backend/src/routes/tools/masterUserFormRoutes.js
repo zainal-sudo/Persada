@@ -6,26 +6,9 @@ const {
   checkPermission,
 } = require("../../middleware/authMiddleware");
 
-const menuId = 1;
-
-router.get(
-  "/cabang",
-  verifyToken,
-  checkPermission(menuId, "view"),
-  ctrl.getCabangList,
-);
-router.get(
-  "/menus",
-  verifyToken,
-  checkPermission(menuId, "view"),
-  ctrl.getAllMenus,
-);
-router.get(
-  "/detail/:kode",
-  verifyToken,
-  checkPermission(menuId, "view"),
-  ctrl.getDetail,
-);
-router.post("/save", verifyToken, checkPermission(menuId, "insert"), ctrl.save);
+router.get("/cabang", verifyToken, checkPermission("view"), ctrl.getCabangList);
+router.get("/menus", verifyToken, checkPermission("view"), ctrl.getAllMenus);
+router.get("/detail/:kode", verifyToken, checkPermission("view"), ctrl.getDetail);
+router.post("/save", verifyToken, checkPermission("save"), ctrl.save);
 
 module.exports = router;

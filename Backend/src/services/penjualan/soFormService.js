@@ -16,14 +16,26 @@ const getCustomer = async (search = "") => {
 };
 
 // ── Lookup Salesman Aktif (combo kiri — bisa dipilih) ────────────────
+// Hanya salesman yang punya rayon (ada di tsalesmanaktif_dtl),
+// tiap salesman membawa daftar rayon-nya (urut nourut).
 const getSalesmanAktif = async () => {
   const [rows] = await db.query(
-    `SELECT sla_kode AS kode, sla_nama AS nama, sla_sls_kode AS slsKode
-     FROM tsalesmanaktif
-     WHERE sla_isaktif = 1
-     ORDER BY sla_nama`
+    `SELECT sa.sla_kode AS kode, sa.sla_nama AS nama,
+            d.slad_sls_kode AS slsKode, s.sls_nama AS slsNama
+     FROM tsalesmanaktif sa
+     JOIN tsalesmanaktif_dtl d ON d.slad_sla_kode = sa.sla_kode
+     LEFT JOIN tsalesman s ON s.sls_kode = d.slad_sls_kode
+     WHERE sa.sla_isaktif = 1
+     ORDER BY sa.sla_nama, d.slad_nourut`
   );
-  return rows;
+  const map = new Map();
+  for (const r of rows) {
+    if (!map.has(r.kode)) {
+      map.set(r.kode, { kode: r.kode, nama: r.nama, rayons: [] });
+    }
+    map.get(r.kode).rayons.push({ kode: r.slsKode, nama: r.slsNama || r.slsKode });
+  }
+  return [...map.values()];
 };
 
 // ── Lookup Salesman (combo kanan — readonly/disable) ─────────────────

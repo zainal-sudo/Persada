@@ -56,6 +56,7 @@ const makeUniqueOld = (pairs) => {
     charset: 'utf8mb4',
   });
   const q = async (sql, p) => { const [r] = await c.query(sql, p); return r; };
+  const x = async (sql, p) => { const [r] = await c.query(sql, p); return r; };
 
   async function insertBatch(table, cols, rows, chunk = 300) {
     for (let i = 0; i < rows.length; i += chunk) {
@@ -242,6 +243,35 @@ const makeUniqueOld = (pairs) => {
   console.log(`tpo: ${poHdr.length} faktur / ${poDtl.length} baris`);
   console.log(`tbpb: ${bpbHdr.length} faktur / ${bpbDtl.length} baris`);
   console.log(`tinv: ${invHdr.length} faktur / ${invDtl.length} baris`);
+
+  // Rekonsiliasi PO: trigger tbpb_dtl_after_insert menambah pod_qty_terima
+  // saat tbpb_dtl diinsert, padahal tpo_dtl sudah diinsert dengan
+  // pod_qty_terima = pod_qty (diterima penuh) → jadi 2× qty dan PO tidak
+  // ter-close. Hitung ulang dari data BPB nyata (paritas trigger Delphi).
+  await x(`UPDATE tpo_dtl d
+           JOIN tpo_hdr h ON h.po_nomor = d.pod_po_nomor
+           LEFT JOIN (
+             SELECT h2.bpb_po_nomor AS po, b.bpbd_brg_kode AS brg, SUM(b.bpbd_qty) AS q
+             FROM tbpb_dtl b JOIN tbpb_hdr h2 ON h2.bpb_nomor = b.bpbd_bpb_nomor
+             GROUP BY h2.bpb_po_nomor, b.bpbd_brg_kode
+           ) r ON r.po = d.pod_po_nomor AND r.brg = d.pod_brg_kode
+           SET d.pod_qty_terima = IFNULL(r.q, 0)
+           WHERE h.user_create = 'MIG'`);
+  await x(`UPDATE tpo_dtl d
+           JOIN tpo_hdr h ON h.po_nomor = d.pod_po_nomor
+           SET d.pod_isclosed = IF(d.pod_qty > 0 AND d.pod_qty_terima < d.pod_qty, 0, 1)
+           WHERE h.user_create = 'MIG'`);
+  await x(`UPDATE tpo_hdr h
+           LEFT JOIN (
+             SELECT pod_po_nomor AS po,
+                    MAX(pod_qty_terima > 0) AS ada_terima,
+                    SUM(pod_isclosed = 0) AS open_rows
+             FROM tpo_dtl GROUP BY pod_po_nomor
+           ) s ON s.po = h.po_nomor
+           SET h.po_status_rec = IF(IFNULL(s.ada_terima,0) = 1, 1, 0),
+               h.po_isclosed = IF(IFNULL(s.ada_terima,0) = 1 AND IFNULL(s.open_rows,0) = 0, 1, 0)
+           WHERE h.user_create = 'MIG'`);
+  console.log('tpo direkonsiliasi dari tbpb (terima/isclosed/status_rec)');
 
   // ─────────────────────────────────────────────────────────────
   // PENJUALAN: DO + SO (derivatif) + FP

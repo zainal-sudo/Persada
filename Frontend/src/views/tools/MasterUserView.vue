@@ -47,9 +47,9 @@ const rowPropsFn = (data: any) => {
 };
 
 // ── Actions ───────────────────────────────────────────────────────────
-const onAdd = () => router.push("/tools/users/create");
+const onAdd = () => router.push("/setting/hak-user/create");
 const onEdit = (item: any) =>
-  router.push(`/tools/users/edit/${encodeURIComponent(item.Kode)}`);
+  router.push(`/setting/hak-user/edit/${encodeURIComponent(item.Kode)}`);
 
 const showDeleteDialog = ref(false);
 useEscClose(showDeleteDialog, () => (showDeleteDialog.value = false));
