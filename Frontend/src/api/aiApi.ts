@@ -38,7 +38,7 @@ export const chatWithAiStream = async (
   signal?: AbortSignal
 ): Promise<AiChatResponse> => {
   const token = localStorage.getItem("finance_token");
-  const res = await fetch("/api/ai/chat/stream", {
+  const res = await fetch("/persada-api/ai/chat/stream", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
