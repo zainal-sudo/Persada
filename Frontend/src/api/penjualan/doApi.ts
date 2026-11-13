@@ -19,6 +19,7 @@ export interface DODetailRow {
   Jumlah: number;
   Jumlah_Invoiced: number;
   Expired: string;
+  Batch: string;
 }
 
 export interface DOprintData {

@@ -74,7 +74,7 @@ const butuhOtorisasi = (nilai, nilai2) => {
 const SQL_LOAD = {
   MUTASI: `SELECT a.mutc_nomor AS nomor,
                   a.mutc_tanggal AS tanggal,
-                  'Kali Rejo Makmur' AS nama,
+                  'AM PERSADA' AS nama,
                   0 AS nilai,
                   0 AS nilai2
              FROM tmutcab_hdr a

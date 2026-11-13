@@ -130,17 +130,17 @@ onMounted(async () => {
 .tb {
   height: 28px;
   padding: 0 14px;
-  background: #D97706;
+  background: #0284c7;
   color: #fff;
-  border: 1px solid #B45309;
+  border: 1px solid #0369a1;
   border-radius: 0;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
-.tb:hover { background: #B45309; }
+.tb:hover { background: #0369a1; }
 .tb:disabled { opacity: 0.6; cursor: default; }
-.tb-secondary { background: #F0F3F8; color: #78350F; border-color: #A0AAB8; }
+.tb-secondary { background: #F0F3F8; color: #0c4a6e; border-color: #A0AAB8; }
 .tb-secondary:hover { background: #E8ECF1; }
 .tb-loading { font-size: 12px; color: #E8ECF1; }
 

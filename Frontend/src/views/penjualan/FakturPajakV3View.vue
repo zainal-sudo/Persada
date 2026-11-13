@@ -221,7 +221,7 @@ const fmtDate = (val: string | null) => {
   flex-shrink: 0;
   font-size: 11px;
   font-weight: 600;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp {
@@ -236,7 +236,7 @@ const fmtDate = (val: string | null) => {
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .f-sep {
@@ -250,12 +250,12 @@ const fmtDate = (val: string | null) => {
   gap: 4px;
   font-size: 11px;
   font-weight: 600;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   cursor: pointer;
 }
 
 .check-lbl input {
-  accent-color: var(--ds-primary, #D97706);
+  accent-color: var(--ds-primary, #0284c7);
   width: 14px;
   height: 14px;
 }
@@ -274,7 +274,7 @@ const fmtDate = (val: string | null) => {
 }
 
 .fpv3-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .fpv3-table th {

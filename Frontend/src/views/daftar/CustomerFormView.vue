@@ -499,7 +499,7 @@ onMounted(async () => {
 .cust-legend {
   font-size: 12px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -552,9 +552,9 @@ onMounted(async () => {
 .btn-search {
   height: 22px;
   width: 28px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -564,6 +564,6 @@ onMounted(async () => {
 }
 
 .btn-search:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 </style>

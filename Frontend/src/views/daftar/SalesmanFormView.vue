@@ -299,7 +299,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 }
 
 .form-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   box-shadow: 0 0 0 2px rgba(59, 89, 152, 0.1);
 }
 
@@ -330,7 +330,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 .target-title {
   font-size: 12px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
 }
 
@@ -351,7 +351,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 }
 
 .tahun-select:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .target-table-wrap {
@@ -369,7 +369,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 }
 
 .target-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .target-table th {
@@ -406,7 +406,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 }
 
 .target-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .tc {

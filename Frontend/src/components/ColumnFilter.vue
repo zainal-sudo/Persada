@@ -557,7 +557,7 @@ const dateOperators = [
   border-bottom: 1px solid var(--ds-border, #A0AAB8);
 }
 .cf-header-icon {
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .cf-header-title {
   font-size: 10px;
@@ -624,7 +624,7 @@ const dateOperators = [
   color: rgb(var(--v-theme-on-surface));
 }
 .cf-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 .cf-input-half {
   width: 100%;
@@ -642,7 +642,7 @@ const dateOperators = [
   cursor: pointer;
 }
 .cf-select:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 /* Search row (select type) */
@@ -669,7 +669,7 @@ const dateOperators = [
   color: rgb(var(--v-theme-on-surface));
 }
 .cf-search-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 /* Section: pembatas antar bagian dropdown */
@@ -696,7 +696,7 @@ const dateOperators = [
 .cf-live-note {
   font-size: 10px;
   line-height: 1.4;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   background: var(--ds-primary-50, #E8EDF5);
   padding: 3px 6px;
   margin: 4px 6px 2px;
@@ -713,7 +713,7 @@ const dateOperators = [
   background: none;
   border: none;
   font-size: 10px;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   cursor: pointer;
   padding: 1px 0;
 }
@@ -751,7 +751,7 @@ const dateOperators = [
   height: 12px;
   cursor: pointer;
   flex-shrink: 0;
-  accent-color: var(--ds-primary, #D97706);
+  accent-color: var(--ds-primary, #0284c7);
 }
 .cf-select-val {
   overflow: hidden;
@@ -790,7 +790,7 @@ const dateOperators = [
   background: rgba(198, 40, 40, 0.08);
 }
 .cf-ok-btn {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;

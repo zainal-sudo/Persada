@@ -196,7 +196,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
   const palette = [
     { bg: "rgba(46,125,50,0.75)", border: "#2e7d32" },
     { bg: "rgba(21,101,192,0.65)", border: "#1565c0" },
-    { bg: "rgba(239,108,0,0.65)", border: "#ef6c00" },
+    { bg: "rgba(2,132,199,0.65)", border: "#0284c7" },
     { bg: "rgba(106,27,154,0.65)", border: "#6a1b9a" },
     { bg: "rgba(198,40,40,0.65)", border: "#c62828" },
     { bg: "rgba(0,105,92,0.65)", border: "#00695c" },
@@ -509,7 +509,7 @@ const total = (key: "Terbayar" | "Ppn" | "BiayaPromosi", arr: any[]) =>
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; width: 128px;
 }
-.date-inp:focus { border-color: var(--ds-primary, #D97706); }
+.date-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .tab-wrap {
   display: flex; align-items: center; gap: 2px;
@@ -524,8 +524,8 @@ const total = (key: "Terbayar" | "Ppn" | "BiayaPromosi", arr: any[]) =>
   background: transparent; font-size: 11px; font-weight: 600;
   color: #6b7280; cursor: pointer; transition: all 0.15s; white-space: nowrap;
 }
-.tab-btn:hover { background: rgba(59, 89, 152, 0.08); color: var(--ds-primary, #D97706); }
-.tab-btn.active { background: var(--ds-primary, #D97706); color: white; }
+.tab-btn:hover { background: rgba(59, 89, 152, 0.08); color: var(--ds-primary, #0284c7); }
+.tab-btn.active { background: var(--ds-primary, #0284c7); color: white; }
 
 .lap-layout {
   display: flex; flex-direction: column;
@@ -555,7 +555,7 @@ const total = (key: "Terbayar" | "Ppn" | "BiayaPromosi", arr: any[]) =>
   flex: 1; min-height: 0;
   background: rgb(var(--v-theme-surface));
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 3px solid var(--ds-primary, #D97706); border-radius: 0;
+  border-top: 3px solid var(--ds-primary, #0284c7); border-radius: 0;
   display: flex; flex-direction: column; overflow: hidden;
 }
 .filter-bar {
@@ -592,18 +592,18 @@ const total = (key: "Terbayar" | "Ppn" | "BiayaPromosi", arr: any[]) =>
   padding: 0 8px; font-size: 11px; font-weight: 600;
   outline: none; background: white; color: #374151; cursor: pointer;
 }
-.chart-type-select:focus { border-color: var(--ds-primary, #D97706); }
+.chart-type-select:focus { border-color: var(--ds-primary, #0284c7); }
 
 .summary-lbl { font-size: 12px; font-weight: 600; color: #374151; }
-.summary-val { font-size: 12px; font-weight: 700; color: var(--ds-primary, #D97706); margin-left: 10px; }
+.summary-val { font-size: 12px; font-weight: 700; color: var(--ds-primary, #0284c7); margin-left: 10px; }
 </style>
 
 <style>
 .tiny-pivot-laporan-inkaso.tiny-pivot-laporan-inkaso {
-  --vpg-accent: var(--ds-primary, #D97706);
-  --vpg-accent-hover: var(--ds-primary-dark, #B45309);
+  --vpg-accent: var(--ds-primary, #0284c7);
+  --vpg-accent-hover: var(--ds-primary-dark, #0369a1);
   --vpg-accent-soft-bg: rgba(59, 89, 152, 0.1);
-  --vpg-accent-soft-text: var(--ds-primary, #D97706);
+  --vpg-accent-soft-text: var(--ds-primary, #0284c7);
   --vpg-focus-ring: rgba(59, 89, 152, 0.35);
 }
 </style>

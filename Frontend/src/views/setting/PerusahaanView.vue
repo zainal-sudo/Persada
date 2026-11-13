@@ -154,7 +154,7 @@ const handleSave = async () => {
   padding: 0 6px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .field-row {
   display: flex;
@@ -182,12 +182,12 @@ const handleSave = async () => {
   background: white;
 }
 .field-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   box-shadow: 0 0 0 2px rgba(59, 89, 152, 0.12);
 }
 .field-input:disabled {
   background: var(--ds-surface, #F0F3F8);
   color: #6b7280;
 }
-.edit-hint { font-size: 11px; color: #b45309; margin: 0; }
+.edit-hint { font-size: 11px; color: #0369a1; margin: 0; }
 </style>

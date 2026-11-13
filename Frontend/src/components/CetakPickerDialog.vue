@@ -114,7 +114,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 7px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   font-size: 12px;
   font-weight: 700;
@@ -140,12 +140,12 @@ onUnmounted(() => {
 }
 .cp-opt.active {
   background: var(--ds-primary-50, #E8EDF5);
-  border-left-color: var(--ds-primary, #D97706);
+  border-left-color: var(--ds-primary, #0284c7);
 }
 .cp-label {
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .cp-hint {
   font-size: 11px;
@@ -166,7 +166,7 @@ onUnmounted(() => {
   font-family: inherit;
   font-size: 10px;
   font-weight: 700;
-  color: var(--ds-primary-darker, #78350F);
+  color: var(--ds-primary-darker, #0c4a6e);
   background: white;
   border: 1px solid var(--ds-border-light, #C4CAD3);
   border-bottom-width: 2px;

@@ -555,7 +555,7 @@ const isActiveCell = (r: number, c: string) =>
   <!-- ═══ MODAL TAMBAH DETAIL (checklist SKU — pola DOFormView) ═══ -->
   <v-dialog v-model="showTambahDetailModal" max-width="680" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         Tambah Detail
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -620,7 +620,7 @@ const isActiveCell = (r: number, c: string) =>
 /* ── Group Box (fieldset) — kanonik ala SO/DO/Jurnal/Barang ── */
 .pm-groupbox { border: 1px solid var(--ds-border, #A0AAB8); padding: 0; margin: 0; display: flex; flex-direction: column; }
 .pm-legend {
-  font-size: 11px; font-weight: 700; color: var(--ds-primary, #D97706);
+  font-size: 11px; font-weight: 700; color: var(--ds-primary, #0284c7);
   text-transform: uppercase; letter-spacing: 0.03em;
   padding: 2px 6px; margin-left: 6px; line-height: 1.4;
   background: var(--ds-surface, #F0F3F8);
@@ -637,14 +637,14 @@ const isActiveCell = (r: number, c: string) =>
 .f-lbl { width: 80px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--ds-text-secondary, #5A6A7E); }
 .req { color: #c62828; font-weight: 700; }
 
-.f-inp { flex: 1; min-width: 0; max-width: 400px; height: 24px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 5px; font-size: 11px; outline: none; box-sizing: border-box; background: #fff; color: var(--ds-text, #78350F); }
-.f-inp:focus { border-color: var(--ds-primary, #D97706); }
+.f-inp { flex: 1; min-width: 0; max-width: 400px; height: 24px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 5px; font-size: 11px; outline: none; box-sizing: border-box; background: #fff; color: var(--ds-text, #0c4a6e); }
+.f-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .readonly-bg { background: var(--ds-surface-inset, #E0E4EA); color: #3D4F6A; }
 
 .detail-table-wrap { flex: 1; min-height: 0; overflow: auto; border-top: 1px solid var(--ds-border, #A0AAB8); }
 .detail-table { width: 100%; border-collapse: collapse; font-size: 11px; font-weight: 500; }
-.detail-table thead tr { background: var(--ds-primary, #D97706); }
-.detail-table th { color: white; font-weight: 700; padding: 4px 6px; white-space: nowrap; text-align: left; position: sticky; top: 0; z-index: 1; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; border-right: 1px solid var(--ds-primary-dark, #B45309); border-bottom: 1px solid var(--ds-primary-dark, #B45309); }
+.detail-table thead tr { background: var(--ds-primary, #0284c7); }
+.detail-table th { color: white; font-weight: 700; padding: 4px 6px; white-space: nowrap; text-align: left; position: sticky; top: 0; z-index: 1; font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em; border-right: 1px solid var(--ds-primary-dark, #0369a1); border-bottom: 1px solid var(--ds-primary-dark, #0369a1); }
 .detail-table th:last-child { border-right: none; }
 .detail-table td { padding: 2px 4px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); border-right: 1px solid var(--ds-border-light, #C4CAD3); vertical-align: middle; white-space: nowrap; }
 .detail-table td:last-child { border-right: none; }
@@ -656,17 +656,17 @@ const isActiveCell = (r: number, c: string) =>
 
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
 .cell-search { display: flex; gap: 2px; }
 .cell-inp { width: 100%; height: 20px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 3px; font-size: 11px; outline: none; background: #fff; box-sizing: border-box; }
-.cell-inp:focus { border-color: var(--ds-primary, #D97706); }
-.cell-btn { height: 20px; width: 22px; background: var(--ds-primary, #D97706); color: white; border: 1px solid var(--ds-primary-dark, #B45309); border-radius: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-.cell-btn:hover { background: var(--ds-primary-dark, #B45309); }
-.btn-add-row { height: 24px; padding: 0 10px; background: var(--ds-primary, #D97706); color: white; border: 1px solid var(--ds-primary-dark, #B45309); border-radius: 0; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
-.btn-add-row:hover { background: var(--ds-primary-dark, #B45309); }
+.cell-inp:focus { border-color: var(--ds-primary, #0284c7); }
+.cell-btn { height: 20px; width: 22px; background: var(--ds-primary, #0284c7); color: white; border: 1px solid var(--ds-primary-dark, #0369a1); border-radius: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+.cell-btn:hover { background: var(--ds-primary-dark, #0369a1); }
+.btn-add-row { height: 24px; padding: 0 10px; background: var(--ds-primary, #0284c7); color: white; border: 1px solid var(--ds-primary-dark, #0369a1); border-radius: 0; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.btn-add-row:hover { background: var(--ds-primary-dark, #0369a1); }
 .btn-del { background: none; border: none; color: #c62828; cursor: pointer; padding: 2px 4px; display: flex; align-items: center; justify-content: center; }
 .btn-del:hover { background: #ffebee; }
 .tc { text-align: center; }
@@ -678,16 +678,16 @@ const isActiveCell = (r: number, c: string) =>
 /* ── Modal Tambah Detail (checklist) ──────────────────────── */
 .modal-loading { padding: 20px; text-align: center; color: var(--ds-text-muted, #8494A7); font-size: 12px; }
 .modal-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.modal-tbl th { background: var(--ds-primary, #D97706); color: white; font-weight: 700; padding: 5px 8px; text-align: left; white-space: nowrap; }
+.modal-tbl th { background: var(--ds-primary, #0284c7); color: white; font-weight: 700; padding: 5px 8px; text-align: left; white-space: nowrap; }
 .modal-tbl td { padding: 4px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .modal-row { cursor: pointer; }
 .modal-row:hover td { background: var(--ds-primary-50, #E8EDF5); }
 .tb-search { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
 .tb-search-input { flex: 1; height: 28px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 8px; font-size: 12px; outline: none; background: #fff; }
-.tb-search-input:focus { border-color: var(--ds-primary, #D97706); }
+.tb-search-input:focus { border-color: var(--ds-primary, #0284c7); }
 .tb-table-wrap { max-height: 360px; overflow-y: auto; border: 1px solid var(--ds-border-light, #C4CAD3); }
 .tb-actions { border-top: 1px solid var(--ds-border, #A0AAB8); }
-.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #D97706); }
+.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #0284c7); }
 .tb-add-btn { border-radius: 0; text-transform: none; }
 .mono { font-family: var(--ds-font-mono, "Consolas", monospace); font-size: 10px; }
 </style>

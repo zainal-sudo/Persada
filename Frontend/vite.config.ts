@@ -29,7 +29,7 @@ export default defineConfig({
     host: true,
     port: 8090,
     proxy: {
-      "/persada-api": {
+      "/api": {
         target: "http://localhost:3099",
         changeOrigin: true,
         // chat AI = rantai panggilan LLM (bisa > 1 menit) — jangan diputus proxy

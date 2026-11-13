@@ -237,7 +237,7 @@ const fmtDate = (val: string | null | undefined) => {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: white; color: #374151;
 }
-.sel-inp:focus { border-color: var(--ds-primary, #D97706); }
+.sel-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
 
 .detail-wrap { padding: 8px 6px; }

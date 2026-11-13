@@ -205,7 +205,7 @@ const canFilter = (field: string) => props.filterableFields.includes(field);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ds-primary-dark, #B45309);
+  color: var(--ds-primary-dark, #0369a1);
 }
 .pfa-zone-body {
   display: flex;
@@ -223,7 +223,7 @@ const canFilter = (field: string) => props.filterableFields.includes(field);
   gap: 4px;
   height: 23px;
   padding: 0 4px;
-  border: 1px solid var(--ds-primary, #D97706);
+  border: 1px solid var(--ds-primary, #0284c7);
   background: #fff;
   cursor: grab;
   max-width: 100%;
@@ -232,7 +232,7 @@ const canFilter = (field: string) => props.filterableFields.includes(field);
 .pfa-name {
   font-size: 11px;
   font-weight: 600;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -245,7 +245,7 @@ const canFilter = (field: string) => props.filterableFields.includes(field);
   border: 1px solid var(--ds-border, #a0aab8);
   background: #fff;
   font-size: 10px;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 /* ── Tombol kontrol (filter & hapus) — seragam 20px ── */
@@ -268,13 +268,13 @@ const canFilter = (field: string) => props.filterableFields.includes(field);
   color: var(--ds-text-muted, #8494a7);
 }
 .pfa-filter:hover {
-  background: var(--ds-primary, #D97706);
-  border-color: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
+  border-color: var(--ds-primary, #0284c7);
   color: #fff;
 }
 .pfa-filter.on {
-  background: var(--ds-primary, #D97706);
-  border-color: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
+  border-color: var(--ds-primary, #0284c7);
   color: #fff;
 }
 .pfa-x {
@@ -288,7 +288,7 @@ const canFilter = (field: string) => props.filterableFields.includes(field);
 }
 .pfa-filter:focus-visible,
 .pfa-x:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 1px;
 }
 </style>

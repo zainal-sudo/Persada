@@ -138,7 +138,7 @@ const handleClose = () => {
 }
 
 .confetti-dot:nth-child(1) { background: #4caf50; --angle: 0deg; }
-.confetti-dot:nth-child(2) { background: #ff9800; --angle: 45deg; }
+.confetti-dot:nth-child(2) { background: #0ea5e9; --angle: 45deg; }
 .confetti-dot:nth-child(3) { background: #2196f3; --angle: 90deg; }
 .confetti-dot:nth-child(4) { background: #e91e63; --angle: 135deg; }
 .confetti-dot:nth-child(5) { background: #ffc107; --angle: 180deg; }
@@ -161,7 +161,7 @@ const handleClose = () => {
 .success-title {
   font-size: 15px;
   font-weight: 700;
-  color: var(--ds-primary-dark, #B45309);
+  color: var(--ds-primary-dark, #0369a1);
   margin-bottom: 12px;
 }
 
@@ -186,7 +186,7 @@ const handleClose = () => {
 .nomor-value {
   font-size: 14px;
   font-weight: 800;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   font-family: var(--ds-font-mono, "Consolas", monospace);
 }
 
@@ -199,7 +199,7 @@ const handleClose = () => {
 
 .action-btn-stay {
   border-color: var(--ds-border, #A0AAB8) !important;
-  color: var(--ds-primary, #D97706) !important;
+  color: var(--ds-primary, #0284c7) !important;
 }
 
 .action-btn-stay:hover {
@@ -208,11 +208,11 @@ const handleClose = () => {
 }
 
 .action-btn-close {
-  background: var(--ds-primary, #D97706) !important;
+  background: var(--ds-primary, #0284c7) !important;
   color: white !important;
 }
 
 .action-btn-close:hover {
-  background: var(--ds-primary-dark, #B45309) !important;
+  background: var(--ds-primary-dark, #0369a1) !important;
 }
 </style>

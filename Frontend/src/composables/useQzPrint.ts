@@ -292,7 +292,7 @@ export function useQzPrint() {
           padRight("Grand Total   :", colLabel) + " " +
           padLeft(fmtDec(fpData.atotal), colVal)
         );
-        fl.push(padRight("A/n   : PT Kali Rejo Makmur", rightStart));
+        fl.push(padRight("A/n   : PT AM PERSADA", rightStart));
       } else {
         fl.push(
           padRight("", rightStart) + " " +

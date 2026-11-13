@@ -188,7 +188,7 @@ const cls = computed(() => ["ds-select", `ds-select--${props.variant}`]);
   border-radius: 0;
 }
 .ds-select__field:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 .ds-select__field:disabled {
   background: var(--ds-surface-inset, #E0E4EA);
@@ -266,7 +266,7 @@ const cls = computed(() => ["ds-select", `ds-select--${props.variant}`]);
   border-radius: 0;
 }
 .ds-select__menu .ds-select__search:focus {
-  border-bottom-color: var(--ds-primary, #D97706);
+  border-bottom-color: var(--ds-primary, #0284c7);
 }
 .ds-select__menu .ds-select__search::placeholder {
   color: var(--ds-text-secondary, #5A6A7E);
@@ -281,7 +281,7 @@ const cls = computed(() => ["ds-select", `ds-select--${props.variant}`]);
 .ds-select__menu .ds-select__opt {
   padding: 4px 8px;
   font-size: 11px;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -289,7 +289,7 @@ const cls = computed(() => ["ds-select", `ds-select--${props.variant}`]);
   background: var(--ds-surface-inset, #E8ECF1);
 }
 .ds-select__menu .ds-select__opt.is-selected {
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   font-weight: 700;
 }
 .ds-select__menu .ds-select__empty {

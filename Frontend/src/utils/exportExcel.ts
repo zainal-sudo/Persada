@@ -3441,7 +3441,7 @@ export const exportRekonsiliasiBankMaster = async (
   const selisihAdaFill: ExcelJS.Fill = {
     type: "pattern",
     pattern: "solid",
-    fgColor: { argb: "FFFFF3E0" },
+    fgColor: { argb: "FFe1f5fe" },
   };
 
   const setH = (cell: ExcelJS.Cell, val: string, fill = headerFill) => {
@@ -3759,7 +3759,7 @@ export const exportStokFinance = async (items: any[], cabang: string) => {
   const realNegFill: ExcelJS.Fill = {
     type: "pattern",
     pattern: "solid",
-    fgColor: { argb: "FFFFF3E0" },
+    fgColor: { argb: "FFe1f5fe" },
   };
 
   const setH = (cell: ExcelJS.Cell, val: string) => {

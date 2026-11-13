@@ -1263,7 +1263,7 @@ router.beforeEach(async (to) => {
   const permissionStore = usePermissionStore();
   const { loadRoutes, resetRoutes, isRoutesLoaded } = useDynamicRoutes();
 
-  document.title = `${String(to.meta?.title || to.name || "Retail")} — krm`;
+  document.title = `${String(to.meta?.title || to.name || "Retail")} — AM PERSADA`;
 
   // 1. Cek autentikasi
   if (to.meta.requiresAuth && !authStore.isAuthenticated)

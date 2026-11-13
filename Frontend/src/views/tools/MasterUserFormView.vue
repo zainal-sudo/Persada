@@ -678,7 +678,7 @@ select.form-inp {
   cursor: pointer;
 }
 .group-check input {
-  accent-color: #ffd54f;
+  accent-color: #7dd3fc;
   width: 14px;
   height: 14px;
   cursor: pointer;

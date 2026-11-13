@@ -186,7 +186,7 @@ const fmtQty = (v: number) =>
   border-collapse: collapse;
   font-size: 11px;
 }
-.detail-tbl thead tr { background: var(--ds-primary, #D97706); }
+.detail-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .detail-tbl th {
   color: white;
   font-weight: 700;

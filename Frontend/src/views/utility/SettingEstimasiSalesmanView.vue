@@ -452,7 +452,7 @@ onActivated(() => {
   padding: 0 6px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .field-row {
   display: flex;
@@ -481,7 +481,7 @@ onActivated(() => {
   background: white;
 }
 .field-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 .w-100 { width: 100px; }
 .w-120 { width: 120px; }
@@ -496,7 +496,7 @@ onActivated(() => {
   height: 30px;
   padding: 0 10px;
   background: var(--ds-surface, #F0F3F8);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   border: 1px solid var(--ds-border, #A0AAB8);
   border-radius: 0;
   font-size: 11px;
@@ -534,7 +534,7 @@ onActivated(() => {
   position: sticky;
   top: 0;
   background: var(--ds-surface-inset, #E8ECF1);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   font-size: 11px;
   text-align: left;
   padding: 5px 6px;
@@ -598,11 +598,11 @@ onActivated(() => {
 .grid-table tfoot td {
   background: var(--ds-surface-inset, #E8ECF1);
   font-weight: 700;
-  border-top: 2px solid var(--ds-primary, #D97706);
+  border-top: 2px solid var(--ds-primary, #0284c7);
 }
-.foot-lbl { color: var(--ds-text, #78350F); }
+.foot-lbl { color: var(--ds-text, #0c4a6e); }
 .foot-val {
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .btn-row {
   display: flex;
@@ -612,13 +612,13 @@ onActivated(() => {
 }
 .edit-hint {
   font-size: 11px;
-  color: #b45309;
+  color: #0369a1;
   margin: 0;
 }
 .picker-box {
   background: var(--ds-surface, #fff);
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   border-radius: 0;
   padding: 14px;
 }
@@ -626,7 +626,7 @@ onActivated(() => {
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .picker-search {
   width: 100%;
@@ -666,7 +666,7 @@ onActivated(() => {
 .confirm-box {
   background: var(--ds-surface, #fff);
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   border-radius: 0;
   padding: 16px;
 }
@@ -674,7 +674,7 @@ onActivated(() => {
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .confirm-text {
   margin: 0 0 16px;

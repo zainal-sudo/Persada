@@ -432,7 +432,7 @@ const rowPropsFn = (data: any) => {
   font-weight: 700;
 }
 .accent {
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 
 :deep(.row-closed td) {
@@ -449,7 +449,7 @@ const rowPropsFn = (data: any) => {
 }
 .badge-open {
   background: #E8EDF5;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   padding: 1px 8px;
   border-radius: 0;
   font-size: 10px;
@@ -473,7 +473,7 @@ const rowPropsFn = (data: any) => {
   font-size: 11px;
 }
 .detail-tbl thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 .detail-tbl th {
   color: white;

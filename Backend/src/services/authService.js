@@ -18,7 +18,7 @@ const getCbgKode = async () => {
 
 const listCabang = async () => {
   const cbgKode = await getCbgKode();
-  return [{ kode: cbgKode, cbg_nama: "Kali Rejo Makmur", dbase: DB_NAME() }];
+  return [{ kode: cbgKode, cbg_nama: "AM PERSADA", dbase: DB_NAME() }];
 };
 
 const getCabang = async () => {
@@ -60,7 +60,7 @@ const login = async (username, password) => {
     nama: user.USER_NAMA,
     level: "USER",
     cabang: cbgKode,
-    cabangNama: "Kali Rejo Makmur",
+    cabangNama: "AM PERSADA",
     database: DB_NAME(),
   };
 

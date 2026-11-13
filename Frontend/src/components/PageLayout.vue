@@ -112,7 +112,7 @@ const loadingModel = computed({
   border: 1px solid var(--ds-border, #A0AAB8);
   border-radius: 0;
   overflow: hidden;
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   box-shadow: none;
 }
 .content-wrapper {

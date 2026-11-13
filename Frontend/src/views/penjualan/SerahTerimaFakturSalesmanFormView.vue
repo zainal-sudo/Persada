@@ -498,7 +498,7 @@ const filterRows = computed(() =>
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -532,7 +532,7 @@ textarea:focus-visible {
 .stf-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -588,11 +588,11 @@ textarea:focus-visible {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .readonly-bg {
@@ -610,11 +610,11 @@ textarea:focus-visible {
   outline: none;
   resize: vertical;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-txa:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 /* ── Search Group ─────────────────────────────────────────────── */
@@ -631,9 +631,9 @@ textarea:focus-visible {
 .btn-search {
   height: 24px;
   width: 26px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -643,15 +643,15 @@ textarea:focus-visible {
 }
 
 .btn-search:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-load {
   height: 24px;
   padding: 0 10px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -660,7 +660,7 @@ textarea:focus-visible {
 }
 
 .btn-load:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-load:disabled {
@@ -698,12 +698,12 @@ textarea:focus-visible {
   z-index: 2;
   /* Latar harus di th, bukan di thead tr: tr ikut scroll keluar saat th
      menempel, birunya ikut hilang dan isi tbody tembus ke header. */
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -772,7 +772,7 @@ textarea:focus-visible {
 }
 .col-filter-btn.active {
   background: #ffffff;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   border-color: #ffffff;
 }
 .col-filter-btn:focus-visible {
@@ -793,7 +793,7 @@ textarea:focus-visible {
 .filter-count {
   font-size: 10.5px;
   font-weight: 600;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .filter-count.muted {
   font-weight: 500;
@@ -806,7 +806,7 @@ textarea:focus-visible {
   height: 20px;
   padding: 0 7px;
   background: #ffffff;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   border: 1px solid var(--ds-border, #A0AAB8);
   border-radius: 0;
   font-size: 10.5px;
@@ -821,13 +821,13 @@ textarea:focus-visible {
   padding: 3px 6px;
   border-top: 1px solid var(--ds-border-light, #C4CAD3);
   font-size: 10.5px;
-  color: var(--ds-warning, #D97706);
-  background: #FFF8E7;
+  color: var(--ds-warning, #0284c7);
+  background: #e1f5fe;
 }
 
 /* ── Utility ──────────────────────────────────────────────────── */
 .tc { text-align: center; }
 .tr { text-align: right; }
 .bold { font-weight: 700; }
-.accent { color: var(--ds-primary, #D97706); }
+.accent { color: var(--ds-primary, #0284c7); }
 </style>

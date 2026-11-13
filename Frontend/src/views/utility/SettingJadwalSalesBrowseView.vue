@@ -165,7 +165,7 @@ const runDelete = async () => {
 .confirm-box {
   background: var(--ds-surface, #fff);
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   border-radius: 0;
   padding: 16px;
 }
@@ -173,7 +173,7 @@ const runDelete = async () => {
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .confirm-text {
   margin: 0 0 16px;

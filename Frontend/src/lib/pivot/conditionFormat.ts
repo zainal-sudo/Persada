@@ -4,7 +4,7 @@
  * Keputusan warna: heatmap memakai satu skala intensitas Steel Blue pada latar
  * putih (bukan skala merah-hijau) supaya tetap selaras palet DESIGN.md dan tidak
  * menambah warna di luar 2-3 warna inti. Alpha dibatasi 0.5 dan semua teks tetap
- * gelap (#78350F) agar kontras tetap lolos WCAG AA. Data bar memakai latar
+ * gelap (#0c4a6e) agar kontras tetap lolos WCAG AA. Data bar memakai latar
  * transparan agar angka selalu terbaca di atasnya.
  */
 import type { ConditionalFormat, PivotCell } from "./types";

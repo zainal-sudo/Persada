@@ -185,15 +185,15 @@ onMounted(async () => {
 .mode-label {
   font-size: 12px;
   font-weight: 700;
-  color: #78350F;
+  color: #0c4a6e;
   margin-right: 8px;
 }
 .tb {
   height: 28px;
   padding: 0 12px;
-  background: #D97706;
+  background: #0284c7;
   color: white;
-  border: 1px solid #D97706;
+  border: 1px solid #0284c7;
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -205,7 +205,7 @@ onMounted(async () => {
 }
 .tb-secondary {
   background: #f0f3f8;
-  color: #78350F;
+  color: #0c4a6e;
   border-color: #a0aab8;
 }
 .tb-loading {
@@ -222,13 +222,13 @@ onMounted(async () => {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-bottom: 2px solid #78350F;
+  border-bottom: 2px solid #0c4a6e;
   padding-bottom: 8px;
 }
 .kj-nama {
   font-size: 14px;
   font-weight: 700;
-  color: #78350F;
+  color: #0c4a6e;
 }
 .kj-alamat {
   font-size: 11px;
@@ -238,13 +238,13 @@ onMounted(async () => {
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 1px;
-  color: #78350F;
+  color: #0c4a6e;
   text-align: right;
 }
 .kj-info {
   margin: 10px 0;
   font-size: 11px;
-  color: #78350F;
+  color: #0c4a6e;
   display: flex;
   gap: 18px;
   flex-wrap: wrap;
@@ -265,12 +265,12 @@ onMounted(async () => {
   padding: 4px 6px;
   text-align: left;
   font-size: 10.5px;
-  color: #78350F;
+  color: #0c4a6e;
 }
 .kj-table td {
   border: 1px solid #c4cad3;
   padding: 3px 6px;
-  color: #78350F;
+  color: #0c4a6e;
 }
 .tc {
   text-align: center;
@@ -286,7 +286,7 @@ onMounted(async () => {
 .ttd-row {
   display: flex;
   font-size: 11px;
-  color: #78350F;
+  color: #0c4a6e;
 }
 .ttd-col {
   width: 33%;
@@ -301,7 +301,7 @@ onMounted(async () => {
   width: 150px;
   max-width: 80%;
   margin-top: 52px;
-  border-bottom: 1px solid #78350F;
+  border-bottom: 1px solid #0c4a6e;
 }
 .empty-state {
   max-width: 210mm;

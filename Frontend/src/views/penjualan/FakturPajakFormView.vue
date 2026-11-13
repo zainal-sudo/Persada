@@ -270,7 +270,7 @@ const fmtDate = (val: string | null) => {
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -308,11 +308,11 @@ textarea:focus-visible {
   outline: none;
   min-width: 130px;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .f-sep {
@@ -331,7 +331,7 @@ textarea:focus-visible {
 }
 
 .check-lbl input {
-  accent-color: var(--ds-primary, #D97706);
+  accent-color: var(--ds-primary, #0284c7);
   width: 14px;
   height: 14px;
 }
@@ -351,7 +351,7 @@ textarea:focus-visible {
 }
 
 .fp-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .fp-table th {
@@ -366,8 +366,8 @@ textarea:focus-visible {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .fp-table th:last-child {
@@ -400,7 +400,7 @@ textarea:focus-visible {
 
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 

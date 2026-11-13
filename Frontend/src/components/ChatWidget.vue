@@ -197,7 +197,7 @@ const onKey = (e: KeyboardEvent) => {
     <div v-if="open" class="ai-panel">
       <div class="ai-head">
         <div>
-          <div class="ai-title">krm AI Assistant</div>
+          <div class="ai-title">AMP AI Assistant</div>
           <div class="ai-sub">Analisis bisnis cabang anda</div>
         </div>
         <div class="ai-actions">
@@ -215,7 +215,7 @@ const onKey = (e: KeyboardEvent) => {
 
       <div ref="listEl" class="ai-list">
         <div v-if="messages.length === 0" class="ai-empty">
-          <p>Selamat datang ! Tanya tentang bisnis krm, misalnya:</p>
+          <p>Selamat datang ! Tanya tentang bisnis AM PERSADA, misalnya:</p>
           <ul>
             <li>"Bagaimana realisasi penjualan bulan ini?"</li>
             <li>"Faktur mana yang sudah lewat jatuh tempo?"</li>
@@ -316,7 +316,7 @@ const onKey = (e: KeyboardEvent) => {
   height: 52px;
   border-radius: 50%;
   border: none;
-  background: #B45309;
+  background: #0369a1;
   color: #fff;
   display: flex;
   align-items: center;
@@ -326,7 +326,7 @@ const onKey = (e: KeyboardEvent) => {
   z-index: 2400;
 }
 .ai-fab:hover {
-  background: #D97706;
+  background: #0284c7;
 }
 .ai-fab-badge {
   position: absolute;
@@ -361,7 +361,7 @@ const onKey = (e: KeyboardEvent) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #B45309;
+  background: #0369a1;
   color: #fff;
   padding: 10px 12px;
   border-bottom: 3px solid #c62828;
@@ -435,7 +435,7 @@ const onKey = (e: KeyboardEvent) => {
   white-space: pre-line;
 }
 .b-user {
-  background: #B45309;
+  background: #0369a1;
   color: #fff;
 }
 .b-ai {
@@ -466,7 +466,7 @@ const onKey = (e: KeyboardEvent) => {
 .ai-copy {
   border: none;
   background: transparent;
-  color: #D97706;
+  color: #0284c7;
   cursor: pointer;
   font-size: 10.5px;
   padding: 0;
@@ -484,7 +484,7 @@ const onKey = (e: KeyboardEvent) => {
   align-items: center;
 }
 .ai-rate:hover:not(:disabled) {
-  color: #D97706;
+  color: #0284c7;
 }
 .ai-rate.active {
   color: #059669;
@@ -531,13 +531,13 @@ const onKey = (e: KeyboardEvent) => {
   max-height: 120px;
 }
 .ai-input:focus {
-  border-color: #D97706;
+  border-color: #0284c7;
 }
 .ai-send {
   width: 38px;
   height: 38px;
   border: none;
-  background: #B45309;
+  background: #0369a1;
   color: #fff;
   cursor: pointer;
   display: flex;
@@ -564,7 +564,7 @@ const onKey = (e: KeyboardEvent) => {
 .ai-chip {
   border: 1px solid #a0aab8;
   background: #f0f3f8;
-  color: #B45309;
+  color: #0369a1;
   font-size: 10.5px;
   font-family: inherit;
   padding: 3px 8px;
@@ -572,9 +572,9 @@ const onKey = (e: KeyboardEvent) => {
   white-space: nowrap;
 }
 .ai-chip:hover:not(:disabled) {
-  background: #D97706;
+  background: #0284c7;
   color: #fff;
-  border-color: #B45309;
+  border-color: #0369a1;
 }
 .ai-chip:disabled {
   opacity: 0.5;

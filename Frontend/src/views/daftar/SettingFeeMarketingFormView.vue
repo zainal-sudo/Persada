@@ -444,7 +444,7 @@ onMounted(() => {
 .btn-search {
   height: 28px;
   width: 32px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;
@@ -475,7 +475,7 @@ onMounted(() => {
 .btn-tool {
   height: 25px;
   padding: 0 12px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;
@@ -505,14 +505,14 @@ onMounted(() => {
 .section-title {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
 }
 
 .btn-add-row {
   height: 24px;
   padding: 0 10px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;
@@ -537,7 +537,7 @@ onMounted(() => {
   font-size: 11px;
 }
 
-.detail-table thead tr { background: var(--ds-primary, #D97706); }
+.detail-table thead tr { background: var(--ds-primary, #0284c7); }
 
 .detail-table th {
   color: white;
@@ -572,12 +572,12 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.cell-inp:focus { border-color: var(--ds-primary, #D97706); }
+.cell-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .cell-btn {
   height: 24px;
   width: 24px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;

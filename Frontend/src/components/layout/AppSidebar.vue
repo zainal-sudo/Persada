@@ -119,9 +119,9 @@ onUnmounted(() => {
     <div class="app-sidebar-top" style="flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0;">
       <!-- Brand Title Bar -->
       <div class="app-sidebar-brand">
-        <div class="app-sidebar-brand-badge">krm</div>
+        <div class="app-sidebar-brand-badge">AMP</div>
         <div style="line-height: 1.15; min-width: 0">
-          <div class="app-sidebar-brand-title">Kali Rejo Makmur</div>
+          <div class="app-sidebar-brand-title">AM PERSADA</div>
           <button
             type="button"
             class="app-sidebar-brand-ver"

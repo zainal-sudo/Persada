@@ -605,7 +605,7 @@ onMounted(loadData);
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -637,7 +637,7 @@ select:focus-visible {
 .ste-legend {
   font-size: 12px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -684,9 +684,9 @@ select:focus-visible {
 .btn-load {
   height: 28px;
   padding: 0 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -697,7 +697,7 @@ select:focus-visible {
 }
 
 .btn-load:hover:not(:disabled) {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-load:disabled {
@@ -734,7 +734,7 @@ select:focus-visible {
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
@@ -746,8 +746,8 @@ select:focus-visible {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -798,7 +798,7 @@ select:focus-visible {
 }
 
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
@@ -841,7 +841,7 @@ select:focus-visible {
 .filter-count {
   font-size: 10.5px;
   font-weight: 600;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 
 .filter-count.muted {
@@ -856,7 +856,7 @@ select:focus-visible {
   height: 20px;
   padding: 0 7px;
   background: #ffffff;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   border: 1px solid var(--ds-border, #A0AAB8);
   border-radius: 0;
   font-size: 10.5px;
@@ -920,7 +920,7 @@ select:focus-visible {
 
 .col-filter-btn.active {
   background: #ffffff;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   border-color: #ffffff;
 }
 
@@ -934,8 +934,8 @@ select:focus-visible {
   padding: 3px 6px;
   flex-shrink: 0;
   font-size: 10.5px;
-  color: var(--ds-warning, #D97706);
-  background: #FFF8E7;
+  color: var(--ds-warning, #0284c7);
+  background: #e1f5fe;
 }
 
 @media (max-width: 1024px) {

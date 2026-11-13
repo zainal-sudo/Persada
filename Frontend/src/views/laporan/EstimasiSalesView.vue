@@ -164,13 +164,13 @@ const doExport = async () => {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: white;
 }
-.sel-inp:focus { border-color: var(--ds-primary, #D97706); }
+.sel-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .num-inp {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; width: 72px;
 }
-.num-inp:focus { border-color: var(--ds-primary, #D97706); }
+.num-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
 .sum-lbl { font-size: 12px; font-weight: 600; color: #374151; }
-.sum-val { font-size: 12px; font-weight: 700; color: var(--ds-primary, #D97706); margin-left: 10px; }
+.sum-val { font-size: 12px; font-weight: 700; color: var(--ds-primary, #0284c7); margin-left: 10px; }
 </style>

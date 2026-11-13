@@ -354,7 +354,7 @@ const contextMenuItems = computed(() => [
   <!-- No Pajak Dialog -->
   <v-dialog v-model="showNoPajakDialog" max-width="380">
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706)">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7)">
         Input No Pajak
       </v-card-title>
       <v-card-text class="pa-3">
@@ -374,7 +374,7 @@ const contextMenuItems = computed(() => [
   <!-- History Pembayaran -->
   <v-dialog v-model="showHistoryDialog" max-width="560" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706)">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7)">
         History Pembayaran
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -415,22 +415,22 @@ const contextMenuItems = computed(() => [
 .tr { text-align: right; font-variant-numeric: tabular-nums; }
 .mono { font-family: monospace; }
 .bold { font-weight: 700; }
-.accent { color: var(--ds-primary, #D97706); }
+.accent { color: var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
-.badge-open { background: #E8EDF5; color: var(--ds-primary, #D97706); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
+.badge-open { background: #E8EDF5; color: var(--ds-primary, #0284c7); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
 .badge-closed { background: #E0E4EA; color: var(--ds-text-secondary, #5A6A7E); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
-.badge-eceran { background: #FFF3E0; color: #e65100; padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
+.badge-eceran { background: #e1f5fe; color: #0369a1; padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
 .detail-wrap { padding: 4px 0; }
 .detail-loading { display: flex; align-items: center; gap: 8px; padding: 10px; font-size: 12px; color: #6b7280; }
 .detail-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.detail-tbl thead tr { background: var(--ds-primary, #D97706); }
+.detail-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .detail-tbl th { color: white; font-weight: 700; padding: 4px 8px; white-space: nowrap; text-align: left; }
 .detail-tbl td { padding: 3px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .detail-tbl tbody tr:hover td { background: rgba(59, 89, 152, 0.05); }
 .empty-td { text-align: center; color: #9e9e9e; font-style: italic; padding: 12px; }
 .modal-loading { padding: 20px; text-align: center; color: var(--ds-text-muted, #8494A7); font-size: 12px; }
 .modal-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.modal-tbl th { background: var(--ds-primary, #D97706); color: white; font-weight: 700; padding: 5px 8px; text-align: left; white-space: nowrap; }
+.modal-tbl th { background: var(--ds-primary, #0284c7); color: white; font-weight: 700; padding: 5px 8px; text-align: left; white-space: nowrap; }
 .modal-tbl td { padding: 4px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .empty-state { text-align: center; color: var(--ds-text-muted, #8494A7); font-size: 11px; padding: 16px 12px; }
 .f-row { display: flex; align-items: center; gap: 4px; width: 100%; }

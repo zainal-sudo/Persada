@@ -8,22 +8,22 @@ import * as directives from "vuetify/directives";
 const bsmTheme = {
   dark: false,
   colors: {
-    primary:         "#D97706",
-    "primary-darken-1": "#B45309",
-    "primary-lighten-1": "#F59E0B",
+    primary:         "#0284c7",
+    "primary-darken-1": "#0369a1",
+    "primary-lighten-1": "#0ea5e9",
 
-    secondary:       "#78350F",
+    secondary:       "#0c4a6e",
     "secondary-darken-1": "#0F1A2E",
 
     success:         "#059669",
-    info:            "#D97706",
-    warning:         "#D97706",
+    info:            "#0284c7",
+    warning:         "#0284c7",
     error:           "#DC2626",
 
     background:      "#E8ECF1",
     surface:         "#F0F3F8",
     "surface-variant": "#E0E4EA",
-    "on-surface":    "#78350F",
+    "on-surface":    "#0c4a6e",
     "on-primary":    "#ffffff",
   },
 };
@@ -31,18 +31,18 @@ const bsmTheme = {
 const bsmDarkTheme = {
   dark: true,
   colors: {
-    primary:         "#F59E0B",
-    "primary-darken-1": "#D97706",
+    primary:         "#0ea5e9",
+    "primary-darken-1": "#0284c7",
     secondary:       "#8494A7",
     success:         "#34D399",
     info:            "#60A5FA",
-    warning:         "#FBBF24",
+    warning:         "#38bdf8",
     error:           "#F87171",
     background:      "#0F1A2E",
-    surface:         "#78350F",
+    surface:         "#0c4a6e",
     "surface-variant": "#243656",
     "on-surface":    "#E2E8F0",
-    "on-primary":    "#78350F",
+    "on-primary":    "#0c4a6e",
   },
 };
 

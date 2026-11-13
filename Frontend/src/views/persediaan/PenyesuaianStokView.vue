@@ -273,7 +273,7 @@ const doExportDetail = async () => {
   height: 32px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; width: 130px;
 }
-.date-inp:focus { border-color: var(--ds-primary, #D97706); }
+.date-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
 .tc { text-align: center; }
 .tr { text-align: right; }
@@ -282,7 +282,7 @@ const doExportDetail = async () => {
 .detail-wrap { padding: 4px 0; }
 .detail-loading { display: flex; align-items: center; gap: 8px; padding: 10px; font-size: 12px; color: var(--ds-text-muted, #8494A7); }
 .detail-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.detail-tbl thead tr { background: var(--ds-primary, #D97706); }
+.detail-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .detail-tbl th { color: white; font-weight: 700; padding: 4px 8px; white-space: nowrap; text-align: left; }
 .detail-tbl td { padding: 3px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .detail-tbl tbody tr:hover td { background: var(--ds-primary-50, #E8EDF5); }

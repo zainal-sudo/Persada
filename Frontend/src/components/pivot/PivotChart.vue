@@ -21,7 +21,7 @@ const props = withDefaults(
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 let chart: Chart | null = null;
 
-const PALETTE = ["#D97706", "#F59E0B", "#B45309", "#8494A7", "#D97706", "#059669"];
+const PALETTE = ["#0284c7", "#0ea5e9", "#0369a1", "#8494A7", "#0284c7", "#059669"];
 
 function buildConfig() {
   const result = props.result;

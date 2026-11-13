@@ -356,8 +356,8 @@ const doExportDetail = async () => {
 }
 
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
-  box-shadow: 0 0 0 1px var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
+  box-shadow: 0 0 0 1px var(--ds-primary, #0284c7);
 }
 
 .tc {
@@ -396,7 +396,7 @@ const doExportDetail = async () => {
 }
 
 .detail-tbl thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-tbl th {

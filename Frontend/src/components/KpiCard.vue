@@ -56,7 +56,7 @@ withDefaults(
 .kpi-value {
   font-size: 13px;
   font-weight: 700;
-  color: var(--ds-primary-darker, #78350F);
+  color: var(--ds-primary-darker, #0c4a6e);
   margin-top: 2px;
   white-space: nowrap;
   overflow: hidden;

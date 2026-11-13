@@ -221,7 +221,7 @@ onActivated(() => {
   padding: 0 6px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .field-row {
   display: flex;
@@ -249,7 +249,7 @@ onActivated(() => {
   background: white;
 }
 .field-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   box-shadow: 0 0 0 2px rgba(59, 89, 152, 0.12);
 }
 .w-200 {
@@ -267,7 +267,7 @@ onActivated(() => {
   height: 26px;
   padding: 0 10px;
   background: var(--ds-surface, #F0F3F8);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   border: 1px solid var(--ds-border, #A0AAB8);
   border-radius: 0;
   font-size: 11px;
@@ -296,7 +296,7 @@ onActivated(() => {
   text-align: right;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .empty-state {
   font-size: 12px;
@@ -312,13 +312,13 @@ onActivated(() => {
 }
 .edit-hint {
   font-size: 11px;
-  color: #b45309;
+  color: #0369a1;
   margin: 0;
 }
 .confirm-box {
   background: var(--ds-surface, #fff);
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   border-radius: 0;
   padding: 16px;
 }
@@ -326,7 +326,7 @@ onActivated(() => {
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .confirm-text {
   margin: 0 0 16px;

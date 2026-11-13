@@ -325,7 +325,7 @@ const fmtDate = (val: string | null) => {
 }
 
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .badge-closed {
@@ -339,7 +339,7 @@ const fmtDate = (val: string | null) => {
 
 .badge-open {
   background: var(--ds-primary-50, #E8EDF5);
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   padding: 1px 8px;
   border-radius: 0;
   font-size: 10px;
@@ -358,7 +358,7 @@ const fmtDate = (val: string | null) => {
 .detail-wrap { padding: 4px 0; }
 .detail-loading { display: flex; align-items: center; gap: 8px; padding: 10px; font-size: 12px; color: #6b7280; }
 .detail-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.detail-tbl thead tr { background: var(--ds-primary, #D97706); }
+.detail-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .detail-tbl th { color: white; font-weight: 700; padding: 4px 8px; white-space: nowrap; text-align: left; }
 .detail-tbl td { padding: 3px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .detail-tbl tbody tr:hover td { background: rgba(59, 89, 152, 0.05); }

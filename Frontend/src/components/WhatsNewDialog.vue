@@ -123,7 +123,7 @@ const formatDate = (iso: string) =>
 .wn-title {
   font-size: 14px;
   font-weight: 700;
-  border-top: 3px solid var(--ds-primary, #D97706);
+  border-top: 3px solid var(--ds-primary, #0284c7);
   padding: 14px 16px 10px;
 }
 
@@ -177,7 +177,7 @@ const formatDate = (iso: string) =>
 .wn-header-read {
   background: var(--ds-surface, #f0f3f8);
   border-bottom-color: var(--ds-border, #a0aab8);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .wn-header {
   /* Judul + tanggal boleh turun baris di layar sempit, bukan melimpah. */
@@ -206,7 +206,7 @@ const formatDate = (iso: string) =>
   margin: 0;
   padding-left: 16px;
   line-height: 1.55;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   overflow-wrap: anywhere;
 }
 .wn-notes li + li {
@@ -226,10 +226,10 @@ const formatDate = (iso: string) =>
   margin: 10px 0 0;
   padding: 7px 9px;
   background: var(--ds-primary-50, #e8edf5);
-  border-left: 3px solid var(--ds-primary, #D97706);
+  border-left: 3px solid var(--ds-primary, #0284c7);
   font-size: 11px;
   line-height: 1.5;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .wn-actions {
@@ -243,7 +243,7 @@ const formatDate = (iso: string) =>
   height: 12px;
   flex-shrink: 0;
   border: 2px solid var(--ds-border-light, #c4cad3);
-  border-top-color: var(--ds-primary, #D97706);
+  border-top-color: var(--ds-primary, #0284c7);
   border-radius: 50%;
   animation: wn-spin 0.7s linear infinite;
 }

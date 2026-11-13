@@ -430,7 +430,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -463,7 +463,7 @@ select:focus-visible {
 .bg-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -521,9 +521,9 @@ select:focus-visible {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
-.f-inp:focus { border-color: var(--ds-primary, #D97706); }
+.f-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .readonly-bg {
   background: var(--ds-surface-inset, #E0E4EA);
   color: #3D4F6A;
@@ -542,7 +542,7 @@ select:focus-visible {
   user-select: none;
 }
 .check-lbl input {
-  accent-color: var(--ds-primary, #D97706);
+  accent-color: var(--ds-primary, #0284c7);
   width: 13px;
   height: 13px;
   margin: 0;
@@ -561,7 +561,7 @@ select:focus-visible {
   font-size: 11px;
   font-weight: 500;
 }
-.detail-table thead tr { background: var(--ds-primary, #D97706); }
+.detail-table thead tr { background: var(--ds-primary, #0284c7); }
 .detail-table th {
   color: white;
   font-weight: 700;
@@ -574,8 +574,8 @@ select:focus-visible {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 .detail-table th:last-child { border-right: none; }
 .detail-table td {
@@ -594,12 +594,12 @@ select:focus-visible {
 
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
 .row-no { color: var(--ds-text-muted, #8494A7); font-size: 10px; }
-.cell-muted { color: var(--ds-text, #78350F); font-weight: 600; padding: 0 6px; }
+.cell-muted { color: var(--ds-text, #0c4a6e); font-weight: 600; padding: 0 6px; }
 .cell-inp {
   width: 100%;
   height: 20px;
@@ -611,7 +611,7 @@ select:focus-visible {
   background: white;
   box-sizing: border-box;
 }
-.cell-inp:focus { border-color: var(--ds-primary, #D97706); }
+.cell-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .empty-state {
   text-align: center;
   color: var(--ds-text-muted, #8494A7);

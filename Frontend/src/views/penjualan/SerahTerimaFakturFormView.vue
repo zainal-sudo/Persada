@@ -616,7 +616,7 @@ const hiddenCheckedCount = computed(
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -647,7 +647,7 @@ textarea:focus-visible {
 .sf-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -699,11 +699,11 @@ textarea:focus-visible {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .readonly-bg {
@@ -721,11 +721,11 @@ textarea:focus-visible {
   outline: none;
   resize: vertical;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-txa:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .search-group {
@@ -745,9 +745,9 @@ textarea:focus-visible {
 .btn-search {
   height: 24px;
   width: 26px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -757,7 +757,7 @@ textarea:focus-visible {
 }
 
 .btn-search:hover:not(:disabled) {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-search:disabled {
@@ -769,9 +769,9 @@ textarea:focus-visible {
 .btn-load {
   height: 24px;
   padding: 0 10px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -780,7 +780,7 @@ textarea:focus-visible {
 }
 
 .btn-load:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table-wrap {
@@ -804,14 +804,14 @@ textarea:focus-visible {
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
   /* Background WAJIB di th, bukan di thead tr: th yang sticky menempel,
      sedangkan tr tetap di posisi aslinya — kalau warnanya di tr, bar biru
      ikut ter-scroll keluar dan header jadi transparan. */
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   font-weight: 700;
   padding: 4px 6px;
@@ -823,8 +823,8 @@ textarea:focus-visible {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -860,7 +860,7 @@ textarea:focus-visible {
 }
 .col-filter-btn.active {
   background: #ffffff;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   border-color: #ffffff;
 }
 .col-filter-btn:focus-visible {
@@ -881,7 +881,7 @@ textarea:focus-visible {
 .filter-count {
   font-size: 10.5px;
   font-weight: 600;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .filter-count.muted {
   font-weight: 500;
@@ -894,7 +894,7 @@ textarea:focus-visible {
   height: 20px;
   padding: 0 7px;
   background: #ffffff;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   border: 1px solid var(--ds-border, #A0AAB8);
   border-radius: 0;
   font-size: 10.5px;
@@ -908,7 +908,7 @@ textarea:focus-visible {
   margin: 0;
   padding: 3px 6px;
   border-top: 1px solid var(--ds-border-light, #C4CAD3);
-  background: var(--ds-warning, #D97706);
+  background: var(--ds-warning, #0284c7);
   color: #ffffff;
   font-size: 10.5px;
   font-weight: 600;

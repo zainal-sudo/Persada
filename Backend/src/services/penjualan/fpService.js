@@ -52,7 +52,9 @@ const getBrowseDetail = async (nomor) => {
        d.fpd_harga AS Harga,
        d.fpd_discpr AS Disc,
        ROUND(d.fpd_harga * d.fpd_qty * (100 - IFNULL(d.fpd_discpr, 0)) / 100, 2) AS Nilai,
-       IFNULL(d.fpd_cn, 0) AS Kontrak
+       IFNULL(d.fpd_cn, 0) AS Kontrak,
+       DATE_FORMAT(d.fpd_expired, '%Y-%m-%d') AS ED,
+       IFNULL(d.fpd_idbatch, '') AS Batch
      FROM tfp_dtl d
      INNER JOIN tbarang b ON b.brg_kode = d.fpd_brg_kode
      WHERE d.fpd_fp_nomor = ?

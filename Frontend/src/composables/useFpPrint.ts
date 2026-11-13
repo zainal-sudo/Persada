@@ -110,7 +110,7 @@ const formatFooterLines = (d: FPprintData): string[] => {
       padRight("Grand Total   :", colLabel) + " " +
       padLeft(fmt(d.atotal), colVal)
     );
-    fl.push(padRight("A/n   : PT Kali Rejo Makmur", rightStart));
+    fl.push(padRight("A/n   : PT AM PERSADA", rightStart));
   } else {
     fl.push(
       padRight("", rightStart) + " " +

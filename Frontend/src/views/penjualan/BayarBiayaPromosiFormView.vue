@@ -619,7 +619,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -642,11 +642,11 @@ textarea:focus-visible {
   padding: 6px 12px;
   font-size: 12px;
   cursor: pointer;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .ctx-item:hover:not(:disabled) {
   background: var(--ds-primary-50, #E8EDF5);
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .ctx-item:disabled {
   color: var(--ds-text-muted, #8494A7);
@@ -687,7 +687,7 @@ textarea:focus-visible {
 .byb-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -742,11 +742,11 @@ textarea:focus-visible {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .readonly-bg {
@@ -768,9 +768,9 @@ textarea:focus-visible {
 .btn-search {
   height: 24px;
   width: 26px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -780,7 +780,7 @@ textarea:focus-visible {
 }
 
 .btn-search:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 /* ── Detail Table ─────────────────────────────────────────────── */
@@ -827,7 +827,7 @@ textarea:focus-visible {
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
@@ -839,8 +839,8 @@ textarea:focus-visible {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -897,7 +897,7 @@ textarea:focus-visible {
 /* ── Cell Input ───────────────────────────────────────────────── */
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
@@ -914,7 +914,7 @@ textarea:focus-visible {
 }
 
 .cell-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .cell-inp:disabled {
@@ -932,5 +932,5 @@ textarea:focus-visible {
 .tr { text-align: right; }
 .mono { font-family: var(--ds-font-mono, "Consolas", monospace); font-size: 10px; }
 .bold { font-weight: 700; }
-.accent { color: var(--ds-primary, #D97706); }
+.accent { color: var(--ds-primary, #0284c7); }
 </style>

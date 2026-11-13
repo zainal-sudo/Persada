@@ -238,7 +238,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
   const palette = [
     { bg: "rgba(46,125,50,0.75)", border: "#2e7d32" },
     { bg: "rgba(21,101,192,0.65)", border: "#1565c0" },
-    { bg: "rgba(239,108,0,0.65)", border: "#ef6c00" },
+    { bg: "rgba(2,132,199,0.65)", border: "#0284c7" },
     { bg: "rgba(106,27,154,0.65)", border: "#6a1b9a" },
     { bg: "rgba(198,40,40,0.65)", border: "#c62828" },
     { bg: "rgba(0,105,92,0.65)", border: "#00695c" },
@@ -557,13 +557,13 @@ const doExport = () => {
   height: 32px; border: 1px solid #d1d5db; border-radius: 6px;
   padding: 0 8px; font-size: 12px; outline: none; width: 130px;
 }
-.date-inp:focus { border-color: var(--ds-primary, #D97706); }
+.date-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .rekening-select {
   height: 32px; border: 1px solid #d1d5db; border-radius: 6px;
   padding: 0 8px; font-size: 12px; outline: none; min-width: 200px;
   background: white; cursor: pointer;
 }
-.rekening-select:focus { border-color: var(--ds-primary, #D97706); }
+.rekening-select:focus { border-color: var(--ds-primary, #0284c7); }
 
 .tab-wrap {
   display: flex; align-items: center; gap: 2px;
@@ -578,7 +578,7 @@ const doExport = () => {
   background: transparent; font-size: 11px; font-weight: 600;
   color: #6b7280; cursor: pointer; transition: all 0.15s; white-space: nowrap;
 }
-.tab-btn:hover { background: rgba(59, 89, 152, 0.08); color: var(--ds-primary, #D97706); }
+.tab-btn:hover { background: rgba(59, 89, 152, 0.08); color: var(--ds-primary, #0284c7); }
 .tab-btn.active { background: #28a745; color: white; }
 
 .lap-layout {
@@ -595,7 +595,7 @@ const doExport = () => {
   flex: 1; min-height: 0;
   background: rgb(var(--v-theme-surface));
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-  border-top: 3px solid var(--ds-primary, #D97706); border-radius: 6px;
+  border-top: 3px solid var(--ds-primary, #0284c7); border-radius: 6px;
   display: flex; flex-direction: column; overflow: hidden;
 }
 .filter-bar {
@@ -632,15 +632,15 @@ const doExport = () => {
   padding: 0 8px; font-size: 11px; font-weight: 600;
   outline: none; background: white; color: #374151; cursor: pointer;
 }
-.chart-type-select:focus { border-color: var(--ds-primary, #D97706); }
+.chart-type-select:focus { border-color: var(--ds-primary, #0284c7); }
 </style>
 
 <style>
 .tiny-pivot-finance.tiny-pivot-finance {
-  --vpg-accent: var(--ds-primary, #D97706);
+  --vpg-accent: var(--ds-primary, #0284c7);
   --vpg-accent-hover: #2d4a80;
   --vpg-accent-soft-bg: rgba(59, 89, 152, 0.1);
-  --vpg-accent-soft-text: var(--ds-primary, #D97706);
+  --vpg-accent-soft-text: var(--ds-primary, #0284c7);
   --vpg-focus-ring: rgba(59, 89, 152, 0.35);
 }
 </style>

@@ -1422,7 +1422,7 @@ onMounted(async () => {
   <!-- ═══ MODAL TAMBAH DETAIL (checklist barang — pola DOFormView) ═══ -->
   <v-dialog v-model="showTambahDetailModal" max-width="680" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         Tambah Detail
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -1482,7 +1482,7 @@ onMounted(async () => {
 
   <v-dialog v-model="showAmbilSOModal" max-width="820" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         Ambil Data SO (Database Salesman)
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -1589,7 +1589,7 @@ onMounted(async () => {
 
   <v-dialog v-model="showRiwayatHargaModal" max-width="650" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         Riwayat Harga Penjualan
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -1654,7 +1654,7 @@ onMounted(async () => {
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -1694,7 +1694,7 @@ textarea:focus-visible {
 .so-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -1738,9 +1738,9 @@ textarea:focus-visible {
 .btn-add-detail {
   height: 28px;
   padding: 0 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -1752,7 +1752,7 @@ textarea:focus-visible {
 }
 
 .btn-add-detail:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 /* ── Field Row ────────────────────────────────────────────────── */
@@ -1792,11 +1792,11 @@ textarea:focus-visible {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .f-inp-sm {
@@ -1811,7 +1811,7 @@ textarea:focus-visible {
 }
 
 .f-inp-sm:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .readonly-bg {
@@ -1833,7 +1833,7 @@ textarea:focus-visible {
 }
 
 .f-txa:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 /* ── Field error ──────────────────────────────────────────────── */
@@ -1856,9 +1856,9 @@ textarea:focus-visible {
 .btn-search {
   height: 24px;
   width: 26px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -1868,7 +1868,7 @@ textarea:focus-visible {
 }
 
 .btn-search:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 /* ── Checkbox ─────────────────────────────────────────────────── */
@@ -1890,7 +1890,7 @@ textarea:focus-visible {
 }
 
 .check-lbl input {
-  accent-color: var(--ds-primary, #D97706);
+  accent-color: var(--ds-primary, #0284c7);
   width: 12px;
   height: 12px;
   margin: 0;
@@ -1900,9 +1900,9 @@ textarea:focus-visible {
 .btn-ambil-so {
   height: 22px;
   padding: 0 10px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 10px;
   font-weight: 600;
@@ -1911,7 +1911,7 @@ textarea:focus-visible {
 }
 
 .btn-ambil-so:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 /* ── Combo Group ──────────────────────────────────────────────── */
@@ -1970,7 +1970,7 @@ textarea:focus-visible {
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
@@ -1982,8 +1982,8 @@ textarea:focus-visible {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -2045,7 +2045,7 @@ textarea:focus-visible {
 
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
@@ -2063,7 +2063,7 @@ textarea:focus-visible {
 }
 
 .cell-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .cell-inp.readonly-bg {
@@ -2074,9 +2074,9 @@ textarea:focus-visible {
 .cell-btn {
   height: 20px;
   width: 22px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -2086,22 +2086,22 @@ textarea:focus-visible {
 }
 
 .cell-btn:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .cell-btn-harga {
-  background: var(--ds-warning, #D97706);
-  border-color: #B45309;
+  background: var(--ds-warning, #0284c7);
+  border-color: #0369a1;
 }
 
 .cell-btn-harga:hover {
-  background: #B45309;
+  background: #0369a1;
 }
 
 .cell-total {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--ds-primary-dark, #B45309);
+  color: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-del {
@@ -2163,7 +2163,7 @@ textarea:focus-visible {
 }
 
 .calc-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .calc-unit {
@@ -2190,7 +2190,7 @@ textarea:focus-visible {
 }
 
 .calc-total-row {
-  border-top: 2px solid var(--ds-primary, #D97706);
+  border-top: 2px solid var(--ds-primary, #0284c7);
   padding-top: 8px;
   margin-top: 4px;
   width: 100%;
@@ -2200,14 +2200,14 @@ textarea:focus-visible {
 .calc-lbl-total {
   font-size: 12px;
   font-weight: 800;
-  color: var(--ds-primary-darker, #78350F);
+  color: var(--ds-primary-darker, #0c4a6e);
   width: auto;
 }
 
 .calc-val-total {
   font-size: 28px;
   font-weight: 900;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   font-variant-numeric: tabular-nums;
   margin-left: auto;
 }
@@ -2233,7 +2233,7 @@ textarea:focus-visible {
 }
 
 .ambil-so-search-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .ambil-so-table-wrap {
@@ -2262,7 +2262,7 @@ textarea:focus-visible {
 }
 
 .modal-tbl th {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   font-weight: 700;
   padding: 5px 8px;
@@ -2316,10 +2316,10 @@ textarea:focus-visible {
   flex: 1; height: 28px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: #fff;
 }
-.tb-search-input:focus { border-color: var(--ds-primary, #D97706); }
+.tb-search-input:focus { border-color: var(--ds-primary, #0284c7); }
 .tb-table-wrap { max-height: 360px; overflow-y: auto; border: 1px solid var(--ds-border-light, #C4CAD3); }
 .tb-actions { border-top: 1px solid var(--ds-border, #A0AAB8); }
-.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #D97706); }
+.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #0284c7); }
 .tb-add-btn { border-radius: 0; text-transform: none; }
 
 /* ── Utility ──────────────────────────────────────────────────── */
@@ -2362,18 +2362,18 @@ textarea:focus-visible {
   padding: 10px 14px;
   background: var(--ds-surface, #F0F3F8);
   border-bottom: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 3px solid var(--ds-warning, #D97706);
+  border-top: 3px solid var(--ds-warning, #0284c7);
 }
 
 .disc-confirm-icon {
-  color: var(--ds-warning, #D97706);
+  color: var(--ds-warning, #0284c7);
   flex-shrink: 0;
 }
 
 .disc-confirm-title {
   font-size: 12px;
   font-weight: 700;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -2422,12 +2422,12 @@ textarea:focus-visible {
 }
 
 .disc-btn-confirm {
-  background: var(--ds-warning, #D97706);
+  background: var(--ds-warning, #0284c7);
   color: white;
-  border-color: #B45309;
+  border-color: #0369a1;
 }
 
 .disc-btn-confirm:hover {
-  background: #B45309;
+  background: #0369a1;
 }
 </style>

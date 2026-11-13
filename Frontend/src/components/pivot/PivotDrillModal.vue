@@ -104,7 +104,7 @@ const activeModel = computed({
 .drill-table th {
   position: sticky;
   top: 0;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: #fff;
 }
 .drill-empty {

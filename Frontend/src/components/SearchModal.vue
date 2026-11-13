@@ -338,7 +338,7 @@ const formatValue = (val: any) => {
   align-items: center;
   gap: 8px;
   padding: 8px 8px 8px 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: #FFFFFF;
   flex-shrink: 0;
 }
@@ -392,7 +392,7 @@ const formatValue = (val: any) => {
   background: rgb(var(--v-theme-surface));
 }
 .sm-search-wrap:focus-within {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 .sm-search-icon {
   color: var(--ds-text-secondary, #5A6A7E);
@@ -434,7 +434,7 @@ const formatValue = (val: any) => {
   font-size: 11px;
 }
 .sm-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -466,7 +466,7 @@ const formatValue = (val: any) => {
 }
 .sm-row-highlight td {
   background: var(--ds-primary-50, #E8EDF5) !important;
-  box-shadow: inset 2px 0 0 var(--ds-primary, #D97706);
+  box-shadow: inset 2px 0 0 var(--ds-primary, #0284c7);
 }
 
 /* Zebra */
@@ -508,7 +508,7 @@ const formatValue = (val: any) => {
   font-family: inherit;
   font-size: 10px;
   font-weight: 700;
-  color: var(--ds-primary-darker, #78350F);
+  color: var(--ds-primary-darker, #0c4a6e);
   background: #FFFFFF;
   border: 1px solid var(--ds-border-light, #C4CAD3);
   border-bottom-width: 2px;
@@ -556,7 +556,7 @@ const formatValue = (val: any) => {
 .page-info {
   font-size: 11px;
   font-weight: 600;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   padding: 0 4px;
 }
 </style>

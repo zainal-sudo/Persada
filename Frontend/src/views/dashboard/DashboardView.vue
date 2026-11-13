@@ -66,7 +66,7 @@ let doughChart: any = null;
 const barCanvas = ref<HTMLCanvasElement | null>(null);
 const doughCanvas = ref<HTMLCanvasElement | null>(null);
 
-const PALETTE = ["#D97706", "#F59E0B", "#B45309", "#8494a7", "#059669", "#d97706", "#c4cad3"];
+const PALETTE = ["#0284c7", "#0ea5e9", "#0369a1", "#8494a7", "#059669", "#0284c7", "#c4cad3"];
 
 const renderCharts = async () => {
   await nextTick();
@@ -91,8 +91,8 @@ const renderCharts = async () => {
         datasets: [{
           label: "Omzet",
           data: summary.value.series6.map((s) => s.omzet),
-          backgroundColor: "#D97706",
-          borderColor: "#B45309",
+          backgroundColor: "#0284c7",
+          borderColor: "#0369a1",
           borderWidth: 1,
         }],
       },
@@ -349,7 +349,7 @@ const deltaClass = computed(() => {
   padding: 10px 12px;
   background: #e8ecf1;
   font-size: 11px;
-  color: #78350F;
+  color: #0c4a6e;
 }
 .db-toolbar {
   display: flex;
@@ -390,12 +390,12 @@ const deltaClass = computed(() => {
   padding: 4px 6px;
   font-size: 11px;
   font-family: inherit;
-  color: #78350F;
+  color: #0c4a6e;
   min-width: 180px;
 }
 .db-pick-sel:focus {
   outline: none;
-  border-color: #D97706;
+  border-color: #0284c7;
 }
 /* Tombol datar dengan garis 1px, sama seperti .db-pick-sel di toolbar yang sama
    supaya grup kontrol tanggal+cabang terbaca satu blok. Radius 0 (DESIGN.md),
@@ -406,7 +406,7 @@ const deltaClass = computed(() => {
   border: 1px solid #a0aab8;
   border-radius: 0;
   background: #f0f3f8;
-  color: #78350F;
+  color: #0c4a6e;
   font-family: inherit;
   font-size: 11px;
   font-weight: 600;
@@ -414,10 +414,10 @@ const deltaClass = computed(() => {
 }
 .db-btn:hover:not(:disabled) {
   background: #e0e4ea;
-  border-color: #D97706;
+  border-color: #0284c7;
 }
 .db-btn:focus-visible {
-  outline: 2px solid #D97706;
+  outline: 2px solid #0284c7;
   outline-offset: 1px;
 }
 .db-btn:disabled {
@@ -447,7 +447,7 @@ const deltaClass = computed(() => {
 .kpi {
   background: #f0f3f8;
   border: 1px solid #a0aab8;
-  border-top: 3px solid #D97706;
+  border-top: 3px solid #0284c7;
   padding: 8px 10px;
 }
 .kpi-lbl {
@@ -461,7 +461,7 @@ const deltaClass = computed(() => {
   font-size: 17px;
   font-weight: 700;
   margin: 3px 0 2px;
-  color: #78350F;
+  color: #0c4a6e;
 }
 .kpi-sub {
   font-size: 10px;
@@ -469,7 +469,7 @@ const deltaClass = computed(() => {
 }
 .kpi-sub .up { color: #059669; font-weight: 700; }
 .kpi-sub .down { color: #c62828; font-weight: 700; }
-.kpi-sub.warn { color: #d97706; font-weight: 600; }
+.kpi-sub.warn { color: #0284c7; font-weight: 600; }
 .kpi-foot {
   font-size: 10px;
   color: #8494a7;
@@ -491,7 +491,7 @@ const deltaClass = computed(() => {
 .panel-title {
   font-size: 11px;
   font-weight: 700;
-  color: #B45309;
+  color: #0369a1;
   margin-bottom: 6px;
   border-bottom: 1px solid #c4cad3;
   padding-bottom: 4px;
@@ -518,7 +518,7 @@ const deltaClass = computed(() => {
   text-align: left;
 }
 .db-table th {
-  background: #D97706;
+  background: #0284c7;
   color: #fff;
   font-weight: 600;
 }

@@ -35,7 +35,8 @@ const getBrowseDetail = async (nomor) => {
        d.dod_brg_satuan AS Satuan,
        d.dod_qty AS Jumlah,
        d.dod_qty_invoice AS Jumlah_Invoiced,
-       DATE_FORMAT(d.dod_tgl_expired, '%Y-%m-%d') AS Expired
+       DATE_FORMAT(d.dod_tgl_expired, '%Y-%m-%d') AS Expired,
+       IFNULL(d.dod_idbatch, '') AS Batch
      FROM tdo_dtl d
      INNER JOIN tbarang b ON b.brg_kode = d.dod_brg_kode
      WHERE d.dod_do_nomor = ?

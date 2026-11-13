@@ -347,7 +347,7 @@ const doTestPrint = async () => {
 }
 
 .sp-qz-wait {
-  color: #f57f17;
+  color: #075985;
 }
 
 .sp-actions {

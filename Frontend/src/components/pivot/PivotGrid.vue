@@ -247,7 +247,7 @@ onBeforeUnmount(() => {
 }
 .pivot-corner,
 .pivot-col-head {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: #fff;
   font-weight: 700;
   font-size: 10px;
@@ -262,7 +262,7 @@ onBeforeUnmount(() => {
 }
 .pivot-row-head {
   background: var(--ds-surface, #f0f3f8);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   font-weight: 600;
   text-align: left;
   vertical-align: top;
@@ -274,13 +274,13 @@ onBeforeUnmount(() => {
 .pivot-cell {
   text-align: right;
   position: relative;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .pivot-cell.clickable {
   cursor: pointer;
 }
 .pivot-cell.clickable:hover {
-  outline: 1px solid var(--ds-primary, #D97706);
+  outline: 1px solid var(--ds-primary, #0284c7);
   outline-offset: -1px;
 }
 .pivot-cell-value {
@@ -300,7 +300,7 @@ onBeforeUnmount(() => {
   font-weight: 700;
 }
 .pivot-total-head {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 tr.subtotal .pivot-row-head,
 tr.subtotal .pivot-cell {
@@ -316,13 +316,13 @@ tr.subtotal .pivot-cell {
   border: none;
   background: none;
   cursor: pointer;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   font-size: 10px;
   padding: 0 3px 0 0;
   line-height: 1;
 }
 .pivot-chevron:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 1px;
 }
 .pivot-resize {

@@ -114,6 +114,8 @@ const {
     { key: "Disc", title: "Disc%", width: 8, numFmt: "#,##0.00" },
     { key: "Nilai", title: "Nilai", width: 16, numFmt: "#,##0" },
     { key: "Kontrak", title: "Kontrak", width: 10 },
+    { key: "ED", title: "ED", width: 12, align: "center" },
+    { key: "Batch", title: "ID Batch", width: 16 },
   ],
 });
 
@@ -533,6 +535,8 @@ const rowPropsFn = (data: any) => {
               <th style="width: 60px" class="tr">Disc%</th>
               <th style="width: 110px" class="tr">Nilai</th>
               <th style="width: 70px" class="tr">Kontrak</th>
+              <th style="width: 90px" class="tc">ED</th>
+              <th style="min-width: 110px">ID Batch</th>
             </tr>
           </thead>
           <tbody>
@@ -545,9 +549,11 @@ const rowPropsFn = (data: any) => {
               <td class="tr">{{ d.Disc }}%</td>
               <td class="tr bold accent">{{ fmt(d.Nilai) }}</td>
               <td class="tr">{{ d.Kontrak }}</td>
+              <td class="tc">{{ fmtDate(d.ED) }}</td>
+              <td class="mono">{{ d.Batch }}</td>
             </tr>
             <tr v-if="!detailMap[item.Nomor]?.length">
-              <td colspan="8" class="empty-td">Tidak ada detail barang.</td>
+              <td colspan="10" class="empty-td">Tidak ada detail barang.</td>
             </tr>
           </tbody>
         </table>
@@ -635,7 +641,7 @@ const rowPropsFn = (data: any) => {
   <!-- ── History Pembayaran ── -->
   <v-dialog v-model="showHistoryDialog" max-width="560" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         History Pembayaran: {{ historyNomor }}
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -678,7 +684,7 @@ const rowPropsFn = (data: any) => {
   <!-- ── Edit JT (angsuran jatuh tempo) ── -->
   <v-dialog v-model="showJtDialog" max-width="620" scrollable persistent>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         Edit Jatuh Tempo: {{ jtData?.nomor }}
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -745,22 +751,22 @@ const rowPropsFn = (data: any) => {
 .filter-lbl { font-size: 12px; font-weight: 600; color: #374151; white-space: nowrap; }
 .filter-sep { font-size: 12px; color: #9ca3af; white-space: nowrap; }
 .date-inp { height: 32px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 8px; font-size: 12px; outline: none; width: 130px; }
-.date-inp:focus { border-color: var(--ds-primary, #D97706); }
+.date-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .tc { text-align: center; }
 .tr { text-align: right; font-variant-numeric: tabular-nums; }
 .mono { font-family: monospace; }
 .bold { font-weight: 700; }
-.accent { color: var(--ds-primary, #D97706); }
+.accent { color: var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
 
 :deep(.row-closed td) { color: #9e9e9e !important; }
-:deep(.row-kembali td) { color: #e65100 !important; }
+:deep(.row-kembali td) { color: #0369a1 !important; }
 
 /* ── Modal History Bayar & Edit JT ── */
 .modal-loading { padding: 20px; text-align: center; color: var(--ds-text-muted, #8494A7); font-size: 12px; }
 .modal-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.modal-tbl th { background: var(--ds-primary, #D97706); color: white; font-weight: 700; padding: 5px 8px; text-align: left; white-space: nowrap; }
+.modal-tbl th { background: var(--ds-primary, #0284c7); color: white; font-weight: 700; padding: 5px 8px; text-align: left; white-space: nowrap; }
 .modal-tbl td { padding: 4px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .modal-row { cursor: pointer; }
 .modal-row:hover td { background: var(--ds-primary-50, #E8EDF5); }
@@ -768,15 +774,15 @@ const rowPropsFn = (data: any) => {
 
 .jt-info { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; color: var(--ds-text-secondary, #5A6A7E); margin-bottom: 8px; }
 .jt-tbl { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
-.jt-tbl thead tr { background: var(--ds-primary, #D97706); }
+.jt-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .jt-tbl th { color: white; font-weight: 700; padding: 4px 8px; font-size: 10px; text-transform: uppercase; }
 .jt-tbl td { padding: 2px 4px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); vertical-align: middle; }
 .jt-tbl .cell-inp { width: 100%; height: 22px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 4px; font-size: 11px; outline: none; }
-.jt-tbl .cell-inp:focus { border-color: var(--ds-primary, #D97706); }
+.jt-tbl .cell-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .jt-tbl .row-no { color: var(--ds-text-muted, #8494A7); font-size: 10px; }
 .jt-actions { display: flex; justify-content: flex-end; padding: 6px 0; }
-.btn-add-detail { height: 24px; padding: 0 12px; background: var(--ds-primary, #D97706); color: white; border: 1px solid var(--ds-primary-dark, #B45309); border-radius: 0; font-size: 11px; font-weight: 600; cursor: pointer; }
-.btn-add-detail:hover { background: var(--ds-primary-dark, #B45309); }
+.btn-add-detail { height: 24px; padding: 0 12px; background: var(--ds-primary, #0284c7); color: white; border: 1px solid var(--ds-primary-dark, #0369a1); border-radius: 0; font-size: 11px; font-weight: 600; cursor: pointer; }
+.btn-add-detail:hover { background: var(--ds-primary-dark, #0369a1); }
 .btn-del { background: none; border: none; color: var(--ds-text-muted, #8494A7); font-size: 14px; cursor: pointer; line-height: 1; padding: 2px 6px; }
 .btn-del:hover { color: #dc2626; }
 .jt-summary { display: flex; justify-content: flex-end; gap: 20px; font-size: 12px; padding: 6px 0 0; }
@@ -784,13 +790,13 @@ const rowPropsFn = (data: any) => {
 .jt-selisih-ok { color: #059669; }
 
 .badge-closed { background: #E0E4EA; color: var(--ds-text-secondary, #5A6A7E); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
-.badge-open { background: #E8EDF5; color: var(--ds-primary, #D97706); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
-.badge-return { background: #FFF3E0; color: #e65100; padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
+.badge-open { background: #E8EDF5; color: var(--ds-primary, #0284c7); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
+.badge-return { background: #e1f5fe; color: #0369a1; padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
 
 .detail-wrap { padding: 4px 0; }
 .detail-loading { display: flex; align-items: center; gap: 8px; padding: 10px; font-size: 12px; color: #6b7280; }
 .detail-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.detail-tbl thead tr { background: var(--ds-primary, #D97706); }
+.detail-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .detail-tbl th { color: white; font-weight: 700; padding: 4px 8px; white-space: nowrap; text-align: left; }
 .detail-tbl td { padding: 3px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .detail-tbl tbody tr:hover td { background: rgba(59, 89, 152, 0.05); }

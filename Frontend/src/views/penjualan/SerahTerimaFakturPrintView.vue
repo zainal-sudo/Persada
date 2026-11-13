@@ -252,16 +252,16 @@ onMounted(async () => {
 .tb {
   height: 28px;
   padding: 0 14px;
-  background: #D97706;
+  background: #0284c7;
   color: #fff;
-  border: 1px solid #B45309;
+  border: 1px solid #0369a1;
   border-radius: 0;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
 .tb:hover {
-  background: #B45309;
+  background: #0369a1;
 }
 .tb:disabled {
   background: #8494A7;
@@ -270,7 +270,7 @@ onMounted(async () => {
 }
 .tb-secondary {
   background: #F0F3F8;
-  color: #78350F;
+  color: #0c4a6e;
   border-color: #A0AAB8;
 }
 .tb-secondary:hover {

@@ -113,7 +113,7 @@ const onExportDetail = () => {
 }
 
 .export-option:hover {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   background: rgba(59, 89, 152, 0.04);
 }
 

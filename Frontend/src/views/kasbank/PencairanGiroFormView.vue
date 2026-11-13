@@ -267,7 +267,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -296,7 +296,7 @@ select:focus-visible {
 
 .pg-legend {
   font-size: 11px; font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase; letter-spacing: 0.03em;
   padding: 2px 6px; margin-left: 6px;
   background: var(--ds-surface, #F0F3F8);
@@ -327,10 +327,10 @@ select:focus-visible {
   border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 5px; font-size: 11px; outline: none;
   box-sizing: border-box; background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
-.f-inp:focus { border-color: var(--ds-primary, #D97706); }
+.f-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .readonly-bg {
   background: var(--ds-surface-inset, #E0E4EA);
@@ -345,12 +345,12 @@ select:focus-visible {
 
 .btn-search {
   height: 24px; width: 26px;
-  background: var(--ds-primary, #D97706); color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309); border-radius: 0;
+  background: var(--ds-primary, #0284c7); color: white;
+  border: 1px solid var(--ds-primary-dark, #0369a1); border-radius: 0;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; flex-shrink: 0;
 }
-.btn-search:hover { background: var(--ds-primary-dark, #B45309); }
+.btn-search:hover { background: var(--ds-primary-dark, #0369a1); }
 
 
 </style>

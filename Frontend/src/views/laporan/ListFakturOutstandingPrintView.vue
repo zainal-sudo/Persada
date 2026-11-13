@@ -238,16 +238,16 @@ onMounted(async () => {
 }
 .tb {
   padding: 6px 18px;
-  background: #D97706;
+  background: #0284c7;
   color: white;
-  border: 1px solid #B45309;
+  border: 1px solid #0369a1;
   border-radius: 0;
   cursor: pointer;
   font-size: 13px;
 }
 .tb-secondary {
   background: white;
-  color: #78350F;
+  color: #0c4a6e;
 }
 .tb-loading {
   font-size: 12px;

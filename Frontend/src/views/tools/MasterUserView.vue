@@ -174,7 +174,7 @@ const doExport = () => exportMasterUser(items.value ?? []);
   color: #2e7d32;
 }
 .aktif-tidak {
-  background: #fbe9e7;
+  background: #e1f5fe;
   color: #c62828;
 }
 </style>

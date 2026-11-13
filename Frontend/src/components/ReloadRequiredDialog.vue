@@ -66,14 +66,14 @@ const body = computed(() => {
 .rr-title {
   font-size: 14px;
   font-weight: 700;
-  border-top: 3px solid var(--ds-primary, #D97706);
+  border-top: 3px solid var(--ds-primary, #0284c7);
   padding: 16px 16px 12px;
 }
 .rr-body {
   padding: 0 16px;
   font-size: 12px;
   line-height: 1.6;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .rr-actions {
   padding: 8px 16px 16px;

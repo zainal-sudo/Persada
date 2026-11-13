@@ -260,7 +260,7 @@ const cetak = () => {
   width: 130px;
 }
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   box-shadow: 0 0 0 2px rgba(59, 89, 152, 0.12);
 }
 .sls-sel {
@@ -280,8 +280,8 @@ const cetak = () => {
   border-color: #6ee7b7;
 }
 .tag-kosong {
-  color: #92400e;
-  background: #fef3c7;
+  color: #075985;
+  background: #e0f2fe;
   border-color: #fcd34d;
 }
 .summary-lbl {

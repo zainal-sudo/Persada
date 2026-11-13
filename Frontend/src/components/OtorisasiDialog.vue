@@ -175,7 +175,7 @@ const submit = async () => {
 
 <style scoped>
 .ot-title-bar {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   font-size: 12px;
   font-weight: 700;
@@ -196,7 +196,7 @@ const submit = async () => {
   padding: 4px 6px;
   resize: none;
   background: var(--ds-surface-inset, #E0E4EA);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   line-height: 1.4;
   font-size: 11px;
 }
@@ -218,11 +218,11 @@ const submit = async () => {
   background: white;
 }
 .ot-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 .ot-readonly {
   background: var(--ds-surface-inset, #E0E4EA);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   font-family: monospace;
   font-weight: 700;
 }

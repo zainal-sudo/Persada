@@ -535,7 +535,7 @@ const rowPropsFn = (data: any) => {
   width: 130px;
 }
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .tc {
@@ -555,7 +555,7 @@ const rowPropsFn = (data: any) => {
   font-weight: 700;
 }
 .accent {
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 
 :deep(.row-closed td) {
@@ -572,15 +572,15 @@ const rowPropsFn = (data: any) => {
 }
 .badge-open {
   background: #E8EDF5;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   padding: 1px 8px;
   border-radius: 0;
   font-size: 10px;
   font-weight: 700;
 }
 .badge-eceran {
-  background: #FFF3E0;
-  color: #e65100;
+  background: #e1f5fe;
+  color: #0369a1;
   padding: 1px 8px;
   border-radius: 0;
   font-size: 10px;
@@ -604,7 +604,7 @@ const rowPropsFn = (data: any) => {
   font-size: 11px;
 }
 .detail-tbl thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 .detail-tbl th {
   color: white;

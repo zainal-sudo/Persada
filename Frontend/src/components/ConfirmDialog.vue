@@ -161,7 +161,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 8px 8px 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: #FFFFFF;
   font-size: 12.5px;
   font-weight: 700;
@@ -220,7 +220,7 @@ onUnmounted(() => {
   font-family: monospace;
   font-size: 12px;
   font-weight: 700;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   text-align: right;
   overflow-wrap: anywhere;
 }
@@ -235,7 +235,7 @@ onUnmounted(() => {
   font-size: 12.5px;
   font-weight: 700;
   line-height: 1.5;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .cd-foot {
   display: flex;
@@ -257,7 +257,7 @@ onUnmounted(() => {
   font-family: inherit;
   font-size: 10px;
   font-weight: 700;
-  color: var(--ds-primary-darker, #78350F);
+  color: var(--ds-primary-darker, #0c4a6e);
   background: #FFFFFF;
   border: 1px solid var(--ds-border-light, #C4CAD3);
   border-bottom-width: 2px;

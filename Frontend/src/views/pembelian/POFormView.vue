@@ -647,7 +647,7 @@ useDetailGrid({
     <v-card rounded="false">
       <v-card-title
         class="d-flex align-center pa-3"
-        style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);"
+        style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);"
       >
         Tambah Detail
       </v-card-title>
@@ -759,7 +759,7 @@ useDetailGrid({
 .po-layout { display: flex; flex-direction: column; gap: 6px; padding: 6px; height: 100%; overflow: hidden; }
 .po-header-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
 .po-groupbox { border: 1px solid var(--ds-border, #A0AAB8); padding: 0; margin: 0; display: flex; flex-direction: column; min-width: 0; background: white; }
-.po-legend { font-size: 11px; font-weight: 700; color: var(--ds-primary, #D97706); text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 6px; margin-left: 6px; background: var(--ds-surface, #F0F3F8); border: 1px solid var(--ds-border, #A0AAB8); border-bottom: none; align-self: flex-start; line-height: 1.4; }
+.po-legend { font-size: 11px; font-weight: 700; color: var(--ds-primary, #0284c7); text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 6px; margin-left: 6px; background: var(--ds-surface, #F0F3F8); border: 1px solid var(--ds-border, #A0AAB8); border-bottom: none; align-self: flex-start; line-height: 1.4; }
 .po-groupbody { padding: 8px; display: flex; flex-direction: column; gap: 5px; }
 .po-detail-group { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 
@@ -769,35 +769,35 @@ useDetailGrid({
 .f-lbl { width: 80px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--ds-text-secondary, #5A6A7E); }
 .search-group { display: flex; flex: 1; gap: 2px; }
 .f-inp { flex: 1; min-width: 0; height: 24px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 5px; font-size: 11px; background: white; color: #1f2937; }
-.f-inp:focus, .f-txa:focus { outline: none; border-color: var(--ds-primary, #D97706); }
+.f-inp:focus, .f-txa:focus { outline: none; border-color: var(--ds-primary, #0284c7); }
 .f-inp.tr { text-align: right; font-variant-numeric: tabular-nums; }
 .readonly-bg { background: var(--ds-surface-inset, #E0E4EA); }
-.btn-search { height: 24px; width: 26px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--ds-primary, #D97706); color: white; border: 1px solid var(--ds-primary-dark, #B45309); cursor: pointer; }
-.btn-search:hover { background: var(--ds-primary-dark, #B45309); }
+.btn-search { height: 24px; width: 26px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; background: var(--ds-primary, #0284c7); color: white; border: 1px solid var(--ds-primary-dark, #0369a1); cursor: pointer; }
+.btn-search:hover { background: var(--ds-primary-dark, #0369a1); }
 .f-txa { flex: 1; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 4px 5px; font-size: 11px; resize: vertical; font-family: inherit; }
 .check-row { display: flex; gap: 12px; }
 .check-lbl { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; cursor: pointer; }
-.check-lbl input { accent-color: var(--ds-primary, #D97706); }
+.check-lbl input { accent-color: var(--ds-primary, #0284c7); }
 .calc-unit { font-size: 11px; color: var(--ds-text-secondary, #5A6A7E); }
 .field-error-row .f-inp { border-color: #d32f2f !important; }
 .field-error-text { color: #d32f2f; font-size: 10px; font-weight: 600; margin-top: -2px; }
 
 /* ── Detail toolbar ── */
 .detail-toolbar { display: flex; justify-content: flex-end; padding: 6px 8px 0; }
-.btn-add { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; font-size: 11px; font-weight: 600; color: white; background: var(--ds-primary, #D97706); border: 1px solid var(--ds-primary-dark, #B45309); cursor: pointer; }
-.btn-add:hover { background: var(--ds-primary-dark, #B45309); }
+.btn-add { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px; font-size: 11px; font-weight: 600; color: white; background: var(--ds-primary, #0284c7); border: 1px solid var(--ds-primary-dark, #0369a1); cursor: pointer; }
+.btn-add:hover { background: var(--ds-primary-dark, #0369a1); }
 
 /* ── Tabel detail ── */
 .table-wrap { flex: 1; min-height: 0; margin: 6px 8px 8px; border: 1px solid var(--ds-border, #A0A8B8); overflow: auto; }
 .ds-tbl { width: 100%; border-collapse: collapse; font-size: 11px; font-weight: 500; }
-.ds-tbl thead th { position: sticky; top: 0; z-index: 1; background: var(--ds-primary, #D97706); color: white; font-weight: 700; padding: 5px 6px; font-size: 10px; text-transform: uppercase; text-align: left; white-space: nowrap; border-right: 1px solid var(--ds-primary-dark, #B45309); }
+.ds-tbl thead th { position: sticky; top: 0; z-index: 1; background: var(--ds-primary, #0284c7); color: white; font-weight: 700; padding: 5px 6px; font-size: 10px; text-transform: uppercase; text-align: left; white-space: nowrap; border-right: 1px solid var(--ds-primary-dark, #0369a1); }
 .ds-tbl td { padding: 3px 5px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); border-right: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .ds-tbl tbody tr:nth-child(odd) { background: #F0F3F8; }
 .ds-tbl tbody tr:nth-child(even) { background: #E4EBF4; }
 .ds-tbl tbody tr:hover td { background: #D8E2EF; }
 .ds-tbl.compact th, .ds-tbl.compact td { padding: 3px 5px; }
 .ds-cell-input { width: 100%; height: 22px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 4px; font-size: 11px; background: white; }
-.ds-cell-input:focus { outline: none; border-color: var(--ds-primary, #D97706); }
+.ds-cell-input:focus { outline: none; border-color: var(--ds-primary, #0284c7); }
 
 /* ── Footer perhitungan ── */
 .po-footer-grid { display: flex; justify-content: flex-end; flex-shrink: 0; }
@@ -809,13 +809,13 @@ useDetailGrid({
 .calc-val-muted { color: var(--ds-text-secondary, #5A6A7E); }
 .calc-total-row { border-top: 1px solid var(--ds-border-light, #C4CAD3); padding-top: 4px; margin-top: 2px; }
 .calc-lbl-total { font-weight: 700; color: #1f2937; }
-.calc-val-total { margin-left: auto; font-weight: 700; font-size: 13px; color: var(--ds-primary, #D97706); font-variant-numeric: tabular-nums; }
+.calc-val-total { margin-left: auto; font-weight: 700; font-size: 13px; color: var(--ds-primary, #0284c7); font-variant-numeric: tabular-nums; }
 
 /* ── Bersama ── */
 .tc { text-align: center; }
 .tr { text-align: right; font-variant-numeric: tabular-nums; }
 .bold { font-weight: 700; }
-.accent { color: var(--ds-primary, #D97706); }
+.accent { color: var(--ds-primary, #0284c7); }
 .mono { font-family: monospace; font-size: 10px; }
 .empty-td { text-align: center; color: #9ca3af; font-style: italic; padding: 12px; }
 
@@ -825,15 +825,15 @@ useDetailGrid({
   flex: 1; height: 28px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: #fff;
 }
-.tb-search-input:focus { border-color: var(--ds-primary, #D97706); }
+.tb-search-input:focus { border-color: var(--ds-primary, #0284c7); }
 .tb-table-wrap { max-height: 360px; overflow-y: auto; border: 1px solid var(--ds-border-light, #C4CAD3); }
 .tb-actions { border-top: 1px solid var(--ds-border, #A0AAB8); }
-.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #D97706); }
+.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #0284c7); }
 .tb-add-btn { border-radius: 0; text-transform: none; }
 .modal-loading { padding: 20px; text-align: center; color: var(--ds-text-muted, #8494A7); font-size: 12px; }
 .modal-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
 .modal-tbl th {
-  background: var(--ds-primary, #D97706); color: white; font-weight: 700;
+  background: var(--ds-primary, #0284c7); color: white; font-weight: 700;
   padding: 5px 8px; text-align: left; white-space: nowrap;
 }
 .modal-tbl td { padding: 4px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }

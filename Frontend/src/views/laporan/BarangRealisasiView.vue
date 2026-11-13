@@ -175,7 +175,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
   const palette = [
     { bg: "rgba(46,125,50,0.75)", border: "#2e7d32" },
     { bg: "rgba(21,101,192,0.65)", border: "#1565c0" },
-    { bg: "rgba(239,108,0,0.65)", border: "#ef6c00" },
+    { bg: "rgba(2,132,199,0.65)", border: "#0284c7" },
     { bg: "rgba(106,27,154,0.65)", border: "#6a1b9a" },
     { bg: "rgba(198,40,40,0.65)", border: "#c62828" },
   ];
@@ -474,8 +474,8 @@ const fmtQty = (v: number) =>
   border: none; background: transparent; font-size: 11px; font-weight: 600;
   color: #6b7280; cursor: pointer; transition: all 0.15s; white-space: nowrap;
 }
-.tab-btn:hover { background: rgba(59, 89, 152, 0.08); color: var(--ds-primary, #D97706); }
-.tab-btn.active { background: var(--ds-primary, #D97706); color: white; }
+.tab-btn:hover { background: rgba(59, 89, 152, 0.08); color: var(--ds-primary, #0284c7); }
+.tab-btn.active { background: var(--ds-primary, #0284c7); color: white; }
 
 .lap-layout { display: flex; flex-direction: column; flex: 1; min-height: 0; padding: 8px 12px; gap: 6px; }
 .lap-header { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 36px; flex-wrap: wrap; row-gap: 4px; }
@@ -483,7 +483,7 @@ const fmtQty = (v: number) =>
 .lap-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .title-icon-wrap {
   width: 28px; height: 28px; border-radius: 0;
-  background: var(--ds-primary, #D97706); color: #ffffff;
+  background: var(--ds-primary, #0284c7); color: #ffffff;
   display: flex; align-items: center; justify-content: center;
 }
 .page-title { font-size: 0.95rem; font-weight: 700; color: rgb(var(--v-theme-on-surface)); margin: 0; letter-spacing: 0.01em; white-space: nowrap; }
@@ -492,7 +492,7 @@ const fmtQty = (v: number) =>
   flex: 1; min-height: 0;
   background: rgb(var(--v-theme-surface));
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 3px solid var(--ds-primary, #D97706);
+  border-top: 3px solid var(--ds-primary, #0284c7);
   display: flex; flex-direction: column; overflow: hidden;
 }
 .filter-bar {
@@ -539,10 +539,10 @@ const fmtQty = (v: number) =>
 
 <style>
 .tiny-pivot-laporan-barangrealisasi.tiny-pivot-laporan-barangrealisasi {
-  --vpg-accent: var(--ds-primary, #D97706);
-  --vpg-accent-hover: var(--ds-primary-dark, #B45309);
+  --vpg-accent: var(--ds-primary, #0284c7);
+  --vpg-accent-hover: var(--ds-primary-dark, #0369a1);
   --vpg-accent-soft-bg: rgba(59, 89, 152, 0.1);
-  --vpg-accent-soft-text: var(--ds-primary, #D97706);
+  --vpg-accent-soft-text: var(--ds-primary, #0284c7);
   --vpg-focus-ring: rgba(59, 89, 152, 0.35);
 }
 </style>

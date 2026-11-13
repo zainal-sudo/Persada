@@ -15,7 +15,8 @@ import {
   IconX,
 } from "@tabler/icons-vue";
 
-const logoUrl = "https://ik.imagekit.io/xxdyoh/cropped-Untitled-1.webp";
+const logoUrl = `${import.meta.env.BASE_URL}logo-amp.png`;
+const bgUrl = `${import.meta.env.BASE_URL}logo-amp.png`;
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -87,7 +88,7 @@ const handleLogin = async () => {
       username.value.trim().toUpperCase(),
       password.value,
       "krm",
-      "Kali Rejo Makmur",
+      "AM PERSADA",
     );
     await permissionStore.fetchAll();
     toast.success(`Selamat datang, ${authStore.userName}!`);
@@ -110,7 +111,7 @@ const onUsernameEnter = () => {
 <template>
   <div class="login-page">
     <div class="login-bg">
-      <div class="bg-img-overlay" :style="{ backgroundImage: `url(https://ik.imagekit.io/xxdyoh/background.webp)` }" />
+      <div class="bg-img-overlay" :style="{ backgroundImage: `url(${bgUrl})` }" />
       <div class="bg-dark-overlay" />
     </div>
     <div class="login-container">
@@ -118,9 +119,9 @@ const onUsernameEnter = () => {
       <div class="login-left">
         <div class="brand-area">
           <div class="brand-logo-wrap">
-            <img :src="logoUrl" alt="Logo krm" class="brand-logo-img" />
+            <img :src="logoUrl" alt="Logo AMP" class="brand-logo-img" />
           </div>
-          <h1 class="brand-name">PT. Kali Rejo Makmur</h1>
+          <h1 class="brand-name">PT. AM PERSADA</h1>
           <!-- <p class="brand-tagline">Sistem Distribusi Alat Kesehatan</p> -->
         </div>
         <div class="brand-footer">
@@ -205,7 +206,7 @@ const onUsernameEnter = () => {
           </div>
 
           <div class="login-footer">
-            <span>&copy; {{ new Date().getFullYear() }} Kali Rejo Makmur</span>
+            <span>&copy; {{ new Date().getFullYear() }} AM PERSADA</span>
           </div>
         </div>
       </div>
@@ -215,8 +216,8 @@ const onUsernameEnter = () => {
   <!-- User Lookup Dialog -->
   <v-dialog v-model="showUserDialog" max-width="420" persistent>
     <v-card rounded="false" class="user-dialog-card">
-      <v-card-title class="d-flex align-center pa-3 pb-2" style="border-top: 3px solid var(--ds-primary, #D97706);">
-        <IconUser :size="16" :stroke-width="2" class="mr-2" style="color: var(--ds-primary, #D97706);" />
+      <v-card-title class="d-flex align-center pa-3 pb-2" style="border-top: 3px solid var(--ds-primary, #0284c7);">
+        <IconUser :size="16" :stroke-width="2" class="mr-2" style="color: var(--ds-primary, #0284c7);" />
         <span class="text-subtitle-1 font-weight-bold">Pilih User</span>
         <v-spacer />
         <v-btn icon variant="text" size="small" @click="showUserDialog = false">
@@ -266,7 +267,7 @@ const onUsernameEnter = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a2a4a 0%, #B45309 50%, #D97706 100%);
+  background: linear-gradient(135deg, #1a2a4a 0%, #0369a1 50%, #0284c7 100%);
   font-family: var(--ds-font, "Plus Jakarta Sans", system-ui, sans-serif);
   position: relative;
   overflow: hidden;
@@ -336,7 +337,7 @@ const onUsernameEnter = () => {
 .login-left {
   width: 280px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #B45309 0%, #D97706 40%, #4a6fa8 100%);
+  background: linear-gradient(180deg, #0369a1 0%, #0284c7 40%, #4a6fa8 100%);
   padding: 36px 28px;
   display: flex;
   flex-direction: column;
@@ -443,7 +444,7 @@ const onUsernameEnter = () => {
 .login-title {
   font-size: 22px;
   font-weight: 700;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   margin: 0 0 6px;
 }
 
@@ -480,7 +481,7 @@ const onUsernameEnter = () => {
   padding: 0 10px;
   font-size: 13px;
   font-family: var(--ds-font, "Plus Jakarta Sans", system-ui, sans-serif);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   background: white;
   outline: none;
   width: 100%;
@@ -489,7 +490,7 @@ const onUsernameEnter = () => {
 }
 
 .field-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   box-shadow: 0 0 0 3px rgba(59, 89, 152, 0.12);
 }
 
@@ -535,7 +536,7 @@ const onUsernameEnter = () => {
 
 .btn-bantuan:hover:not(:disabled) {
   background: var(--ds-primary-50, #E8EDF5);
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 
 .btn-bantuan:disabled {
@@ -606,7 +607,7 @@ const onUsernameEnter = () => {
 }
 
 .pass-toggle:hover {
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   background: var(--ds-primary-50, #E8EDF5);
 }
 
@@ -614,7 +615,7 @@ const onUsernameEnter = () => {
 .btn-login {
   height: 38px;
   border-radius: 6px;
-  background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: white;
   border: none;
   cursor: pointer;
@@ -632,7 +633,7 @@ const onUsernameEnter = () => {
 }
 
 .btn-login:hover:not(:disabled) {
-  background: linear-gradient(135deg, #B45309 0%, #1f3357 100%);
+  background: linear-gradient(135deg, #0369a1 0%, #1f3357 100%);
   box-shadow: 0 4px 14px rgba(59, 89, 152, 0.45);
   transform: translateY(-1px);
 }
@@ -703,7 +704,7 @@ const onUsernameEnter = () => {
 }
 
 .user-search-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   box-shadow: 0 0 0 3px rgba(59, 89, 152, 0.1);
 }
 
@@ -755,7 +756,7 @@ const onUsernameEnter = () => {
   font-family: var(--ds-font-mono, "Consolas", monospace);
   font-size: 12px;
   font-weight: 600;
-  color: var(--ds-primary-dark, #B45309);
+  color: var(--ds-primary-dark, #0369a1);
   min-width: 70px;
 }
 

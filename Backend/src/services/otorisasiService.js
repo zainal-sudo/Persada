@@ -282,7 +282,7 @@ const getDetail = async (kode) => {
   );
   if (!row) return null;
 
-  const cabangNama = "Kali Rejo Makmur";
+  const cabangNama = "AM PERSADA";
 
   // Query detail (lastcost dll) harus berjalan di DB cabang peminta.
   return db.run(row.dbase, async () => {

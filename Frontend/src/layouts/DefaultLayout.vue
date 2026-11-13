@@ -336,13 +336,13 @@ onUnmounted(() => {
               <v-list density="compact" class="user-menu">
                 <v-list-item @click="openPasswordDialog">
                   <template #prepend>
-                    <MsIcon name="lock" :size="15" class="mr-2" style="color: #D97706" />
+                    <MsIcon name="lock" :size="15" class="mr-2" style="color: #0284c7" />
                   </template>
                   <v-list-item-title style="font-size: 13px">Ganti Password</v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="goToSettingPrinter">
                   <template #prepend>
-                    <MsIcon name="print" :size="15" class="mr-2" style="color: #D97706" />
+                    <MsIcon name="print" :size="15" class="mr-2" style="color: #0284c7" />
                   </template>
                   <v-list-item-title style="font-size: 13px">Setting Printer</v-list-item-title>
                 </v-list-item>
@@ -514,11 +514,11 @@ onUnmounted(() => {
 .menubar-btn.is-open,
 .menubar-btn:hover {
   background: var(--ds-primary-50, #E8EDF5);
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
-.menubar-ico { color: var(--ds-primary, #D97706); }
+.menubar-ico { color: var(--ds-primary, #0284c7); }
 .menubar-caret { color: #8494a7; }
-.menubar-item-ico { color: var(--ds-primary, #D97706); }
+.menubar-item-ico { color: var(--ds-primary, #0284c7); }
 
 .menubar-dropdown {
   position: absolute;
@@ -557,12 +557,12 @@ onUnmounted(() => {
 }
 .menubar-dropdown-item:hover {
   background: var(--ds-primary-50, #E8EDF5);
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .menubar-dropdown-item.is-active {
-  border-left-color: var(--ds-primary, #D97706);
+  border-left-color: var(--ds-primary, #0284c7);
   background: var(--ds-primary-50, #E8EDF5);
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   font-weight: 600;
 }
 
@@ -575,7 +575,7 @@ onUnmounted(() => {
 .pw-dialog-title {
   font-size: 14px !important;
   font-weight: 700 !important;
-  border-top: 3px solid #D97706;
+  border-top: 3px solid #0284c7;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -594,7 +594,7 @@ onUnmounted(() => {
   width: 100%;
   box-sizing: border-box;
 }
-.pw-inp:focus { border-color: var(--ds-primary, #D97706); }
+.pw-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .pw-error {
   font-size: 12px;
   color: #c62828;

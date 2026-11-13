@@ -248,7 +248,7 @@ onUnmounted(() => {
 }
 .ctx-item:hover {
   background: #E8EDF5;
-  color: var(--ds-primary-dark, #B45309);
+  color: var(--ds-primary-dark, #0369a1);
 }
 .ctx-sep {
   height: 1px;

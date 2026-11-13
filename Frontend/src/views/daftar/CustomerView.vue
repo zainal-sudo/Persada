@@ -175,7 +175,7 @@ const fmtDate = (val: string | null) => {
       <span
         :style="{
           background: value === 'Open' ? 'rgba(59,89,152,0.1)' : '#FEE2E2',
-          color: value === 'Open' ? 'var(--ds-primary, #D97706)' : '#c62828',
+          color: value === 'Open' ? 'var(--ds-primary, #0284c7)' : '#c62828',
           padding: '1px 8px',
           borderRadius: '0',
           fontSize: '11px',

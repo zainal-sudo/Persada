@@ -214,7 +214,7 @@ const doExport = () => {
 }
 
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .num-cell {

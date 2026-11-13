@@ -238,9 +238,9 @@ const footerValues = computed<Record<string, string>>(() => {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: white; color: #374151;
 }
-.sel-inp:focus { border-color: var(--ds-primary, #D97706); }
+.sel-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .chk-inp { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #374151; cursor: pointer; }
-.chk-inp input { accent-color: var(--ds-primary, #D97706); cursor: pointer; }
+.chk-inp input { accent-color: var(--ds-primary, #0284c7); cursor: pointer; }
 
 .band-row { background: var(--ds-tab-bg, #eef1f6); }
 .band-cell, .sub-cell {

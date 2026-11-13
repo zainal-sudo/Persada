@@ -297,7 +297,7 @@ onMounted(loadLookups);
   padding: 0 6px;
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .field-row {
   display: flex;
@@ -320,7 +320,7 @@ onMounted(loadLookups);
   background: white;
 }
 .field-input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 .w-120 { width: 120px; }
 .w-140 { width: 140px; }
@@ -339,7 +339,7 @@ onMounted(loadLookups);
   height: 30px;
   padding: 0 10px;
   background: var(--ds-surface, #F0F3F8);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   border: 1px solid var(--ds-border, #A0AAB8);
   border-radius: 0;
   font-size: 11px;
@@ -375,7 +375,7 @@ onMounted(loadLookups);
   position: sticky;
   top: 0;
   background: var(--ds-surface-inset, #E8ECF1);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   font-size: 11px;
   text-align: left;
   padding: 5px 6px;
@@ -410,13 +410,13 @@ onMounted(loadLookups);
 }
 .edit-hint {
   font-size: 11px;
-  color: #b45309;
+  color: #0369a1;
   margin: 0;
 }
 .picker-box {
   background: var(--ds-surface, #fff);
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   border-radius: 0;
   padding: 14px;
 }
@@ -424,7 +424,7 @@ onMounted(loadLookups);
   margin: 0 0 10px;
   font-size: 13px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .picker-search {
   width: 100%;
@@ -462,7 +462,7 @@ onMounted(loadLookups);
 .confirm-box {
   background: var(--ds-surface, #fff);
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   border-radius: 0;
   padding: 16px;
 }
@@ -470,7 +470,7 @@ onMounted(loadLookups);
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .confirm-text {
   margin: 0 0 16px;

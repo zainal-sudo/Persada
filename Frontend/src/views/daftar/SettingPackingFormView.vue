@@ -369,7 +369,7 @@ const fmtQty = (v: number) =>
 .btn-search {
   height: 28px;
   width: 32px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;
@@ -409,14 +409,14 @@ const fmtQty = (v: number) =>
 .section-title {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
 }
 
 .btn-add-row {
   height: 24px;
   padding: 0 10px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;
@@ -442,7 +442,7 @@ const fmtQty = (v: number) =>
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
@@ -484,13 +484,13 @@ const fmtQty = (v: number) =>
 }
 
 .cell-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .cell-btn {
   height: 24px;
   width: 24px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;

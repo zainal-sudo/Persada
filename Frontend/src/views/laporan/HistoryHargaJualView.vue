@@ -211,7 +211,7 @@ const cellFmt = (d: HistoryHargaJualDetailRow, key: string, v: any) => {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: white; color: #374151;
 }
-.sel-inp:focus { border-color: var(--ds-primary, #D97706); }
+.sel-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .detail-wrap { padding: 8px 6px; }
 .detail-title { font-weight: 600; font-size: 13px; color: #111827; margin-bottom: 6px; }

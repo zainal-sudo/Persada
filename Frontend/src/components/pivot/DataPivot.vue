@@ -552,18 +552,18 @@ defineExpose({
   padding: 0 8px;
   border: 1px solid var(--ds-border, #a0aab8);
   background: #fff;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
 }
 .dp-btn:hover {
-  border-color: var(--ds-primary, #D97706);
-  color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
+  color: var(--ds-primary, #0284c7);
 }
 .dp-btn.active {
-  background: var(--ds-primary, #D97706);
-  border-color: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
+  border-color: var(--ds-primary, #0284c7);
   color: #fff;
 }
 .dp-btn-danger:hover {

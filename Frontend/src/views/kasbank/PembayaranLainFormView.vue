@@ -824,7 +824,7 @@ const onNilaiInput = (e: Event, d: any, idx: number, field: string) => {
   <!-- ═══ MODAL TAMBAH DETAIL (checklist account — pola DOFormView) ═══ -->
   <v-dialog v-model="showTambahDetailModal" max-width="680" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         Tambah Detail
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -885,7 +885,7 @@ const onNilaiInput = (e: Event, d: any, idx: number, field: string) => {
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -917,7 +917,7 @@ select:focus-visible {
 .pl-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -982,11 +982,11 @@ select:focus-visible {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .readonly-bg {
@@ -1007,9 +1007,9 @@ select:focus-visible {
 .btn-search {
   height: 24px;
   width: 26px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -1019,7 +1019,7 @@ select:focus-visible {
 }
 
 .btn-search:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 /* ── Radio ────────────────────────────────────────────────────── */
@@ -1039,7 +1039,7 @@ select:focus-visible {
 }
 
 .radio-lbl input {
-  accent-color: var(--ds-primary, #D97706);
+  accent-color: var(--ds-primary, #0284c7);
   width: 14px;
   height: 14px;
 }
@@ -1060,7 +1060,7 @@ select:focus-visible {
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
@@ -1075,8 +1075,8 @@ select:focus-visible {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -1122,12 +1122,12 @@ select:focus-visible {
 
 .footer-row td {
   padding: 2px 4px;
-  border-top: 2px solid var(--ds-primary, #D97706);
+  border-top: 2px solid var(--ds-primary, #0284c7);
 }
 
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
@@ -1137,7 +1137,7 @@ select:focus-visible {
 }
 
 .cell-muted {
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   font-weight: 600;
 }
 
@@ -1168,7 +1168,7 @@ select:focus-visible {
 }
 
 .cell-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .cell-inp.readonly-bg {
@@ -1178,9 +1178,9 @@ select:focus-visible {
 .cell-btn {
   height: 20px;
   width: 22px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -1190,15 +1190,15 @@ select:focus-visible {
 }
 
 .cell-btn:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-add-row {
   height: 28px;
   padding: 0 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -1210,7 +1210,7 @@ select:focus-visible {
 }
 
 .btn-add-row:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-del {
@@ -1253,7 +1253,7 @@ select:focus-visible {
 }
 
 .modal-tbl th {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   font-weight: 700;
   padding: 5px 8px;
@@ -1278,10 +1278,10 @@ select:focus-visible {
   flex: 1; height: 28px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: #fff;
 }
-.tb-search-input:focus { border-color: var(--ds-primary, #D97706); }
+.tb-search-input:focus { border-color: var(--ds-primary, #0284c7); }
 .tb-table-wrap { max-height: 360px; overflow-y: auto; border: 1px solid var(--ds-border-light, #C4CAD3); }
 .tb-actions { border-top: 1px solid var(--ds-border, #A0AAB8); }
-.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #D97706); }
+.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #0284c7); }
 .tb-add-btn { border-radius: 0; text-transform: none; }
 
 .mono { font-family: var(--ds-font-mono, "Consolas", monospace); font-size: 10px; }

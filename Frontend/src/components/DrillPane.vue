@@ -34,7 +34,7 @@ defineProps<{
   justify-content: space-between;
   gap: 8px;
   padding: 4px 8px;
-  background: var(--ds-primary-darker, #78350F);
+  background: var(--ds-primary-darker, #0c4a6e);
   color: #fff;
 }
 .drill-header-left {
@@ -45,7 +45,7 @@ defineProps<{
   white-space: nowrap;
 }
 .drill-header-icon {
-  color: var(--ds-primary-light, #F59E0B);
+  color: var(--ds-primary-light, #0ea5e9);
   flex-shrink: 0;
 }
 .drill-header-title {

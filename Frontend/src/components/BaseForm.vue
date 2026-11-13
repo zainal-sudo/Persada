@@ -327,13 +327,13 @@ onUnmounted(unbindKeyListeners);
   font-weight: 700 !important;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--ds-primary-darker, #78350F) !important;
+  color: var(--ds-primary-darker, #0c4a6e) !important;
   border-bottom: 1px solid var(--ds-border-light, #C4CAD3);
   padding-bottom: 6px;
   margin-bottom: 10px;
 }
 :deep(.header-section) {
-  border-top: 3px solid var(--ds-primary, #D97706) !important;
+  border-top: 3px solid var(--ds-primary, #0284c7) !important;
 }
 .tb-fkey {
   font-size: 10px;
@@ -414,7 +414,7 @@ onUnmounted(unbindKeyListeners);
   align-items: center;
   gap: 8px;
   padding: 8px 8px 8px 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: #FFFFFF;
   font-size: 12.5px;
   font-weight: 700;
@@ -455,7 +455,7 @@ onUnmounted(unbindKeyListeners);
   margin: 0;
   font-size: 12px;
   line-height: 1.5;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .cs-warning {
   margin-top: 10px;
@@ -480,7 +480,7 @@ onUnmounted(unbindKeyListeners);
   font-family: inherit;
   font-size: 10px;
   font-weight: 700;
-  color: var(--ds-primary-darker, #78350F);
+  color: var(--ds-primary-darker, #0c4a6e);
   background: #FFFFFF;
   border: 1px solid var(--ds-border-light, #C4CAD3);
   border-bottom-width: 2px;

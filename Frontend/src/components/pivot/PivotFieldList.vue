@@ -106,7 +106,7 @@ function onDragEnd() {
 .pfl-title {
   font-size: 10px;
   font-weight: 700;
-  color: var(--ds-primary-dark, #B45309);
+  color: var(--ds-primary-dark, #0369a1);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   flex-shrink: 0;
@@ -129,8 +129,8 @@ function onDragEnd() {
 }
 .pfl-field.has-filter {
   opacity: 1;
-  border-color: var(--ds-primary, #D97706);
-  box-shadow: 0 0 0 1px var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
+  box-shadow: 0 0 0 1px var(--ds-primary, #0284c7);
 }
 .pfl-field.dragging {
   opacity: 0.45;
@@ -142,7 +142,7 @@ function onDragEnd() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   font-weight: 600;
 }
 .pfl-dot {
@@ -168,7 +168,7 @@ function onDragEnd() {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   cursor: pointer;
   white-space: nowrap;
 }

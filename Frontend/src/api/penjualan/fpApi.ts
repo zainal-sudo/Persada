@@ -39,6 +39,8 @@ export interface FPDetailRow {
   Disc: number;
   Nilai: number;
   Kontrak: number;
+  ED: string | null;
+  Batch: string;
 }
 
 export interface HistoryBayarRow {

@@ -205,6 +205,7 @@ const doExportDetail = async () => {
     :can-delete="false"
     :can-export="canExport"
     :row-props-fn="rowPropsFn"
+    :auto-summary="false"
     :fixed-layout="false"
     :show-expand="true"
     :expanded="expanded"
@@ -339,10 +340,10 @@ const doExportDetail = async () => {
   height: 32px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; width: 200px;
 }
-.nama-inp:focus { border-color: var(--ds-primary, #D97706); }
+.nama-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
 .badge-focus {
-  background: #E8EDF5; color: var(--ds-primary, #D97706); padding: 1px 8px;
+  background: #E8EDF5; color: var(--ds-primary, #0284c7); padding: 1px 8px;
   border-radius: 0; font-size: 10px; font-weight: 700;
 }
 :deep(.row-stok-min td) { color: #b91c1c; background: #fef2f2; }
@@ -361,7 +362,7 @@ const doExportDetail = async () => {
 .detail-wrap { padding: 4px 0; }
 .detail-loading { display: flex; align-items: center; gap: 8px; padding: 10px; font-size: 12px; color: var(--ds-text-muted, #8494A7); }
 .detail-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.detail-tbl thead tr { background: var(--ds-primary, #D97706); }
+.detail-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .detail-tbl th { color: white; font-weight: 700; padding: 4px 8px; white-space: nowrap; text-align: left; }
 .detail-tbl td { padding: 3px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
 .detail-tbl tbody tr:hover td { background: var(--ds-primary-50, #E8EDF5); }

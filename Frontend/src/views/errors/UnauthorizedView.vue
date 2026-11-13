@@ -22,13 +22,13 @@
 .err-code {
   font-size: 72px;
   font-weight: 800;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   line-height: 1;
 }
 .err-title {
   font-size: 20px;
   font-weight: 700;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 .err-sub {
   font-size: 13px;
@@ -37,7 +37,7 @@
 .err-btn {
   margin-top: 12px;
   padding: 10px 24px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
   border: none;
   border-radius: 0;
@@ -46,6 +46,6 @@
   cursor: pointer;
 }
 .err-btn:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 </style>

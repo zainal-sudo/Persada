@@ -555,7 +555,7 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
   <!-- ═══ MODAL TAMBAH DETAIL (checklist barang — pola Retur Penjualan) ═══ -->
   <v-dialog v-model="showTambahDetailModal" max-width="680" scrollable>
     <v-card rounded="false">
-      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #D97706);">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
         Tambah Detail
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
@@ -663,7 +663,7 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
 .mg-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -724,9 +724,9 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
-.f-inp:focus { border-color: var(--ds-primary, #D97706); }
+.f-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .readonly-bg {
   background: var(--ds-surface-inset, #E0E4EA);
   color: #3D4F6A;
@@ -735,24 +735,24 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
 /* ── Buttons — kanonik ala DO/SO/FP ──────────────────────────── */
 .btn-tool {
   height: 26px; padding: 0 12px;
-  background: var(--ds-primary, #D97706); color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary, #0284c7); color: white;
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; gap: 4px;
 }
-.btn-tool:hover { background: var(--ds-primary-dark, #B45309); }
+.btn-tool:hover { background: var(--ds-primary-dark, #0369a1); }
 
 .btn-add-row {
   height: 28px; padding: 0 14px;
-  background: var(--ds-primary, #D97706); color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary, #0284c7); color: white;
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px; font-weight: 600; cursor: pointer;
   display: flex; align-items: center; gap: 3px;
   white-space: nowrap;
 }
-.btn-add-row:hover { background: var(--ds-primary-dark, #B45309); }
+.btn-add-row:hover { background: var(--ds-primary-dark, #0369a1); }
 
 /* ── Detail Table ────────────────────────────────────── */
 .detail-table-wrap {
@@ -764,14 +764,14 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
   width: 100%; border-collapse: collapse; font-size: 11px;
   font-weight: 500;
 }
-.detail-table thead tr { background: var(--ds-primary, #D97706); }
+.detail-table thead tr { background: var(--ds-primary, #0284c7); }
 .detail-table th {
   color: white; font-weight: 700; padding: 4px 6px;
   white-space: nowrap; text-align: left;
   position: sticky; top: 0; z-index: 1;
   font-size: 10px; text-transform: uppercase; letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 .detail-table th:last-child { border-right: none; }
 .detail-table td {
@@ -784,7 +784,7 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
 
 .row-no { color: var(--ds-text-muted, #8494A7); font-size: 10px; }
 
-.cell-muted { color: var(--ds-text, #78350F); font-weight: 600; }
+.cell-muted { color: var(--ds-text, #0c4a6e); font-weight: 600; }
 /* ── Zebra steel: baris bergantian dua nada biru muda (bukan putih)
    supaya field input putih menonjol sebagai area yang bisa diisi. ── */
 .detail-table tbody tr:nth-child(odd) { background: #F0F3F8; }
@@ -793,7 +793,7 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
 
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
@@ -805,19 +805,19 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
   padding: 0 3px; font-size: 11px; outline: none; box-sizing: border-box;
   background: white; /* kotak putih = bisa diisi — kontras dengan zebra steel */
 }
-.cell-inp:focus { border-color: var(--ds-primary, #D97706); }
+.cell-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .cell-inp.readonly-bg { cursor: default; }
 
 .cell-btn {
   height: 20px; width: 22px;
-  background: var(--ds-primary, #D97706); color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary, #0284c7); color: white;
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; flex-shrink: 0;
 }
-.cell-btn:hover { background: var(--ds-primary-dark, #B45309); }
+.cell-btn:hover { background: var(--ds-primary-dark, #0369a1); }
 
 .btn-del {
   background: none; border: none;
@@ -842,11 +842,11 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
   flex: 1; height: 28px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: #fff;
 }
-.tb-search-input:focus { border-color: var(--ds-primary, #D97706); }
+.tb-search-input:focus { border-color: var(--ds-primary, #0284c7); }
 .tb-table-wrap { max-height: 360px; overflow-y: auto; border: 1px solid var(--ds-border-light, #C4CAD3); }
 .modal-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
 .modal-tbl th {
-  background: var(--ds-primary, #D97706); color: #fff; font-weight: 700;
+  background: var(--ds-primary, #0284c7); color: #fff; font-weight: 700;
   padding: 5px 8px; text-align: left; white-space: nowrap; position: sticky; top: 0;
 }
 .modal-tbl td { padding: 4px 8px; border-bottom: 1px solid var(--ds-border-light, #C4CAD3); white-space: nowrap; }
@@ -855,6 +855,6 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
 .modal-loading { padding: 20px; text-align: center; color: var(--ds-text-muted, #8494A7); font-size: 12px; }
 .empty-state { text-align: center; color: var(--ds-text-muted, #8494A7); font-style: italic; padding: 16px; }
 .tb-actions { border-top: 1px solid var(--ds-border, #A0AAB8); }
-.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #D97706); }
+.tb-count { font-size: 11px; font-weight: 600; color: var(--ds-primary, #0284c7); }
 .tb-add-btn { border-radius: 0; text-transform: none; }
 </style>

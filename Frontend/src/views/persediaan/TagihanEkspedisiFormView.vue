@@ -385,7 +385,7 @@ const sumBiaya = computed(() =>
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -417,7 +417,7 @@ textarea:focus-visible {
 .te-legend {
   font-size: 12px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -461,9 +461,9 @@ textarea:focus-visible {
 .btn-load {
   height: 28px;
   padding: 0 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -474,7 +474,7 @@ textarea:focus-visible {
 }
 
 .btn-load:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .te-detail-actions {
@@ -488,9 +488,9 @@ textarea:focus-visible {
 .btn-add-detail {
   height: 28px;
   padding: 0 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -502,7 +502,7 @@ textarea:focus-visible {
 }
 
 .btn-add-detail:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 /* ── Detail Table ─────────────────────────────────────────────── */
@@ -535,7 +535,7 @@ textarea:focus-visible {
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
@@ -547,8 +547,8 @@ textarea:focus-visible {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -584,7 +584,7 @@ textarea:focus-visible {
 .detail-table tbody tr.te-total-row td {
   background: #E8ECF1;
   font-weight: 700;
-  color: #78350F;
+  color: #0c4a6e;
   border-top: 1px solid var(--ds-border, #A0AAB8);
 }
 .detail-table tbody tr.te-total-row:hover td {
@@ -615,7 +615,7 @@ textarea:focus-visible {
 }
 
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
@@ -634,7 +634,7 @@ textarea:focus-visible {
 }
 
 .cell-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .btn-del {

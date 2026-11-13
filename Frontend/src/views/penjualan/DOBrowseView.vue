@@ -89,6 +89,7 @@ const {
     { key: "Jumlah", title: "Jumlah", width: 12, numFmt: "#,##0.00" },
     { key: "Jumlah_Invoiced", title: "Qty Invoiced", width: 14, numFmt: "#,##0.00" },
     { key: "Expired", title: "Expired", width: 14, align: "center" },
+    { key: "Batch", title: "ID Batch", width: 16 },
   ],
 });
 
@@ -355,6 +356,7 @@ onMounted(() => {
               <th style="width: 80px" class="tr">Jumlah</th>
               <th style="width: 100px" class="tr">Jumlah Invoiced</th>
               <th style="width: 100px" class="tc">Expired</th>
+              <th style="min-width: 110px">ID Batch</th>
             </tr>
           </thead>
           <tbody>
@@ -365,9 +367,10 @@ onMounted(() => {
               <td class="tr">{{ fmtQtyBrowse(d.Jumlah) }}</td>
               <td class="tr">{{ fmtQtyBrowse(d.Jumlah_Invoiced) }}</td>
               <td class="tc">{{ fmtDate(d.Expired) }}</td>
+              <td class="mono">{{ d.Batch }}</td>
             </tr>
             <tr v-if="!detailMap[item.Nomor]?.length">
-              <td colspan="6" class="empty-td">Tidak ada detail barang.</td>
+              <td colspan="7" class="empty-td">Tidak ada detail barang.</td>
             </tr>
           </tbody>
         </table>
@@ -461,7 +464,7 @@ onMounted(() => {
   width: 130px;
 }
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .tc {
@@ -482,7 +485,7 @@ onMounted(() => {
 }
 
 :deep(.row-kembali td) {
-  color: #e65100 !important;
+  color: #0369a1 !important;
 }
 
 .badge-closed {
@@ -495,15 +498,15 @@ onMounted(() => {
 }
 .badge-open {
   background: #E8EDF5;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   padding: 1px 8px;
   border-radius: 0;
   font-size: 10px;
   font-weight: 700;
 }
 .badge-return {
-  background: #FFF3E0;
-  color: #e65100;
+  background: #e1f5fe;
+  color: #0369a1;
   padding: 1px 8px;
   border-radius: 0;
   font-size: 10px;
@@ -527,7 +530,7 @@ onMounted(() => {
   font-size: 11px;
 }
 .detail-tbl thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 .detail-tbl th {
   color: white;

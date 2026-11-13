@@ -6,7 +6,7 @@ const DB_NAME = () => process.env.DB_NAME || "krm";
 
 const BRANCH = {
   kode: DB_NAME(),
-  nama: "Kali Rejo Makmur",
+  nama: "AM PERSADA",
   dbase: DB_NAME(),
   reachable: true,
 };

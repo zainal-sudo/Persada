@@ -808,7 +808,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
           <div class="calc-box">
             <div class="calc-row">
               <label class="check-lbl" style="width: auto">
-                <input type="checkbox" v-model="chkCNFaktur" @change="onChkCNFaktur" style="accent-color: var(--ds-primary, #D97706)" />
+                <input type="checkbox" v-model="chkCNFaktur" @change="onChkCNFaktur" style="accent-color: var(--ds-primary, #0284c7)" />
                 CN
               </label>
               <span v-if="chkCNFaktur && cnFakturPersen > 0" style="font-size:10px;color:var(--ds-text-muted,#8494A7)">({{ cnFakturPersen }}%)</span>
@@ -975,7 +975,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
   <!-- Dialog konfirmasi generik (MessageDlg paritas) -->
   <v-dialog v-model="confirmState.visible" max-width="380" persistent>
     <v-card rounded="false">
-      <div class="ot-title-bar" style="background: var(--ds-primary, #D97706); color: white; font-size: 12px; font-weight: 700; padding: 6px 12px;">
+      <div class="ot-title-bar" style="background: var(--ds-primary, #0284c7); color: white; font-size: 12px; font-weight: 700; padding: 6px 12px;">
         {{ confirmState.title }}
       </div>
       <v-card-text class="pa-4">{{ confirmState.message }}</v-card-text>
@@ -997,7 +997,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--ds-primary, #D97706);
+  outline: 2px solid var(--ds-primary, #0284c7);
   outline-offset: 0;
 }
 
@@ -1030,7 +1030,7 @@ textarea:focus-visible {
 .retj-legend {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 2px 6px;
@@ -1093,11 +1093,11 @@ textarea:focus-visible {
   outline: none;
   box-sizing: border-box;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .readonly-bg {
@@ -1117,11 +1117,11 @@ textarea:focus-visible {
   resize: vertical;
   font-family: inherit;
   background: white;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .f-txa:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 /* ── Search Group ─────────────────────────────────────────────── */
@@ -1138,9 +1138,9 @@ textarea:focus-visible {
 .btn-search {
   height: 24px;
   width: 26px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -1150,7 +1150,7 @@ textarea:focus-visible {
 }
 
 .btn-search:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .check-lbl {
@@ -1163,7 +1163,7 @@ textarea:focus-visible {
 }
 
 .check-lbl input {
-  accent-color: var(--ds-primary, #D97706);
+  accent-color: var(--ds-primary, #0284c7);
   width: 14px;
   height: 14px;
 }
@@ -1198,7 +1198,7 @@ textarea:focus-visible {
 }
 
 .detail-table thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-table th {
@@ -1210,8 +1210,8 @@ textarea:focus-visible {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
-  border-bottom: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+  border-bottom: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .detail-table th:last-child {
@@ -1268,7 +1268,7 @@ textarea:focus-visible {
 /* ── Cell Input / Search / Button ─────────────────────────────── */
 /* Sorotan sel terfokus (navigasi grid a la Excel) */
 .cell-active {
-  outline: 2px solid var(--ds-primary, #D97706) !important;
+  outline: 2px solid var(--ds-primary, #0284c7) !important;
   outline-offset: -1px;
 }
 
@@ -1290,15 +1290,15 @@ textarea:focus-visible {
 }
 
 .cell-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .cell-btn {
   height: 22px;
   width: 22px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   display: flex;
   align-items: center;
@@ -1310,9 +1310,9 @@ textarea:focus-visible {
 .btn-add-row {
   height: 28px;
   padding: 0 14px;
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   color: white;
-  border: 1px solid var(--ds-primary-dark, #B45309);
+  border: 1px solid var(--ds-primary-dark, #0369a1);
   border-radius: 0;
   font-size: 11px;
   font-weight: 600;
@@ -1324,7 +1324,7 @@ textarea:focus-visible {
 }
 
 .btn-add-row:hover {
-  background: var(--ds-primary-dark, #B45309);
+  background: var(--ds-primary-dark, #0369a1);
 }
 
 .btn-del {
@@ -1390,7 +1390,7 @@ textarea:focus-visible {
 }
 
 .calc-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .calc-val {
@@ -1401,7 +1401,7 @@ textarea:focus-visible {
 .calc-val-total {
   font-size: 16px;
   font-weight: 800;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   font-variant-numeric: tabular-nums;
   background: var(--ds-primary-50, #E8EDF5);
   padding: 4px 12px;
@@ -1410,7 +1410,7 @@ textarea:focus-visible {
 }
 
 .calc-total-row {
-  border-top: 2px solid var(--ds-primary, #D97706);
+  border-top: 2px solid var(--ds-primary, #0284c7);
   padding-top: 6px;
 }
 
@@ -1418,7 +1418,7 @@ textarea:focus-visible {
 .tb-title {
   font-size: 13px;
   font-weight: 700;
-  border-top: 3px solid var(--ds-primary, #D97706);
+  border-top: 3px solid var(--ds-primary, #0284c7);
 }
 
 .tb-search {
@@ -1438,7 +1438,7 @@ textarea:focus-visible {
   outline: none;
   background: transparent;
   font-size: 12px;
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
 }
 
 .modal-loading {
@@ -1462,7 +1462,7 @@ textarea:focus-visible {
 }
 
 .modal-tbl thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -1476,14 +1476,14 @@ textarea:focus-visible {
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  border-right: 1px solid var(--ds-primary-dark, #B45309);
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
 }
 
 .modal-tbl td {
   padding: 5px 8px;
   border-bottom: 1px solid var(--ds-border-light, #C4CAD3);
   border-right: 1px solid var(--ds-border-light, #C4CAD3);
-  color: var(--ds-text, #78350F);
+  color: var(--ds-text, #0c4a6e);
   vertical-align: middle;
   white-space: nowrap;
 }
@@ -1519,5 +1519,5 @@ textarea:focus-visible {
 .tr { text-align: right; }
 .mono { font-family: var(--ds-font-mono, "Consolas", monospace); font-size: 10px; }
 .bold { font-weight: 700; }
-.accent { color: var(--ds-primary, #D97706); }
+.accent { color: var(--ds-primary, #0284c7); }
 </style>

@@ -260,7 +260,7 @@ const doExportDetail = async () => {
   height: 32px; border: 1px solid var(--ds-border, #d1d5db); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; width: 130px;
 }
-.date-inp:focus { border-color: var(--ds-primary, #D97706); box-shadow: 0 0 0 1px var(--ds-primary, #D97706); }
+.date-inp:focus { border-color: var(--ds-primary, #0284c7); box-shadow: 0 0 0 1px var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
 .tc { text-align: center; }
 .tr { text-align: right; }
@@ -269,7 +269,7 @@ const doExportDetail = async () => {
 .detail-wrap { padding: 4px 0; }
 .detail-loading { display: flex; align-items: center; gap: 8px; padding: 10px; font-size: 12px; color: #6b7280; }
 .detail-tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-.detail-tbl thead tr { background: var(--ds-primary, #D97706); }
+.detail-tbl thead tr { background: var(--ds-primary, #0284c7); }
 .detail-tbl th { color: white; font-weight: 700; padding: 4px 8px; white-space: nowrap; text-align: left; }
 .detail-tbl td { padding: 3px 8px; border-bottom: 1px solid var(--ds-border-light, #dde1e6); white-space: nowrap; }
 .detail-tbl td + td { border-left: 1px solid var(--ds-border-light, #dde1e6); }

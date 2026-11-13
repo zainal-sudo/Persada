@@ -510,7 +510,7 @@ onBeforeUnmount(() => {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; background: white; color: #374151;
 }
-.sel-inp:focus { border-color: var(--ds-primary, #D97706); }
+.sel-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .band-row { background: var(--ds-tab-bg, #eef1f6); }
 .band-cell, .sub-cell {
@@ -521,7 +521,7 @@ onBeforeUnmount(() => {
 }
 .band-cell { font-weight: 700; color: #1f2937; text-align: left; padding: 4px 8px; }
 .band-cell-span2 { vertical-align: middle; text-align: center; background: var(--ds-tab-bg, #eef1f6); }
-.band-special { color: var(--ds-primary, #D97706); }
+.band-special { color: var(--ds-primary, #0284c7); }
 .sub-cell { font-weight: 600; color: #374151; }
 
 .num-cell { font-variant-numeric: tabular-nums; }
@@ -569,7 +569,7 @@ onBeforeUnmount(() => {
 }
 .col-resize-handle:hover,
 .col-resize-handle:active {
-  border-right-color: #D97706;
+  border-right-color: #0284c7;
 }
 
 /* Latar kolom beku mengikuti zebra baris (lihat di bawah) — tetap opaque,
@@ -596,7 +596,7 @@ onBeforeUnmount(() => {
   border: 1px solid #A0AAB8;
   border-radius: 0;
   background: #F0F3F8;
-  color: #D97706;
+  color: #0284c7;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -605,12 +605,12 @@ onBeforeUnmount(() => {
 }
 .col-filter-btn-clone:hover {
   background: #E8EDF5;
-  border-color: #B45309;
-  color: #B45309;
+  border-color: #0369a1;
+  color: #0369a1;
 }
 .col-filter-btn-clone.active {
-  background: #ffd54f;
-  border-color: #ffd54f;
+  background: #7dd3fc;
+  border-color: #7dd3fc;
   color: #1a1a1a;
 }
 </style>

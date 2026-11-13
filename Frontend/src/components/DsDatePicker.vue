@@ -182,7 +182,7 @@ const cls = computed(() => ["ds-date", `ds-date--${props.variant}`]);
   font-family: inherit;
 }
 .ds-date__input:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 .ds-date__input:disabled {
   background: var(--ds-surface-inset, #E0E4EA);

@@ -377,7 +377,7 @@ const fmtDate = (val: string | null) => {
   width: 130px;
 }
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
   box-shadow: 0 0 0 2px rgba(59, 89, 152, 0.12);
 }
 
@@ -396,7 +396,7 @@ const fmtDate = (val: string | null) => {
   font-weight: 700;
 }
 .accent {
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 
 /* Label status realisasi: warna membawa makna, bukan hiasan */
@@ -413,8 +413,8 @@ const fmtDate = (val: string | null) => {
   border-color: #6ee7b7;
 }
 .tag-open {
-  color: #92400e;
-  background: #fef3c7;
+  color: #075985;
+  background: #e0f2fe;
   border-color: #fcd34d;
 }
 
@@ -435,7 +435,7 @@ const fmtDate = (val: string | null) => {
   font-size: 11px;
 }
 .detail-tbl thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 .detail-tbl th {
   color: white;
@@ -462,7 +462,7 @@ const fmtDate = (val: string | null) => {
 .confirm-box {
   background: var(--ds-surface, #fff);
   border: 1px solid var(--ds-border, #A0AAB8);
-  border-top: 2.5px solid var(--ds-primary, #D97706);
+  border-top: 2.5px solid var(--ds-primary, #0284c7);
   border-radius: 0;
   padding: 16px;
 }
@@ -470,7 +470,7 @@ const fmtDate = (val: string | null) => {
   margin: 0 0 10px;
   font-size: 14px;
   font-weight: 700;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
 }
 .confirm-text {
   margin: 0 0 16px;

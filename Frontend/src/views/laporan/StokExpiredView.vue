@@ -193,12 +193,12 @@ const fmtDate = (val: string) => {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; width: 128px;
 }
-.date-inp:focus { border-color: var(--ds-primary, #D97706); }
+.date-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .gdg-inp {
   height: 30px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0;
   padding: 0 8px; font-size: 12px; outline: none; width: 170px;
   background: white; color: #374151;
 }
-.gdg-inp:focus { border-color: var(--ds-primary, #D97706); }
+.gdg-inp:focus { border-color: var(--ds-primary, #0284c7); }
 .num-cell { font-variant-numeric: tabular-nums; }
 </style>

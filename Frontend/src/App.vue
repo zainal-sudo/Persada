@@ -64,7 +64,7 @@ const goToLogin = () => {
       <v-card-item>
         <template #prepend>
           <v-avatar color="warning" variant="tonal" size="42">
-            <IconLock :size="22" :stroke-width="1.8" color="#f57c00" />
+            <IconLock :size="22" :stroke-width="1.8" color="#0284c7" />
           </v-avatar>
         </template>
         <v-card-title class="text-body-1 font-weight-bold">

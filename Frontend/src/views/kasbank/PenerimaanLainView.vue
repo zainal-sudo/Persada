@@ -367,7 +367,7 @@ const doExportDetail = async () => {
 }
 
 .date-inp:focus {
-  border-color: var(--ds-primary, #D97706);
+  border-color: var(--ds-primary, #0284c7);
 }
 
 .badge-closed {
@@ -381,7 +381,7 @@ const doExportDetail = async () => {
 
 .badge-open {
   background: #E8EDF5;
-  color: var(--ds-primary, #D97706);
+  color: var(--ds-primary, #0284c7);
   padding: 1px 8px;
   border-radius: 0;
   font-size: 10px;
@@ -428,7 +428,7 @@ const doExportDetail = async () => {
 }
 
 .detail-tbl thead tr {
-  background: var(--ds-primary, #D97706);
+  background: var(--ds-primary, #0284c7);
 }
 
 .detail-tbl th {
