@@ -7,6 +7,7 @@ import inject from "@rollup/plugin-inject";
 import pkg from "./package.json";
 
 export default defineConfig({
+  base: "/persada/",
   plugins: [
     vue(),
     vuetify({ autoImport: true }),
