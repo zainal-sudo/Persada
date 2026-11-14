@@ -32,7 +32,9 @@ export interface DashboardSummary {
   retur: { total: number; count: number };
   topCustomer: { nama: string; qty: number; nilai: number; margin?: number }[];
   topItem: { nama: string; qty: number; nilai: number; margin?: number }[];
-  departemen: { nama: string; nilai: number }[];
+  kategori: { nama: string; nilai: number }[];
+  area: { nama: string; nilai: number }[];
+  salesman: { nama: string; nilai: number }[];
   stok: {
     nilaiPersediaan: number;
     kritisCount: number;

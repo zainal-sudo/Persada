@@ -51,7 +51,7 @@ const fmtQty = (v: number) => {
 };
 
 const totalW = 132;
-const hNo = 5, hKode = 11, hNama = 61, hSat = 9, hQty = 8, hHrg = 12, hDisc = 9, hSub = 17;
+const hNo = 5, hKode = 11, hNama = 51, hBatch = 10, hSat = 9, hQty = 8, hHrg = 12, hDisc = 9, hSub = 17;
 const DATA_PER_PAGE = 10;
 
 const alamatLengkap = (d: FPprintData) =>
@@ -75,6 +75,7 @@ const formatHeaderLines = (d: FPprintData): string[] => {
     padRight("Salesman : " + d.salesman, 45),
     "-".repeat(totalW),
     padRight("No", hNo) + padRight("Kode", hKode) + padRight("Nama Barang", hNama) +
+    padRight("Id Batch", hBatch) +
     padRight("Satuan", hSat) + padLeft("Jumlah", hQty) + padLeft("Disc(%)", hDisc) +
     padLeft("Harga", hHrg) + padLeft("Total", hSub),
     "-".repeat(totalW),
@@ -170,6 +171,7 @@ const generatePreviewFP = (d: FPprintData): string[] => {
       padRight(String(i), hNo) +
       padRightGap(String(item.kode ?? "").trim(), hKode) +
       padRight(String(namaDisplay ?? "").trim(), hNama) +
+      padRight(String(item.idBatch ?? "").trim(), hBatch) +
       padRight(String(item.satuan ?? "").trim(), hSat) +
     padLeft(fmtQty(item.qty), hQty) +
     // Disc: FormatFloat('##,###.##', fpd_discpr) — TANPA "%".

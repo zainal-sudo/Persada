@@ -81,25 +81,26 @@ export const doFormApi = {
     return data.data;
   },
 
-  // GET /api/penjualan/do/form/detail-stok?sku=&expired=&nomorSO=&gdgKode=&isEdit=
+  // GET /api/penjualan/do/form/detail-stok?sku=&expired=&nomorSO=&gdgKode=&isEdit=&idBatch=
   getDetailStok: async (
     sku: number,
     expired: string,
     nomorSO: string,
     gdgKode: string,
-    isEdit = false
+    isEdit = false,
+    idBatch = ""
   ) => {
     const { data } = await api.get("/penjualan/do/form/detail-stok", {
-      params: { sku, expired, nomorSO, gdgKode, isEdit: isEdit ? 1 : 0 },
+      params: { sku, expired, nomorSO, gdgKode, isEdit: isEdit ? 1 : 0, idBatch },
     });
     return data.data;
   },
 
-  // GET /api/penjualan/do/form/stok?sku=&expired=&gdgKode=&nomorDO=
-  getStok: async (sku: number, expired: string, gdgKode: string, nomorDO: string) => {
+  // GET /api/penjualan/do/form/stok?sku=&expired=&gdgKode=&nomorDO=&idBatch=
+  getStok: async (sku: number, expired: string, gdgKode: string, nomorDO: string, idBatch = "") => {
     const { data } = await api.get<{ success: boolean; data: { stok: number } }>(
       "/penjualan/do/form/stok",
-      { params: { sku, expired, gdgKode, nomorDO } }
+      { params: { sku, expired, gdgKode, nomorDO, idBatch } }
     );
     return data.data.stok;
   },

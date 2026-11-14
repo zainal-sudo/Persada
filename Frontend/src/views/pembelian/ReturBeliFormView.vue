@@ -179,13 +179,14 @@ const selectBarang = (brg: any) => {
   const idx = activeDetailIndex.value;
   if (idx < 0 || !form.value.detail[idx]) return;
 
-  // Cek duplikat SKU+expired (paritas bantuansku Delphi)
+  // Cek duplikat SKU+expired+batch (paritas bantuansku Delphi)
   const isDuplicate = form.value.detail.some(
     (x, i) => i !== idx && String(x.brgKode) === String(brg.sku) &&
-              ((x.expired || "") === (brg.expired || ""))
+              ((x.expired || "") === (brg.expired || "")) &&
+              String(x.idBatch || "") === String(brg.idBatch || "")
   );
   if (isDuplicate) {
-    toast.warning("SKU danExpired sudah ada di baris lain.");
+    toast.warning("SKU, Expired dan Id Batch sudah ada di baris lain.");
     return;
   }
 
@@ -193,7 +194,7 @@ const selectBarang = (brg: any) => {
   d.brgKode = Number(brg.sku);
   d.brgNama = brg.namaBarang;
   d.satuan = brg.satuan;
-  d.idBatch = "";
+  d.idBatch = brg.idBatch || "";
   d.harga = Number(brg.harga);
   d.discPr = Number(brg.discPr);
   d.expired = brg.expired || "";
@@ -275,10 +276,11 @@ const addSelectedTambahBarang = () => {
   }
   let skipped = 0;
   for (const brg of selectedTambahBarang.value) {
-    // Cek duplikat SKU+expired (paritas bantuansku Delphi)
+    // Cek duplikat SKU+expired+batch (paritas bantuansku Delphi)
     const isDuplicate = form.value.detail.some(
       (x) => String(x.brgKode) === String(brg.sku) &&
-            ((x.expired || "") === (brg.expired || ""))
+            ((x.expired || "") === (brg.expired || "")) &&
+            String(x.idBatch || "") === String(brg.idBatch || "")
     );
     if (isDuplicate) { skipped++; continue; }
 
@@ -286,7 +288,7 @@ const addSelectedTambahBarang = () => {
       no: form.value.detail.length + 1,
       brgKode: Number(brg.sku),
       brgNama: brg.namaBarang,
-      idBatch: "",
+      idBatch: brg.idBatch || "",
       qty: 0,
       satuan: brg.satuan || "",
       harga: Number(brg.harga) || 0,

@@ -69,7 +69,7 @@ const selectSupplier = async (sup: any) => {
   form.value.supKode = sup.kode;
   form.value.supNama = sup.nama;
   showSupplierModal.value = false;
-  await loadInvoice();
+  await loadInvoiceAuto();
 };
 
 const loadRekening = async (query: string) => {
@@ -87,6 +87,19 @@ const selectRek = (r: any) => {
   showRekModal.value = false;
 };
 
+const applyInvoiceData = (data: any[]) => {
+  form.value.detail = data.map((d: any) => {
+    const bayar = d.bayarLama ?? d.bayar ?? 0;
+    return {
+      ...d,
+      bayar,
+      pay: bayar > 0 ? 1 : 0,
+      bayarTampil: bayar > 0 ? fmtNum(bayar) : "",
+    };
+  });
+  hitungTotal();
+};
+
 const loadInvoice = async () => {
   if (!form.value.supKode) return;
   try {
@@ -96,32 +109,61 @@ const loadInvoice = async () => {
       form.value.isEdit,
       form.value.nomor
     );
-    form.value.detail = data.map((d: any) => ({
-      ...d,
-      bayar: d.bayarLama ?? d.bayar ?? 0,
-      pay: (d.bayarLama ?? d.bayar ?? 0) > 0 ? 1 : 0,
-    }));
-    hitungTotal();
+    applyInvoiceData(data);
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error("Gagal memuat invoice.");
   }
 };
 
-const onPayChange = (d: InvoiceBayarRow) => {
-  if (d.pay === 1) {
-    d.bayar = d.terbayar;
-  } else {
-    d.bayar = 0;
+// Deteksi otomatis: coba Non-PPN dulu; kalau kosong, coba PPN dan
+// set checkbox Pajak mengikuti invoice yang termuat.
+const loadInvoiceAuto = async () => {
+  if (!form.value.supKode) return;
+  try {
+    let data = await bayarSupplierFormApi.getInvoiceBySupplier(
+      form.value.supKode, 0, form.value.isEdit, form.value.nomor
+    );
+    if (data.length > 0) {
+      form.value.isTax = 0;
+    } else {
+      data = await bayarSupplierFormApi.getInvoiceBySupplier(
+        form.value.supKode, 1, form.value.isEdit, form.value.nomor
+      );
+      if (data.length > 0) form.value.isTax = 1;
+    }
+    applyInvoiceData(data);
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error("Gagal memuat invoice.");
   }
+};
+
+const sisaHutang = (d: InvoiceBayarRow) =>
+  Math.max((Number(d.nilai) || 0) - (Number(d.terbayar) || 0), 0);
+
+const fmtNum = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+
+const setBayarTampil = (d: InvoiceBayarRow) => {
+  d.bayarTampil = d.bayar > 0 ? fmtNum(d.bayar) : "";
+};
+
+const onPayChange = (d: InvoiceBayarRow) => {
+  d.bayar = d.pay === 1 ? sisaHutang(d) : 0;
+  setBayarTampil(d);
   hitungTotal();
 };
 
 const onBayarInput = (e: Event, d: InvoiceBayarRow) => {
   const el = e.target as HTMLInputElement;
-  const cleaned = el.value.replace(/,/g, "");
+  const cleaned = el.value.replace(/[^0-9]/g, "");
   d.bayar = Number(cleaned) || 0;
-  if (d.bayar > d.terbayar) d.bayar = d.terbayar;
+  if (d.bayar > sisaHutang(d)) d.bayar = sisaHutang(d);
+  const caretDariKanan = el.value.length - (el.selectionStart ?? el.value.length);
+  el.value = d.bayar > 0 ? fmtNum(d.bayar) : "";
+  const pos = Math.max(el.value.length - caretDariKanan, 0);
+  el.setSelectionRange(pos, pos);
+  setBayarTampil(d);
   hitungTotal();
 };
 
@@ -144,7 +186,7 @@ const validateSave = async (): Promise<boolean> => {
       toast.warning("Nilai bayar tidak boleh nol.");
       return false;
     }
-    if (d.bayar > d.terbayar) {
+    if (d.bayar > sisaHutang(d)) {
       toast.warning("Pembayaran melebihi sisa tagihan.");
       return false;
     }
@@ -183,11 +225,15 @@ const loadData = async () => {
   try {
     const data = await bayarSupplierFormApi.getDetailForm(decodeURIComponent(nomor));
     form.value = { ...data, isEdit: true };
-    form.value.detail = form.value.detail.map((d: any) => ({
-      ...d,
-      bayar: d.bayarLama ?? d.bayar ?? 0,
-      pay: (d.bayarLama ?? d.bayar ?? 0) > 0 ? 1 : 0,
-    }));
+    form.value.detail = form.value.detail.map((d: any) => {
+      const bayar = d.bayarLama ?? d.bayar ?? 0;
+      return {
+        ...d,
+        bayar,
+        pay: bayar > 0 ? 1 : 0,
+        bayarTampil: bayar > 0 ? fmtNum(bayar) : "",
+      };
+    });
     hitungTotal();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
@@ -329,7 +375,7 @@ onMounted(async () => {
                   <td class="tr" style="width: 120px">{{ fmt(d.nilai) }}</td>
                   <td class="tr" style="width: 120px">{{ fmt(d.terbayar) }}</td>
                   <td class="tr" style="width: 120px">
-                    <input type="text" inputmode="numeric" class="cell-inp tr" :disabled="d.pay !== 1" :value="d.bayar" @input="onBayarInput($event, d)" />
+                    <input type="text" inputmode="numeric" class="cell-inp tr" :disabled="d.pay !== 1" :value="d.bayarTampil" @input="onBayarInput($event, d)" />
                   </td>
                 </tr>
                 <tr v-if="form.detail.length === 0">

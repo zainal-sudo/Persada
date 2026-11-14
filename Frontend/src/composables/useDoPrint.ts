@@ -13,7 +13,7 @@ const LINES_PER_PAGE = 33;
 const DATA_PER_PAGE = 16;
 
 const totalW = 132;
-const hNo = 5, hKode = 11, hNama = 81, hSat = 9, hQty = 8, hGdg = 17;
+const hNo = 5, hKode = 11, hNama = 61, hED = 9, hBatch = 11, hSat = 9, hQty = 8, hGdg = 17;
 
 const padRight = (str: string, len: number): string =>
   str.length >= len ? str.substring(0, len) : str + " ".repeat(len - str.length);
@@ -33,18 +33,17 @@ const fmtQtyPrint = (v: number) => {
   return sign + withThousands + "." + decPart;
 };
 
-const getDisplayName = (d: { nama: string; tgl_expired: string | null }): string => {
-  if (d.tgl_expired) {
-    const yr = new Date(d.tgl_expired).getFullYear();
-    if (yr > 2000) {
-      const exp = new Date(d.tgl_expired);
-      const dd = String(exp.getDate()).padStart(2, "0");
-      const mm = String(exp.getMonth() + 1).padStart(2, "0");
-      const yy = String(exp.getFullYear()).slice(-2);
-      return d.nama + " / " + dd + "/" + mm + "/" + yy;
-    }
-  }
-  return d.nama;
+const getDisplayName = (d: { nama: string }): string => String(d.nama ?? "").trim();
+
+const getED = (tgl_expired: string | null): string => {
+  if (!tgl_expired) return "";
+  const yr = new Date(tgl_expired).getFullYear();
+  if (yr <= 2000) return "";
+  const exp = new Date(tgl_expired);
+  const dd = String(exp.getDate()).padStart(2, "0");
+  const mm = String(exp.getMonth() + 1).padStart(2, "0");
+  const yy = String(exp.getFullYear()).slice(-2);
+  return dd + "/" + mm + "/" + yy;
 };
 
 const formatHeaderLines = (data: DOprintData): string[] => {
@@ -57,7 +56,7 @@ const formatHeaderLines = (data: DOprintData): string[] => {
     padRight("Tanggal    : " + data.tanggal, 60) + " " + padRight(data.cus_alamat, 60),
     padRight("Kirim ke   : " + data.shipaddress, 60) + " " + padRight("Salesman : " + data.salesman, 60),
     "-".repeat(totalW),
-    padRight("No", hNo) + padRightGap("Kode", hKode) + padRight("Nama Barang", hNama) + padRight("Satuan", hSat) + padLeft("Jumlah", hQty) + " " + padRight("Gudang", hGdg),
+    padRight("No", hNo) + padRightGap("Kode", hKode) + padRight("Nama Barang", hNama) + padRight("ED", hED) + padRight("Id Batch", hBatch) + padRight("Satuan", hSat) + padLeft("Jumlah", hQty) + " " + padRight("Gudang", hGdg),
     "-".repeat(totalW),
   ];
 };
@@ -66,7 +65,9 @@ const formatDetailLine = (i: number, d: DOprintData["detail"][0]): string => {
   return (
     padRight(String(i), hNo) +
     padRightGap(String(d.kode ?? "").trim(), hKode) +
-    padRight(String(getDisplayName(d) ?? "").trim(), hNama) +
+    padRight(getDisplayName(d), hNama) +
+    padRight(getED(d.tgl_expired), hED) +
+    padRight(String(d.idBatch ?? "").trim(), hBatch) +
     padRight(String(d.satuan ?? "").trim(), hSat) +
     padLeft(fmtQtyPrint(d.qty), hQty) + " " +
     padRight(String(d.gudang ?? "").trim(), hGdg)

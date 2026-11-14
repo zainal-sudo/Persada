@@ -104,6 +104,7 @@ export interface FPprintData {
     harga: number;
     discpr: number;
     expired: string;
+    idBatch: string;
   }[];
 }
 

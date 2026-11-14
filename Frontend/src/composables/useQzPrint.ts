@@ -225,13 +225,14 @@ export function useQzPrint() {
       harga: number;
       discpr: number;
       expired: string;
+      idBatch: string;
     }[];
   }): string[] => {
     const NL = "\r\n";
     const ESC = "\x1B";
 
     const totalW = 132;
-    const hNo = 5, hKode = 11, hNama = 61, hSat = 9, hQty = 8, hHrg = 12, hDisc = 9, hSub = 17;
+    const hNo = 5, hKode = 11, hNama = 51, hBatch = 10, hSat = 9, hQty = 8, hHrg = 12, hDisc = 9, hSub = 17;
     const DATA_PER_PAGE = 10;
     const FOOTER_LINE_COUNT = 13;
 
@@ -261,6 +262,7 @@ export function useQzPrint() {
       padRight("Salesman : " + fpData.salesman, 45),
       "-".repeat(totalW),
       padRight("No", hNo) + padRight("Kode", hKode) + padRight("Nama Barang", hNama) +
+      padRight("Id Batch", hBatch) +
       padRight("Satuan", hSat) + padLeft("Jumlah", hQty) + padLeft("Disc(%)", hDisc) +
       padLeft("Harga", hHrg) + padLeft("Total", hSub),
       "-".repeat(totalW),
@@ -344,6 +346,7 @@ export function useQzPrint() {
         padRight(String(itemNo), hNo) +
         padRightGap(String(d.kode ?? "").trim(), hKode) +
         padRight(String(namaDisplay ?? "").trim(), hNama) +
+        padRight(String(d.idBatch ?? "").trim(), hBatch) +
         padRight(String(d.satuan ?? "").trim(), hSat) +
         padLeft(fmtInt(d.qty), hQty) +
         // Disc: FormatFloat('##,###.##', fpd_discpr) — TANPA "%".

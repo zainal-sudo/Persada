@@ -11,6 +11,7 @@ export interface InvoiceBayarRow {
   terbayar: number;
   bayar: number;
   pay: number;
+  bayarTampil?: string;
 }
 
 export interface BayarSupplierForm {

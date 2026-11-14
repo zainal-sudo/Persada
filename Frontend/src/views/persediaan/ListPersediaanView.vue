@@ -98,10 +98,14 @@ const headers = [
 const loadData = async () => {
   isLoading.value = true;
   try {
-    items.value = await listPersediaanApi.getBrowse(
+    const rows = await listPersediaanApi.getBrowse(
       filterState.value.startDate,
       filterState.value.endDate,
     );
+    items.value = rows.map((r) => ({
+      ...r,
+      RowKey: `${r.Kode}|${r.IdBatch}|${r.Expired}|${r.Gudang}`,
+    }));
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message ?? "Gagal memuat data.");
@@ -422,7 +426,7 @@ const doExport = () => {
       :items="items"
       :is-loading="isLoading"
       :fixed-layout="false"
-      item-value="Kode"
+      item-value="RowKey"
       :filter-values="filterValues"
       @refresh="loadData"
     >

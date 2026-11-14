@@ -106,21 +106,30 @@ const getGudang = async (search = "") => {
 };
 
 // ── Lookup Driver ────────────────────────────────────────────────────
+// Skema Delphi: hrd.tunit + hrd.tkaryawan (jabat 21/30). Bila schema HRD
+// tidak tersedia di server ini, pakai fallback SALES/EKSPEDISI.
 const getDriver = async () => {
-  const [rows] = await db.query(
-    `SELECT kar_namasingkat AS kode, UPPER(kar_nama) AS nama
-     FROM hrd.tunit
-     INNER JOIN hrd.tkaryawan ON kar_kd_unit = kd_unit
-     WHERE LOWER(kode_cabang) = LOWER(?)
-       AND (kar_kd_jabat = 21 OR kar_kd_jabat = 30) 
-       AND kar_status_aktif = 1
-     UNION ALL 
-     SELECT 'SALES', 'SALES' 
-     UNION ALL 
-     SELECT 'EKSPEDISI', 'EKSPEDISI'`,
-    [db.getCurrentDatabase()]
-  );
-  return rows;
+  try {
+    const [rows] = await db.query(
+      `SELECT kar_namasingkat AS kode, UPPER(kar_nama) AS nama
+       FROM hrd.tunit
+       INNER JOIN hrd.tkaryawan ON kar_kd_unit = kd_unit
+       WHERE LOWER(kode_cabang) = LOWER(?)
+         AND (kar_kd_jabat = 21 OR kar_kd_jabat = 30)
+         AND kar_status_aktif = 1
+       UNION ALL
+       SELECT 'SALES', 'SALES'
+       UNION ALL
+       SELECT 'EKSPEDISI', 'EKSPEDISI'`,
+      [db.getCurrentDatabase()]
+    );
+    return rows;
+  } catch {
+    return [
+      { kode: "SALES", nama: "SALES" },
+      { kode: "EKSPEDISI", nama: "EKSPEDISI" },
+    ];
+  }
 };
 
 // ── Search Stok untuk Grid ───────────────────────────────────────────
@@ -185,7 +194,7 @@ const searchStok = async (nomorSO, gdgKode, nomorDO, search = "") => {
 // Paritas Delphi bantuansku (ufrmDO.pas): di mode edit, baris BARU memakai
 // sudah = 0 dan kurang = sisa SO penuh (sod_qty), karena DO ini sendiri
 // belum dihitung sebagai pengiriman untuk baris baru.
-const getDetailStok = async (sku, expired, nomorSO, gdgKode, isEdit = false) => {
+const getDetailStok = async (sku, expired, nomorSO, gdgKode, isEdit = false, idBatch = null) => {
   const [[row]] = await db.query(
     `SELECT b.brg_kode AS sku,
             DATE_FORMAT(m.mst_expired_date, '%Y-%m-%d') AS expired,
@@ -197,14 +206,17 @@ const getDetailStok = async (sku, expired, nomorSO, gdgKode, isEdit = false) => 
             d.sod_qty_kirim AS sudah,
             d.sod_qty - d.sod_qty_kirim AS kurang
       FROM tbarang b
-     INNER JOIN tmasterstok m ON m.mst_brg_kode = b.brg_kode 
+     INNER JOIN tmasterstok m ON m.mst_brg_kode = b.brg_kode
        AND m.mst_gdg_kode = ?
        AND m.mst_expired_date = ?
-     LEFT JOIN tso_dtl d ON d.sod_brg_kode = b.brg_kode 
+       ${idBatch !== null ? "AND mst_idbatch = ?" : ""}
+     LEFT JOIN tso_dtl d ON d.sod_brg_kode = b.brg_kode
        AND d.sod_so_nomor = ?
      WHERE b.brg_kode = ?
      GROUP BY b.brg_kode, b.brg_nama, b.brg_satuan, m.mst_expired_date, m.mst_idbatch`,
-    [gdgKode, expired, nomorSO, sku]
+    idBatch !== null
+      ? [gdgKode, expired, idBatch, nomorSO, sku]
+      : [gdgKode, expired, nomorSO, sku]
   );
   if (!row) return null;
 
@@ -339,17 +351,21 @@ const getDetailForm = async (nomor) => {
 // Stok = sum(mst_stok_in - mst_stok_out) pada gudang & tanggal expired,
 // exclude baris milik DO ini (mst_noreferensi <> nomor DO).
 // Expired kosong = baris stok tanpa tanggal (NULL / tahun < 1900).
-const getStok = async (sku, expired, gdgKode, nomorDO) => {
+const getStok = async (sku, expired, gdgKode, nomorDO, idBatch = null) => {
   const [[row]] = await db.query(
     `SELECT IFNULL(SUM(mst_stok_in - mst_stok_out), 0) AS stok
      FROM tmasterstok
      WHERE mst_brg_kode = ?
        AND ${expired ? "mst_expired_date = ?" : "IFNULL(YEAR(mst_expired_date), 0) < 1900"}
        AND mst_gdg_kode = ?
-       AND mst_noreferensi <> ?`,
+       AND ${idBatch !== null ? "mst_idbatch = ? AND" : ""} mst_noreferensi <> ?`,
     expired
-      ? [sku, expired, gdgKode, nomorDO || ""]
-      : [sku, gdgKode, nomorDO || ""]
+      ? (idBatch !== null
+          ? [sku, expired, gdgKode, idBatch, nomorDO || ""]
+          : [sku, expired, gdgKode, nomorDO || ""])
+      : (idBatch !== null
+          ? [sku, gdgKode, idBatch, nomorDO || ""]
+          : [sku, gdgKode, nomorDO || ""])
   );
   return row ? Number(row.stok) : 0;
 };

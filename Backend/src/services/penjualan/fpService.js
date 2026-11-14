@@ -151,7 +151,8 @@ const getPrintData = async (nomor) => {
       IFNULL(d.fpd_qty, 0) AS qty,
       IFNULL(d.fpd_harga, 0) AS harga,
       IFNULL(d.fpd_discpr, 0) AS discpr,
-      DATE_FORMAT(d.fpd_expired, '%m.%Y') AS expired
+      DATE_FORMAT(d.fpd_expired, '%m.%Y') AS expired,
+      IFNULL(d.fpd_idbatch, '') AS idBatch
     FROM tfp_dtl d
     INNER JOIN tbarang b ON b.brg_kode = d.fpd_brg_kode
     WHERE d.fpd_fp_nomor = ?
@@ -336,7 +337,8 @@ const getPrintDataRetur = async (nomor) => {
       d.fpd_qty - IFNULL(rd.retjd_qty, 0) AS qty,
       IFNULL(d.fpd_harga, 0) AS harga,
       IFNULL(d.fpd_discpr, 0) AS discpr,
-      DATE_FORMAT(d.fpd_expired, '%m.%Y') AS expired
+      DATE_FORMAT(d.fpd_expired, '%m.%Y') AS expired,
+      IFNULL(d.fpd_idbatch, '') AS idBatch
     FROM tfp_dtl d
     INNER JOIN tbarang b ON b.brg_kode = d.fpd_brg_kode
     LEFT JOIN tretj_hdr rh ON rh.retj_fp_nomor = d.fpd_fp_nomor

@@ -1,6 +1,7 @@
 import api from "@/api/axios";
 
 export interface ListPersediaanRow {
+  RowKey: string;
   Kode: string;
   Nama: string;
   Satuan: string;

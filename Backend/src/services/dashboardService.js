@@ -58,10 +58,12 @@ function topBy(rows, key, limit, isFinance) {
     .slice(0, limit);
 }
 
-function departemen(rows, limit = 6) {
+// Komposisi omzet per dimensi (nama kolom list jual). Top N + gabungan
+// sisanya sebagai "Lainnya" supaya pie chart tetap terbaca.
+function komposisi(rows, key, limit = 6) {
   const map = new Map();
   for (const r of rows) {
-    const k = r.Departemen || "-";
+    const k = (r[key] || "").trim() || "-";
     map.set(k, (map.get(k) || 0) + (Number(r.Nilai) || 0));
   }
   const list = [...map.entries()].map(([nama, nilai]) => ({ nama, nilai: ROUND(nilai) })).sort((a, b) => b.nilai - a.nilai);
@@ -185,15 +187,19 @@ const getSummary = async (user = {}, dbKey = "", tanggal = "") =>
       [monthStart(0), asOf],
     );
 
-    // ── Top customer / item / departemen (reuse laporan list jual) ──
+    // ── Top customer / item / kategori / area / salesman (reuse list jual) ──
     let topCustomer = [];
     let topItem = [];
-    let departemenKomposisi = [];
+    let kategoriKomposisi = [];
+    let areaKomposisi = [];
+    let salesmanKomposisi = [];
     try {
       const jualRows = await listJualPerItemSvc.getBrowse({ startDate: monthStart(0), endDate: asOf }, user);
       topCustomer = topBy(jualRows, "Outlet", 5, isFinance);
       topItem = topBy(jualRows, "Nama", 5, isFinance);
-      departemenKomposisi = departemen(jualRows, 6);
+      kategoriKomposisi = komposisi(jualRows, "Kategori", 6);
+      areaKomposisi = komposisi(jualRows, "Rayon", 6);
+      salesmanKomposisi = komposisi(jualRows, "Salesman", 6);
     } catch {
       /* detail penjualan opsional — dashboard tetap tampil */
     }
@@ -251,7 +257,9 @@ const getSummary = async (user = {}, dbKey = "", tanggal = "") =>
       retur: { total: ROUND(returRow.total), count: Number(returRow.c) },
       topCustomer,
       topItem,
-      departemen: departemenKomposisi,
+      kategori: kategoriKomposisi,
+      area: areaKomposisi,
+      salesman: salesmanKomposisi,
       stok: {
         nilaiPersediaan: ROUND(stokNilaiRow.nilai),
         kritisCount: Number(stokKritisCountRow.c),

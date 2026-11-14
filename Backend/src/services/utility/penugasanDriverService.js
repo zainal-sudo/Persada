@@ -22,19 +22,27 @@
 const db = require("../../config/database");
 
 // ── Lookup driver (Delphi: edtKodeClickBtn & edtKode2ClickBtn, verbatim) ──
+// Bila schema HRD tidak tersedia di server ini, fallback SALES/EKSPEDISI.
 const getDriver = async () => {
-  const [rows] = await db.query(
-    `SELECT kar_namasingkat AS kode, UPPER(kar_nama) AS nama
-       FROM hrd.tunit
-       INNER JOIN hrd.tkaryawan ON kar_kd_unit = kd_unit
-      WHERE LOWER(kode_cabang) = LOWER(?)
-        AND (kar_kd_jabat = 21 OR kar_kd_jabat = 30)
-        AND kar_status_aktif = 1
-      UNION ALL SELECT 'SALES', 'SALES'
-      UNION ALL SELECT 'EKSPEDISI', 'EKSPEDISI'`,
-    [db.getCurrentDatabase()]
-  );
-  return rows;
+  try {
+    const [rows] = await db.query(
+      `SELECT kar_namasingkat AS kode, UPPER(kar_nama) AS nama
+         FROM hrd.tunit
+         INNER JOIN hrd.tkaryawan ON kar_kd_unit = kd_unit
+        WHERE LOWER(kode_cabang) = LOWER(?)
+          AND (kar_kd_jabat = 21 OR kar_kd_jabat = 30)
+          AND kar_status_aktif = 1
+        UNION ALL SELECT 'SALES', 'SALES'
+        UNION ALL SELECT 'EKSPEDISI', 'EKSPEDISI'`,
+      [db.getCurrentDatabase()]
+    );
+    return rows;
+  } catch {
+    return [
+      { kode: "SALES", nama: "SALES" },
+      { kode: "EKSPEDISI", nama: "EKSPEDISI" },
+    ];
+  }
 };
 
 // ── Lookup customer (Delphi: edtkodecustomerClickBtn -> frmbantuan) ──

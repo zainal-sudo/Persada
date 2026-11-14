@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 
 // id/style/@keydown dari pemakai (mis. id sel grid) diteruskan ke input di dalam,
 // supaya getElementById().focus() ala useDetailGrid tetap bekerja.
@@ -73,6 +73,7 @@ function onTyped(e: Event) {
   const raw = el.value.trim();
   if (!raw) {
     setValue(null);
+    syncDisplayNextTick();
     return;
   }
   const m = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
@@ -85,10 +86,23 @@ function onTyped(e: Event) {
       chk.getDate() === Number(d)
     ) {
       setValue(`${y}-${mo.padStart(2, "0")}-${d.padStart(2, "0")}`);
+      syncDisplayNextTick();
       return;
     }
   }
   el.value = display.value;
+}
+
+// Jika pemakai (parent) membatalkan/mengubah nilai model di handler @change
+// (mis. guard tanggal), Vue tidak mem-patch :value karena prop kembali ke nilai
+// semula — teks ketikan user tertinggal di DOM. Paksa sinkron ke display.
+function syncDisplayNextTick() {
+  nextTick(() => {
+    const el = inputEl.value;
+    if (el && document.activeElement !== el && el.value !== display.value) {
+      el.value = display.value;
+    }
+  });
 }
 
 // Keyboard: ArrowDown buka kalender, Escape tutup, Enter tutup bila terbuka.

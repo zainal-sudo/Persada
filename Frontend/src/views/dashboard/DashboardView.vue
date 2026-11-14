@@ -63,8 +63,12 @@ const seriesEndLabel = computed(() => {
 
 let barChart: any = null;
 let doughChart: any = null;
+let areaChart: any = null;
+let salesChart: any = null;
 const barCanvas = ref<HTMLCanvasElement | null>(null);
 const doughCanvas = ref<HTMLCanvasElement | null>(null);
+const areaCanvas = ref<HTMLCanvasElement | null>(null);
+const salesCanvas = ref<HTMLCanvasElement | null>(null);
 
 const PALETTE = ["#0284c7", "#0ea5e9", "#0369a1", "#8494a7", "#059669", "#0284c7", "#c4cad3"];
 
@@ -82,6 +86,8 @@ const renderCharts = async () => {
 
   if (barChart) { barChart.destroy(); barChart = null; }
   if (doughChart) { doughChart.destroy(); doughChart = null; }
+  if (areaChart) { areaChart.destroy(); areaChart = null; }
+  if (salesChart) { salesChart.destroy(); salesChart = null; }
 
   if (barCanvas.value) {
     barChart = new Chart(barCanvas.value, {
@@ -116,14 +122,14 @@ const renderCharts = async () => {
     });
   }
 
-  if (doughCanvas.value && summary.value.departemen.length) {
+  if (doughCanvas.value && summary.value.kategori.length) {
     doughChart = new Chart(doughCanvas.value, {
       type: "pie",
       data: {
-        labels: summary.value.departemen.map((d) => d.nama),
+        labels: summary.value.kategori.map((d) => d.nama),
         datasets: [{
-          data: summary.value.departemen.map((d) => d.nilai),
-          backgroundColor: summary.value.departemen.map((_, i) => PALETTE[i % PALETTE.length]),
+          data: summary.value.kategori.map((d) => d.nilai),
+          backgroundColor: summary.value.kategori.map((_, i) => PALETTE[i % PALETTE.length]),
           borderColor: "#fff",
           borderWidth: 1,
         }],
@@ -134,6 +140,66 @@ const renderCharts = async () => {
         plugins: {
           legend: { position: "right", labels: { boxWidth: 10, font: { size: 10 } } },
           tooltip: { callbacks: { label: (ctx: any) => `${ctx.label}: ${rp(ctx.parsed ?? 0)}` } },
+        },
+      },
+    });
+  }
+
+  if (areaCanvas.value && summary.value.area.length) {
+    areaChart = new Chart(areaCanvas.value, {
+      type: "bar",
+      data: {
+        labels: summary.value.area.map((d) => d.nama),
+        datasets: [{
+          label: "Omzet",
+          data: summary.value.area.map((d) => d.nilai),
+          backgroundColor: "#0ea5e9",
+          borderColor: "#0369a1",
+          borderWidth: 1,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: "y",
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx: any) => rp(ctx.parsed?.x ?? 0) } },
+        },
+        scales: {
+          x: {
+            ticks: { callback: (v: any) => (Math.abs(v) >= 1_000_000_000 ? `${(v / 1_000_000_000).toFixed(1)} M` : Math.abs(v) >= 1_000_000 ? `${(v / 1_000_000).toFixed(0)} jt` : v) },
+          },
+        },
+      },
+    });
+  }
+
+  if (salesCanvas.value && summary.value.salesman.length) {
+    salesChart = new Chart(salesCanvas.value, {
+      type: "bar",
+      data: {
+        labels: summary.value.salesman.map((d) => d.nama),
+        datasets: [{
+          label: "Omzet",
+          data: summary.value.salesman.map((d) => d.nilai),
+          backgroundColor: "#059669",
+          borderColor: "#0369a1",
+          borderWidth: 1,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: "y",
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: (ctx: any) => rp(ctx.parsed?.x ?? 0) } },
+        },
+        scales: {
+          x: {
+            ticks: { callback: (v: any) => (Math.abs(v) >= 1_000_000_000 ? `${(v / 1_000_000_000).toFixed(1)} M` : Math.abs(v) >= 1_000_000 ? `${(v / 1_000_000).toFixed(0)} jt` : v) },
+          },
         },
       },
     });
@@ -184,6 +250,8 @@ onBeforeUnmount(() => {
   document.removeEventListener("erp:hotkey", onHotkey);
   if (barChart) barChart.destroy();
   if (doughChart) doughChart.destroy();
+  if (areaChart) areaChart.destroy();
+  if (salesChart) salesChart.destroy();
 });
 
 const deltaLabel = computed(() => {
@@ -274,8 +342,16 @@ const deltaClass = computed(() => {
           <div class="chart-box"><canvas ref="barCanvas"></canvas></div>
         </div>
         <div class="panel">
-          <div class="panel-title">Komposisi Omzet per Departemen ({{ periodeLabelLower }})</div>
+          <div class="panel-title">Komposisi Omzet per Kategori ({{ periodeLabelLower }})</div>
           <div class="chart-box"><canvas ref="doughCanvas"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Omzet per Area ({{ periodeLabelLower }})</div>
+          <div class="chart-box"><canvas ref="areaCanvas"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Omzet per Salesman ({{ periodeLabelLower }})</div>
+          <div class="chart-box"><canvas ref="salesCanvas"></canvas></div>
         </div>
       </div>
 

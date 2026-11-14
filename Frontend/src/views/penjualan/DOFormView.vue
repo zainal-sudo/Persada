@@ -198,7 +198,8 @@ const selectStok = async (item: any) => {
       expiredDate,
       form.value.nomorSO,
       form.value.gdgKode,
-      isEdit.value
+      isEdit.value,
+      item.idBatch || ""
     );
 
     if (!detail) {
@@ -206,17 +207,18 @@ const selectStok = async (item: any) => {
       return;
     }
 
-    // Paritas Delphi bantuansku: tolak SKU + expired yang sama dengan baris lain
+    // Paritas Delphi bantuansku: tolak SKU + expired + idBatch yang sama dengan baris lain
     const activeIdx = isAddRowMode.value ? -1 : activeDetailIndex.value;
     const dupIdx = form.value.detail.findIndex(
       (x, i) =>
         i !== activeIdx &&
         x.brgKode === Number(detail.sku) &&
         (x.expired || "") === (detail.expired || "") &&
+        (x.idBatch || "") === (detail.idBatch || "") &&
         x.gudang === form.value.gdgKode
     );
     if (dupIdx >= 0) {
-      toast.warning(`Sku dan expired ada yang sama dengan baris ${dupIdx + 1}.`);
+      toast.warning(`Sku, expired dan id batch sama dengan baris ${dupIdx + 1}.`);
       return;
     }
 
@@ -270,7 +272,9 @@ const tambahDetailLoading = ref(false);
 const tambahDetailSearch = ref("");
 const selectedTambahDetail = ref<any[]>([]);
 
-const brgKey = (b: any) => `${String(b.sku)}|${b.expired || ""}`;
+// Kunci baris stok = SKU + expired + idBatch (paritas granularitas batch).
+const brgKey = (b: any) =>
+  `${String(b.sku)}|${b.expired || ""}|${b.idBatch || ""}`;
 
 const isTambahDetailSelected = (brg: any) =>
   selectedTambahDetail.value.some((b) => brgKey(b) === brgKey(brg));
@@ -315,7 +319,8 @@ const addStokRow = async (item: any): Promise<boolean> => {
       item.expired || "",
       form.value.nomorSO,
       form.value.gdgKode,
-      isEdit.value
+      isEdit.value,
+      item.idBatch || ""
     );
     if (!detail) {
       toast.warning(`Stok ${item.sku} tidak ditemukan.`);
@@ -326,6 +331,7 @@ const addStokRow = async (item: any): Promise<boolean> => {
       (x) =>
         x.brgKode === Number(detail.sku) &&
         (x.expired || "") === (detail.expired || "") &&
+        (x.idBatch || "") === (detail.idBatch || "") &&
         x.gudang === form.value.gdgKode
     );
     if (dupIdx >= 0) return false;
@@ -536,7 +542,7 @@ const onQtyInput = (e: Event, d: DODetail, idx: number) => {
 // Paritas Delphi clQTYPropertiesValidate:
 // 1) qty total baris SKU sama + baris lain tidak boleh melebihi jumlah "kurang"
 //    semua baris SKU yang sama (aqtykurang = jumlah kurang per SKU).
-// 2) qty per baris tidak boleh melebihi stok gudang per SKU+expired.
+  // 2) qty per baris tidak boleh melebihi stok gudang per SKU+expired+idBatch.
 const validateQty = async (d: DODetail): Promise<boolean> => {
   if (Number(d.qty) <= 0) return true;
 
@@ -553,13 +559,14 @@ const validateQty = async (d: DODetail): Promise<boolean> => {
     return false;
   }
 
-  // Cek qty melebihi stok gudang (getstok Delphi: per gudang + expired, exclude DO ini)
+  // Cek qty melebihi stok gudang (getstok Delphi: per gudang + expired + idBatch, exclude DO ini)
   try {
     const stok = await doFormApi.getStok(
       d.brgKode,
       d.expired || "",
       form.value.gdgKode,
-      form.value.nomor || ""
+      form.value.nomor || "",
+      d.idBatch || ""
     );
     if (Number(d.qty) > Number(stok)) {
       toast.warning("Qty melebihi stok gudang.");
@@ -1004,7 +1011,7 @@ onMounted(async () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-for="brg in filteredTambahDetailItems" :key="brg.sku + brg.expired" class="modal-row" @click="toggleTambahDetail(brg)">
+              <tr v-for="brg in filteredTambahDetailItems" :key="brg.sku + '|' + (brg.expired || '') + '|' + (brg.idBatch || '')" class="modal-row" @click="toggleTambahDetail(brg)">
                 <td class="tc" @click.stop>
                   <input type="checkbox" :checked="isTambahDetailSelected(brg)" @change="toggleTambahDetail(brg)" />
                 </td>
@@ -1054,7 +1061,7 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in stokItems" :key="item.sku + item.expired" class="modal-row" @click="selectStok(item)">
+            <tr v-for="item in stokItems" :key="item.sku + '|' + (item.expired || '') + '|' + (item.idBatch || '')" class="modal-row" @click="selectStok(item)">
               <td class="mono">{{ item.sku }}</td>
               <td>{{ item.namaBarang }}</td>
               <td>{{ item.idBatch || '-' }}</td>

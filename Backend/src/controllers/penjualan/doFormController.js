@@ -66,7 +66,7 @@ const searchStok = async (req, res) => {
 
 const getDetailStok = async (req, res) => {
   try {
-    const { sku, expired, nomorSO, gdgKode, isEdit } = req.query;
+    const { sku, expired, nomorSO, gdgKode, isEdit, idBatch } = req.query;
     if (!sku || !nomorSO || !gdgKode) {
       return res.status(400).json({ success: false, message: "Parameter tidak lengkap." });
     }
@@ -76,7 +76,8 @@ const getDetailStok = async (req, res) => {
       expired || null,
       nomorSO,
       gdgKode,
-      isEdit === "1"
+      isEdit === "1",
+      idBatch !== undefined ? String(idBatch) : null
     );
 
     // FIX: kalau tidak ketemu, kasih 404
@@ -93,11 +94,17 @@ const getDetailStok = async (req, res) => {
 // GET /form/stok?sku=&expired=&gdgKode=&nomorDO= → stok gudang (validasi qty)
 const getStok = async (req, res) => {
   try {
-    const { sku, expired, gdgKode, nomorDO } = req.query;
+    const { sku, expired, gdgKode, nomorDO, idBatch } = req.query;
     if (!sku || !gdgKode) {
       return res.status(400).json({ success: false, message: "sku dan gdgKode wajib." });
     }
-    const stok = await svc.getStok(Number(sku), expired || null, gdgKode, nomorDO || "");
+    const stok = await svc.getStok(
+      Number(sku),
+      expired || null,
+      gdgKode,
+      nomorDO || "",
+      idBatch !== undefined ? String(idBatch) : null
+    );
     res.json({ success: true, data: { stok } });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });

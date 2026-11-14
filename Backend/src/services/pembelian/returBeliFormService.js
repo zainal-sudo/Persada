@@ -78,6 +78,7 @@ const searchBarang = async (nomorInvoice, gdgKode, search = "") => {
   const [rows] = await db.query(
     `SELECT b.brg_kode AS sku,
             DATE_FORMAT(t.mst_expired_date, '%Y-%m-%d') AS expired,
+            IFNULL(t.mst_idbatch, '') AS idBatch,
             b.brg_nama AS namaBarang,
             b.brg_satuan AS satuan,
             SUM(t.mst_stok_in - t.mst_stok_out) AS stok,
@@ -99,7 +100,7 @@ const searchBarang = async (nomorInvoice, gdgKode, search = "") => {
        ON invd.invd_brg_kode = b.brg_kode
       AND invd.invd_expired = t.mst_expired_date
      WHERE (b.brg_nama LIKE ? OR b.brg_kode LIKE ?)
-     GROUP BY b.brg_kode, b.brg_nama, b.brg_satuan, t.mst_expired_date
+     GROUP BY b.brg_kode, b.brg_nama, b.brg_satuan, t.mst_expired_date, t.mst_idbatch
      ORDER BY b.brg_nama
      LIMIT 50`,
     [gdgKode, nomorInvoice, `%${search}%`, `%${search}%`]
@@ -108,6 +109,7 @@ const searchBarang = async (nomorInvoice, gdgKode, search = "") => {
   return rows.map((r) => ({
     sku: r.sku,
     expired: r.expired,
+    idBatch: r.idBatch,
     namaBarang: r.namaBarang,
     satuan: r.satuan,
     stok: Number(r.stok || 0),

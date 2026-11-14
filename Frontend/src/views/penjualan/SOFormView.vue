@@ -320,6 +320,29 @@ const loadNomor = async () => {
   }
 };
 
+// ── Guard tanggal edit (paritas dtTanggalChange) ─────────────────────
+// Nomor SO mengandung yymm (CABANG-SO.yymm.NNNN) — edit tidak boleh pindah
+// bulan/tahun; nomor tidak di-regenerate saat edit.
+const tanggalOld = ref("");
+const onTanggalChange = () => {
+  const nv = form.value.tanggal;
+  if (!nv) return;
+  if (!form.value.isEdit || !form.value.nomor) {
+    tanggalOld.value = nv;
+    loadNomor();
+    return;
+  }
+  const yy = nv.slice(2, 4);
+  const mm = nv.slice(5, 7);
+  const prefix = form.value.nomor.slice(0, 6) + yy + mm + ".";
+  if (prefix !== form.value.nomor.slice(0, 11)) {
+    toast.warning("Perubahan tanggal tidak bisa beda bulan dan tahun.");
+    form.value.tanggal = tanggalOld.value || nv;
+  } else {
+    tanggalOld.value = nv;
+  }
+};
+
 // ── Load Lookup Options ──────────────────────────────────────────────
 const loadOptions = async () => {
   try {
@@ -1019,6 +1042,7 @@ const loadData = async () => {
 
     // Hitung total
     hitung();
+    tanggalOld.value = form.value.tanggal;
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message || "Gagal memuat data SO.");
@@ -1178,7 +1202,7 @@ onMounted(async () => {
             </div>
             <div class="f-row">
               <label class="f-lbl">Tanggal</label>
-              <DsDatePicker v-model="form.tanggal" variant="form" @change="loadNomor" />
+              <DsDatePicker v-model="form.tanggal" variant="form" @change="onTanggalChange" />
             </div>
             <div class="f-row check-row">
               <label class="check-lbl">

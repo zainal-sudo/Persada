@@ -37,15 +37,16 @@ export interface DOprintData {
     kota: string;
     notelp: string;
   };
-  detail: {
-    nourut: number;
-    kode: string;
-    nama: string;
-    satuan: string;
-    qty: number;
-    gudang: string;
-    tgl_expired: string | null;
-  }[];
+      detail: {
+        nourut: number;
+        kode: string;
+        nama: string;
+        satuan: string;
+        qty: number;
+        gudang: string;
+        tgl_expired: string | null;
+        idBatch: string;
+      }[];
 }
 
 export const doApi = {

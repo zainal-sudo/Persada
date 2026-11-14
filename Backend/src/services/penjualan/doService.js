@@ -78,7 +78,8 @@ const getPrintData = async (nomor) => {
       IFNULL(d.dod_brg_satuan, '') AS satuan,
       IFNULL(d.dod_qty, 0) AS qty,
       IFNULL(g.gdg_nama, '') AS gudang,
-      IFNULL(d.dod_tgl_expired, NULL) AS tgl_expired
+      IFNULL(d.dod_tgl_expired, NULL) AS tgl_expired,
+      IFNULL(d.dod_idbatch, '') AS idBatch
     FROM tdo_dtl d
     INNER JOIN tbarang b ON b.brg_kode = d.dod_brg_kode
     LEFT JOIN tgudang g ON g.gdg_kode = d.dod_gdg_kode
