@@ -5,7 +5,6 @@ import { useDetailGrid } from "@/composables/useDetailGrid";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { isAuthExpiredError } from "@/api/axios";
-import { useAuthStore } from "@/stores/authStore";
 import BaseForm from "@/components/BaseForm.vue";
 import { IconBox } from "@tabler/icons-vue";
 import {
@@ -17,7 +16,6 @@ import {
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const authStore = useAuthStore();
 
 const isEdit = computed(() => !!route.params.kode || !!route.params.nomor);
 const editKode = computed(() =>
@@ -47,6 +45,8 @@ const emptyForm = (): BarangForm => ({
   merk: "",
   discSales: 0,
   het: 0,
+  divisi: "",
+  iskonsinyasi: false,
   detail: [],
 });
 
@@ -57,19 +57,16 @@ const tipeBarangOptions = ref<{ kode: number; nama: string }[]>([]);
 const kategoriOptions = ref<{ kode: string; nama: string }[]>([]);
 const gudangOptions = ref<{ kode: string; nama: string }[]>([]);
 const supplierOptions = ref<{ kode: string; nama: string }[]>([]);
-
-// ── HET hanya untuk FINANCE ──────────────────────────────────────────
-const canEditHET = computed(() => {
-  return authStore.userKode?.toUpperCase() === "FINANCE";
-});
+const divisiOptions = ref<{ kode: string; nama: string }[]>([]);
 
 // ── Load Lookup Options ──────────────────────────────────────────────
 const loadOptions = async () => {
-  const [tipe, kategori, gudang, supplier] = await Promise.allSettled([
+  const [tipe, kategori, gudang, supplier, divisi] = await Promise.allSettled([
     barangFormApi.getTipeBarang(),
     barangFormApi.getKategori(),
     barangFormApi.getGudang(),
     barangFormApi.getSupplier(),
+    barangFormApi.getDivisi(),
   ]);
   tipeBarangOptions.value = tipe.status === "fulfilled" ? tipe.value : [];
   kategoriOptions.value =
@@ -77,18 +74,20 @@ const loadOptions = async () => {
   gudangOptions.value = gudang.status === "fulfilled" ? gudang.value : [];
   supplierOptions.value =
     supplier.status === "fulfilled" ? supplier.value : [];
+  divisiOptions.value = divisi.status === "fulfilled" ? divisi.value : [];
 
   const failed = [
     ["Tipe Barang", tipe],
     ["Kategori", kategori],
     ["Gudang", gudang],
     ["Supplier", supplier],
+    ["Divisi", divisi],
   ].filter(
     ([, r]) =>
       (r as PromiseSettledResult<any>).status === "rejected",
   ).map(([label]) => label as string);
   const expired =
-    [tipe, kategori, gudang, supplier].some(
+    [tipe, kategori, gudang, supplier, divisi].some(
       (r) => r.status === "rejected" && isAuthExpiredError(r.reason),
     );
   if (failed.length && !expired) {
@@ -126,6 +125,8 @@ const loadData = async () => {
       isStok: Boolean(data.isStok),
       isExpired: Boolean(data.isExpired),
       isProductFocus: Boolean(data.isProductFocus),
+      divisi: String(data.divisi || ""),
+      iskonsinyasi: Boolean(data.iskonsinyasi),
     };
     await loadHargaJualJenis(editKode.value);
   } catch (e: any) {
@@ -326,7 +327,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
               <label class="check-lbl"><input v-model="form.isAktif" type="checkbox" /> Aktif</label>
               <label class="check-lbl"><input v-model="form.isStok" type="checkbox" /> IsStok</label>
               <label class="check-lbl"><input v-model="form.isExpired" type="checkbox" /> IsExpired</label>
-              <label class="check-lbl"><input v-model="form.isProductFocus" type="checkbox" /> Product Focus</label>
+              <label class="check-lbl"><input v-model="form.iskonsinyasi" type="checkbox" /> Konsinyasi</label>
             </div>
             <div class="f-row">
               <label class="f-lbl">Harga Beli</label>
@@ -386,32 +387,13 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
               />
             </div>
             <div class="f-row">
-              <label class="f-lbl">Disc Salesman</label>
-              <input
-                type="text"
-                inputmode="decimal"
-                class="f-inp text-right"
-                :value="getInputValue('discSales', form.discSales, 2)"
-                @focus="startEdit('discSales', $event, form.discSales)"
-                @input="onHeaderInput('discSales', 'discSales', $event)"
-                @blur="endEdit('discSales', $event, form.discSales, 2)"
-              />
-              <span class="f-hint">%</span>
-            </div>
-            <div class="f-row">
-              <label class="f-lbl">Batas Harga</label>
-              <input
-                type="text"
-                inputmode="numeric"
-                class="f-inp text-right"
-                :class="{ 'readonly-bg': !canEditHET }"
-                :value="getInputValue('het', form.het, 2)"
-                :disabled="!canEditHET"
-                :title="canEditHET ? '' : 'Hanya FINANCE dapat mengubah HET'"
-                @focus="startEdit('het', $event, form.het)"
-                @input="onHeaderInput('het', 'het', $event)"
-                @blur="endEdit('het', $event, form.het, 2)"
-              />
+              <label class="f-lbl">Divisi</label>
+              <select v-model="form.divisi" class="f-inp">
+                <option value="">-- Tidak Ada --</option>
+                <option v-for="d in divisiOptions" :key="d.kode" :value="d.kode">
+                  {{ d.kode }} - {{ d.nama }}
+                </option>
+              </select>
             </div>
           </div>
         </fieldset>

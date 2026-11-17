@@ -14,6 +14,8 @@ export interface DODetail {
   expired: string;
   closed: number;
   gudang: string;
+  gdgKons: string;
+  isKonsinyasi?: number;
   isExpired?: number;
 }
 
@@ -35,10 +37,10 @@ export interface DOForm {
 }
 
 export const doFormApi = {
-  // GET /api/penjualan/do/form/get-nomor?tanggal=&isTax=
-  getNomor: async (tanggal: string, isTax: number) => {
+  // GET /api/penjualan/do/form/get-nomor?tanggal=&isTax=&divKode=
+  getNomor: async (tanggal: string, isTax: number, divKode: string) => {
     const { data } = await api.get("/penjualan/do/form/get-nomor", {
-      params: { tanggal, isTax },
+      params: { tanggal, isTax, divKode },
     });
     return data.data;
   },
@@ -77,6 +79,15 @@ export const doFormApi = {
   searchStok: async (nomorSO: string, gdgKode: string, nomorDO: string, search = "") => {
     const { data } = await api.get("/penjualan/do/form/search-stok", {
       params: { nomorSO, gdgKode, nomorDO, search },
+    });
+    return data.data;
+  },
+
+  // GET /api/penjualan/do/form/search-stok-kons?nomorSO=&nomorDO=&search=
+  // Stok barang konsinyasi di semua gudang konsinyasi (+ kolom gdgKons).
+  searchStokKons: async (nomorSO: string, nomorDO: string, search = "") => {
+    const { data } = await api.get("/penjualan/do/form/search-stok-kons", {
+      params: { nomorSO, nomorDO, search },
     });
     return data.data;
   },

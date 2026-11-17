@@ -267,10 +267,6 @@ const subtotalBruto = computed(() => {
   return form.value.detail.reduce((sum, d) => sum + Number(d.total || 0), 0);
 });
 
-const totalCN = computed(() => {
-  return form.value.detail.reduce((sum, d) => sum + Number(d.nilaiCN || 0), 0);
-});
-
 const hitung = async () => {
   const subtotal = subtotalBruto.value;
   const discPrValue = Number(form.value.discFakturPr) || 0;
@@ -287,8 +283,6 @@ const hitung = async () => {
     form.value.amount = setelahDisc + Number(form.value.freight);
   }
 
-  form.value.cn = totalCN.value;
-
   // Total setelah retur
   try {
     const res = await fpFormApi.getNilaiRetur(form.value.nomor || "");
@@ -299,13 +293,15 @@ const hitung = async () => {
 };
 
 // ── Load Nomor ───────────────────────────────────────────────────────
-const loadNomor = async () => {
+// Nomor FP pakai prefix divisi SO — dibuat setelah SO dipilih.
+const loadNomor = async (divKode: string) => {
+  if (!divKode) return;
   try {
-    const res = await fpFormApi.getNomor(form.value.tanggal, form.value.isTax);
+    const res = await fpFormApi.getNomor(form.value.tanggal, form.value.isTax, divKode);
     form.value.nomor = res.nomor;
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
-    toast.error("Gagal generate nomor FP.");
+    toast.error(e.response?.data?.message || "Gagal generate nomor FP.");
   }
 };
 
@@ -345,8 +341,8 @@ const selectSO = async (soItem: any) => {
     tgl.setDate(tgl.getDate() + top);
     form.value.jthTempo = tgl.toISOString().split("T")[0];
 
-    // Generate nomor
-    await loadNomor();
+    // Generate nomor (prefix divisi dari SO)
+    await loadNomor(data.divKode);
 
     // Isi detail
     form.value.detail = data.detail.map((d: any, i: number) => ({
@@ -361,16 +357,16 @@ const selectSO = async (soItem: any) => {
       total: Number(d.total),
       expired: d.expired ? d.expired.split("T")[0] : "",
       kurang: Number(d.kurang),
-      cn: Number(d.cn),
-      nilaiCN: Number(d.nilaiCN),
+      cn: 0,
+      nilaiCN: 0,
       gudang: d.gudang || "",
       hrgMin: Number(d.hrgMin),
-      net: Number(d.net || 0),
+      net: 0,
       otorisasi: 0,
-      promosiRp: Number(d.promosiRp),
-      promosiPr: Number(d.promosiPr),
-      feeRp: Number(d.feeRp),
-      feePr: Number(d.feePr),
+      promosiRp: 0,
+      promosiPr: 0,
+      feeRp: 0,
+      feePr: 0,
     }));
 
     // Net per baris dihitung di sini: loadSO dari BE tidak membawa `net`,
@@ -393,20 +389,12 @@ const selectSO = async (soItem: any) => {
 };
 
 // ── Update Row Total ─────────────────────────────────────────────────
-// Hitung nilai per baris (mutasi total/nilaiCN/net), TANPA rekalkulasi
-// header. Dipakai saat load SO supaya `total` & `net` langsung tampil
-// sebelum user menyentuh harga (hitung() = async + hit retur, jangan
-// dipanggil per baris).
+// Hitung nilai per baris (total), TANPA rekalkulasi header. Dipakai saat
+// load SO supaya `total` langsung tampil sebelum user menyentuh harga.
 const hitungRowValues = (d: FPDetail) => {
   d.total = d.qty * d.harga * (100 - d.discPr) / 100;
-  d.nilaiCN = d.cn * d.total / 100;
-  // Net per unit (paritas Delphi): cn/biaya promosi/fee dihitung terhadap harga
-  // net unit, BUKAN terhadap total baris — kalau tidak, qty besar membuat net
-  // negatif (cn×total baris ≫ hargaNet unit).
-  const hargaNet = d.harga * (100 - d.discPr) / 100;
-  d.net = hargaNet - (d.cn * hargaNet) / 100
-    - d.promosiRp - (d.promosiPr * hargaNet) / 100
-    - d.feeRp - (d.feePr * hargaNet) / 100;
+  d.nilaiCN = 0;
+  d.net = d.harga * (100 - d.discPr) / 100;
 };
 
 const updateRowTotal = (d: FPDetail) => {
@@ -476,7 +464,7 @@ const validateMarginHET = async (d: FPDetail): Promise<boolean> => {
     if (m.isSample) return true;
 
     const hargaNet = (d.harga * (100 - d.discPr)) / 100;
-    const anet = hargaNet - (d.cn * hargaNet) / 100 - d.promosiRp - (d.promosiPr * hargaNet) / 100 - d.feeRp - (d.feePr * hargaNet) / 100;
+    const anet = hargaNet;
     // Paritas Delphi: margin% dibagi lastcost (Infinity bila lastcost 0 → tidak trigger)
     const marginPct = m.lastcost > 0 ? ((anet - m.lastcost) / m.lastcost) * 100 : 999;
     const minMargin = m.minMargin ?? 0;
@@ -509,11 +497,11 @@ const validateMarginHET = async (d: FPDetail): Promise<boolean> => {
           satuan: d.satuan,
           harga: d.harga,
           discPr: d.discPr,
-          promosiRp: d.promosiRp,
-          promosiPr: d.promosiPr,
-          feeRp: d.feeRp,
-          feePr: d.feePr,
-          cn: d.cn,
+          promosiRp: 0,
+          promosiPr: 0,
+          feeRp: 0,
+          feePr: 0,
+          cn: 0,
         },
       ],
     };
@@ -590,58 +578,11 @@ const confirmSavePrint = async () => {
   }
 };
 
-// ── Checkbox DP (paritas chkDPClick) ─────────────────────────────────
-const onDpCheck = async (checked: boolean) => {
-  if (!checked) {
-    form.value.dp = 0;
-    return;
-  }
-  if (!form.value.nomorSO) {
-    toast.warning("Pilih SO dahulu.");
-    return;
-  }
-  try {
-    const res = await fpFormApi.getDP(form.value.nomorSO, form.value.nomor);
-    form.value.dp = Number(res.dp) || 0;
-  } catch (e: any) {
-    if (isAuthExpiredError(e)) return;
-    toast.error("Gagal mengambil DP dari SO.");
-  }
-};
-
-// ── Checkbox CN faktur (paritas chkCNClick) ──────────────────────────
-const onCnCheck = async (checked: boolean) => {
-  if (!checked) {
-    form.value.cn = 0;
-    return;
-  }
-  if (form.value.cn > 0) {
-    toast.info("CN ini menggunakan metode per ITem");
-    return;
-  }
-  if (!form.value.cusKode) {
-    toast.warning("Pilih customer dahulu.");
-    return;
-  }
-  try {
-    const res = await fpFormApi.getCNFaktur(form.value.cusKode, form.value.tanggal);
-    const potong = Number(res.cn) || 0;
-    const base = form.value.isTax === 1
-      ? form.value.amount / getAngkaPPN(form.value.tanggal)
-      : form.value.amount;
-    form.value.cn = (potong / 100) * base;
-  } catch (e: any) {
-    if (isAuthExpiredError(e)) return;
-    toast.error("Gagal mengambil CN customer.");
-  }
-};
-
 // ── Load Data Edit ───────────────────────────────────────────────────
 const loadData = async () => {
   const nomor = route.params.nomor as string;
   if (!nomor) {
     form.value.isEdit = false;
-    await loadNomor();
     return;
   }
 
@@ -691,7 +632,6 @@ const resetForm = () => {
     totalSetelahRetur: 0,
     detail: [],
   };
-  loadNomor();
 };
 
 const { handlePostSave } = useAfterSave({ onReset: resetForm });
@@ -762,7 +702,6 @@ const bukaDraft = async (d: FpDraft) => {
   activeDraftId.value = null;
   refreshDrafts();
   showDraftDialog.value = false;
-  await loadNomor();
   await hitung();
   toast.success(`Draft dimuat: ${d.nama}`);
 };
@@ -830,11 +769,11 @@ const fpQtyEdit = (r: number, c: string, key: string) => {
 };
 
 const fpGrid = useDetailGrid({
-  cols: ["qty", "harga", "discPr", "cn"],
+  cols: ["qty", "harga", "discPr"],
   rowCount: () => form.value.detail.length,
   cellId: fpCellId,
   cellPrefix: "fp-cell",
-  typeEditCols: ["qty", "harga", "discPr", "cn"],
+  typeEditCols: ["qty", "harga", "discPr"],
   onTypeEdit: fpQtyEdit,
 });
 
@@ -886,13 +825,6 @@ const onDiscPrInput = (e: Event, d: FPDetail, idx: number) => {
   const el = e.target as HTMLInputElement;
   rawInputValues['discPr-' + idx] = el.value;
   d.discPr = parseInput(el.value);
-  updateRowTotal(d);
-};
-
-const onCnInput = (e: Event, d: FPDetail, idx: number) => {
-  const el = e.target as HTMLInputElement;
-  rawInputValues['cn-' + idx] = el.value;
-  d.cn = parseInput(el.value);
   updateRowTotal(d);
 };
 
@@ -958,13 +890,6 @@ const DETAIL_COL_WIDTHS = [
   { key: 'discPr', width: 70 },
   { key: 'total', width: 100 },
   { key: 'expired', width: 110 },
-  { key: 'cn', width: 55 },
-  { key: 'nilaiCN', width: 90 },
-  { key: 'net', width: 90 },
-  { key: 'promosiRp', width: 115 },
-  { key: 'promosiPr', width: 70 },
-  { key: 'feeRp', width: 115 },
-  { key: 'feePr', width: 70 },
 ] as const;
 
 const detailColWidthStyle = (key: typeof DETAIL_COL_WIDTHS[number]['key']) => {
@@ -1081,44 +1006,6 @@ watch(() => form.value.detail, applyDetailWidth, { deep: true });
               <DsDatePicker v-model="form.jthTempo" variant="form" />
             </div>
             <div class="f-row">
-              <label class="f-lbl">DP</label>
-              <label class="check-lbl" title="Auto sisa DP dari SO">
-                <input
-                  type="checkbox"
-                  :checked="form.dp > 0"
-                  @change="onDpCheck(($event.target as HTMLInputElement).checked)"
-                />
-              </label>
-              <input
-                type="text"
-                inputmode="numeric"
-                class="f-inp f-inp-num"
-                :value="getInputValue('dp', form.dp)"
-                @focus="startEdit('dp', $event, form.dp)"
-                @input="rawInputValues['dp'] = ($event.target as HTMLInputElement).value; form.dp = parseInput(($event.target as HTMLInputElement).value)"
-                @blur="endEdit('dp', $event, form.dp)"
-              />
-            </div>
-            <div class="f-row">
-              <label class="f-lbl">CN</label>
-              <label class="check-lbl" title="Auto CN faktur dari tpiutangcn">
-                <input
-                  type="checkbox"
-                  :checked="form.cn > 0"
-                  @change="onCnCheck(($event.target as HTMLInputElement).checked)"
-                />
-              </label>
-              <input
-                type="text"
-                inputmode="numeric"
-                class="f-inp f-inp-num"
-                :value="getInputValue('cn', form.cn)"
-                @focus="startEdit('cn', $event, form.cn)"
-                @input="rawInputValues['cn'] = ($event.target as HTMLInputElement).value; form.cn = parseInput(($event.target as HTMLInputElement).value)"
-                @blur="endEdit('cn', $event, form.cn)"
-              />
-            </div>
-            <div class="f-row">
               <label class="f-lbl">Salesman</label>
               <input :value="form.salesman" class="f-inp readonly-bg" readonly />
             </div>
@@ -1126,22 +1013,6 @@ watch(() => form.value.detail, applyDetailWidth, { deep: true });
               <label class="check-lbl">
                 <input v-model="form.isTax" type="checkbox" :true-value="1" :false-value="0" disabled />
                 Pajak
-              </label>
-              <label class="check-lbl">
-                <input v-model="form.isEcer" type="checkbox" :true-value="1" :false-value="0" disabled />
-                Eceran
-              </label>
-              <label class="check-lbl">
-                <input v-model="form.tipecash" type="checkbox" :true-value="1" :false-value="0" />
-                Cash
-              </label>
-              <label class="check-lbl">
-                <input v-model="form.isDTP" type="checkbox" :true-value="1" :false-value="0" />
-                DTP
-              </label>
-              <label class="check-lbl">
-                <input v-model="form.isCatalog" type="checkbox" :true-value="1" :false-value="0" />
-                E-catalog
               </label>
             </div>
           </div>
@@ -1169,13 +1040,6 @@ watch(() => form.value.detail, applyDetailWidth, { deep: true });
                   <th :style="detailColWidthStyle('discPr')" class="tr">Disc%</th>
                   <th :style="detailColWidthStyle('total')" class="tr">Total</th>
                   <th :style="detailColWidthStyle('expired')" class="tc">Expired</th>
-                  <th :style="detailColWidthStyle('cn')" class="tr">CN%</th>
-                  <th :style="detailColWidthStyle('nilaiCN')" class="tr">Nilai CN</th>
-                  <th :style="detailColWidthStyle('net')" class="tr">Net</th>
-                  <th :style="detailColWidthStyle('promosiRp')" class="tr">Promosi Rp</th>
-                  <th :style="detailColWidthStyle('promosiPr')" class="tr">Promosi %</th>
-                  <th :style="detailColWidthStyle('feeRp')" class="tr">Fee Rp</th>
-                  <th :style="detailColWidthStyle('feePr')" class="tr">Fee</th>
                 </tr>
               </thead>
             </table>
@@ -1228,18 +1092,9 @@ watch(() => form.value.detail, applyDetailWidth, { deep: true });
                   </td>
                   <td class="tr cell-total" :style="detailColWidthStyle('total')">{{ fmt(d.total) }}</td>
                   <td class="tc cell-muted" :style="detailColWidthStyle('expired')">{{ d.expired }}</td>
-                  <td class="tr" :style="detailColWidthStyle('cn')">
-                    <input type="text" inputmode="numeric" class="cell-inp tr" :id="fpCellId('cn', idx)" :class="{ 'cell-active': isActiveCell(idx, 'cn') }" :value="getInputValue('cn-' + idx, d.cn)" @focus="fpOnGridFocus('cn', idx); startEdit('cn-' + idx, $event, d.cn)" @input="onCnInput($event, d, idx)" @blur="endEdit('cn-' + idx, $event, d.cn); fpGridBlur()" />
-                  </td>
-                  <td class="tr cell-muted" :style="detailColWidthStyle('nilaiCN')">{{ fmt(d.nilaiCN) }}</td>
-                  <td class="tr cell-total-accent" :style="detailColWidthStyle('net')">{{ fmt(d.net) }}</td>
-                  <td class="tr cell-muted" :style="detailColWidthStyle('promosiRp')">{{ fmt(d.promosiRp) }}</td>
-                  <td class="tr cell-muted" :style="detailColWidthStyle('promosiPr')">{{ d.promosiPr }}</td>
-                  <td class="tr cell-muted" :style="detailColWidthStyle('feeRp')">{{ fmt(d.feeRp) }}</td>
-                  <td class="tr cell-muted" :style="detailColWidthStyle('feePr')">{{ d.feePr }}</td>
                 </tr>
                 <tr v-if="form.detail.length === 0">
-                  <td colspan="17" class="empty-state">
+                  <td colspan="10" class="empty-state">
                     Belum ada barang. Klik <strong>"Pilih SO"</strong> untuk mulai mengisi.
                   </td>
                 </tr>

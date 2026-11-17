@@ -36,6 +36,18 @@ const getInvoiceBySupplier = async (req, res) => {
   }
 };
 
+const getReturBySupplier = async (req, res) => {
+  try {
+    const { supKode, nomorBys = "" } = req.query;
+    if (!supKode)
+      return res.status(400).json({ success: false, message: "supKode wajib." });
+    const data = await svc.getReturBySupplier(supKode, nomorBys);
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 const getNomor = async (req, res) => {
   try {
     const { tanggal } = req.query;
@@ -70,6 +82,7 @@ module.exports = {
   getSupplier,
   getRekening,
   getInvoiceBySupplier,
+  getReturBySupplier,
   getNomor,
   getDetailForm,
   saveData,

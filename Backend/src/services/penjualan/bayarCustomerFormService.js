@@ -1,5 +1,6 @@
 // services/penjualan/bayarCustomerFormService.js
 const db = require("../../config/database");
+const { REK, insertJurnal, deleteJurnal } = require("../jurnalHelper");
 
 // ── Generate Nomor ───────────────────────────────────────────────────
 const getMaxNomor = async (tanggal, cabang = "01") => {
@@ -61,6 +62,8 @@ const getRekening = async (jenis = "cash", userKode = "") => {
 // ── Get Invoice ──────────────────────────────────────────────────────
 // includePaid: true saat load form edit — invoice yang sudah lunas/dipilih
 // tetap ditampilkan (Delphi: filter HAVING hanya untuk dokumen baru / FLAGEDIT=False).
+// Retur TIDAK lagi dipotong otomatis di grid — retur dipilih di header dan
+// dipakai mengurangi total pembayaran.
 // ── Format tanggal utk hasil getInvoice ──
 // Database.js memakai timezone +07:00; mysql2 memberi Date; format lokal.
 const fmtDate = (v) => {
@@ -82,12 +85,11 @@ const getInvoice = async (cusKode, isTax, includePaid = false) => {
   const taxCond = Number(isTax) === 1 ? "fp_istax = 1" : "fp_istax <> 1";
 
   const sql = `
-    SELECT Salesman, Invoice, Tanggal, JthTempo, Retur, PPN, Nilai, Terbayar, DPP, PPH, Memo, Angsur
+    SELECT Salesman, Invoice, Tanggal, JthTempo, PPN, Nilai, Terbayar, DPP, PPH, Memo, Angsur
     FROM (
       SELECT (SELECT sla_nama FROM tsalesmanaktif WHERE sla_sls_kode = so.so_sls_kode AND sla_isaktif = 1 LIMIT 1) AS salesman,
         fp.fp_nomor AS Invoice, fp.fp_tanggal AS Tanggal,
         j.jt_tanggaljt AS JthTempo,
-        IFNULL((SELECT SUM(retj_amount) FROM tretj_hdr WHERE retj_fp_nomor = fp.fp_nomor), 0) AS Retur,
         0 AS PPN, j.jt_nilai AS Nilai,
         IFNULL((SELECT SUM(bycd_bayar) FROM tbayarcus_dtl
                  WHERE bycd_fp_nomor = fp.fp_nomor AND bycd_jthtempo = j.jt_tanggaljt), 0) AS Terbayar,
@@ -100,11 +102,10 @@ const getInvoice = async (cusKode, isTax, includePaid = false) => {
       SELECT (SELECT sla_nama FROM tsalesmanaktif WHERE sla_sls_kode = so.so_sls_kode AND sla_isaktif = 1 LIMIT 1) AS salesman,
         fp.fp_nomor AS Invoice, fp.fp_tanggal AS Tanggal,
         fp.fp_jthtempo AS JthTempo,
-        IFNULL((SELECT SUM(retj_amount) FROM tretj_hdr WHERE retj_fp_nomor = fp.fp_nomor), 0) AS Retur,
         IFNULL(fp.fp_taxamount, 0) AS PPN,
         ${Number(isTax) === 1
-          ? "fp.fp_amount - IFNULL((SELECT SUM(retj_amount) FROM tretj_hdr WHERE retj_fp_nomor = fp.fp_nomor), 0) - IFNULL(fp.fp_dp, 0)"
-          : "fp.fp_amount - IFNULL((SELECT SUM(retj_amount) FROM tretj_hdr WHERE retj_fp_nomor = fp.fp_nomor), 0) - IFNULL(fp.fp_dp, 0)"} AS Nilai,
+          ? "fp.fp_amount - IFNULL(fp.fp_dp, 0)"
+          : "fp.fp_amount - IFNULL(fp.fp_dp, 0)"} AS Nilai,
         IFNULL(fp.fp_bayar, 0) AS Terbayar,
         ${Number(isTax) === 1 ? "fp.fp_amount - IFNULL(fp.fp_taxamount, 0)" : "0"} AS DPP,
         ${Number(isTax) === 1 ? "IF((fp.fp_amount - fp.fp_taxamount) > 2000000, 1.5 * (fp.fp_amount - fp.fp_taxamount) / 100, 0)" : "0"} AS PPH,
@@ -125,7 +126,6 @@ const getInvoice = async (cusKode, isTax, includePaid = false) => {
     invoice: r.Invoice,
     tanggal: fmtDate(r.Tanggal),
     jthTempo: fmtDate(r.JthTempo),
-    retur: Number(r.Retur || 0),
     ppn: Number(r.PPN || 0),
     nilai: Number(r.Nilai || 0),
     terbayar: Number(r.Terbayar || 0),
@@ -135,6 +135,29 @@ const getInvoice = async (cusKode, isTax, includePaid = false) => {
     memo: r.Memo || "",
     angsur: Number(r.Angsur || 0),
   }));
+};
+
+// ── List Retur Penjualan milik customer (untuk setle di header penerimaan)
+// Retur dianggap terpakai bila sudah muncul di tbayarcus_dtl dokumen lain.
+const getReturByCustomer = async (cusKode, nomorByc = "") => {
+  const [rows] = await db.query(
+    `SELECT
+       h.retj_nomor AS nomor,
+       DATE_FORMAT(h.retj_tanggal, '%Y-%m-%d') AS tanggal,
+       h.retj_fp_nomor AS invoice,
+       IFNULL(h.retj_amount, 0) AS amount,
+       IFNULL(h.retj_memo, '') AS memo
+     FROM tretj_hdr h
+     WHERE h.retj_cus_kode = ?
+       AND NOT EXISTS (
+         SELECT 1 FROM tbayarcus_dtl d
+         WHERE d.bycd_fp_nomor = h.retj_nomor
+           AND d.bycd_byc_nomor <> ?
+       )
+     ORDER BY h.retj_tanggal DESC`,
+    [cusKode, nomorByc || ""]
+  );
+  return rows.map((r) => ({ ...r, amount: Number(r.amount) }));
 };
 
 // ── Load Form Edit ───────────────────────────────────────────────────
@@ -215,6 +238,15 @@ const getDetailForm = async (nomor) => {
     for (const r of rek) namaRek[r.rek_kode] = r.rek_nama;
   }
 
+  // Retur yang sudah dipakai untuk setle di dokumen ini — tandai checked
+  const retur = await getReturByCustomer(h.cusKode, nomor);
+  const [appliedRetur] = await db.query(
+    `SELECT bycd_fp_nomor FROM tbayarcus_dtl WHERE bycd_byc_nomor = ?`,
+    [nomor]
+  );
+  const appliedSet = new Set(appliedRetur.map((r) => r.bycd_fp_nomor));
+  for (const r of retur) r.checked = appliedSet.has(r.nomor) ? 1 : 0;
+
   return {
     ...h,
     cusNama: customer?.cus_nama || "",
@@ -226,6 +258,7 @@ const getDetailForm = async (nomor) => {
     rekPPNNama: namaRek[h.rekPPN] || "",
     rekPPHNama: namaRek[h.rekPPH] || "",
     detail: invoices.filter((inv) => inv.pay === 1 || inv.nilai - inv.terbayar > 0),
+    retur,
   };
 };
 
@@ -257,7 +290,7 @@ const saveData = async (payload, user) => {
     isEdit, nomor, tanggal, cusKode, memo, isTax,
     cash, rekCash, transfer, rekTransfer, potongan, rekPotongan,
     giro, rekGiro, noGiro, tglCair, ppn, rekPPN, pph, rekPPH, ntpn,
-    detail,
+    detail, retur,
   } = payload;
 
   // Paritas Delphi cxButton1Click: blok bila periode sudah ditutup
@@ -283,15 +316,46 @@ const saveData = async (payload, user) => {
 
   // Paritas Delphi cekdata: total bayar harus seimbang dengan metode
   // pembayaran (toleransi 10) — dipaksa juga di server.
-  const totalDetail = (detail || []).reduce((s, d) => s + Number(d.bayar || 0), 0);
-  const totalMetode =
-    Number(cash) + Number(transfer) + Number(potongan) +
-    Number(giro) + Number(ppn) + Number(pph);
-  const selisih = totalDetail - totalMetode;
-  if (selisih > 10 || selisih < -10) {
-    throw new Error(
-      `Pembayaran dengan Total ${totalDetail} yang di bayar Beda ${totalMetode}`
-    );
+  // Retur di header dipakai mengurangi pembayaran (setle).
+  let listRetur = [];
+  {
+    const conn0 = await db.getConnection();
+    try {
+      for (const r of retur || []) {
+        if (!r || !r.nomor) continue;
+        const [[h]] = await conn0.query(
+          `SELECT retj_nomor, retj_cus_kode, retj_amount FROM tretj_hdr WHERE retj_nomor = ?`,
+          [r.nomor]
+        );
+        if (!h) throw new Error(`Retur ${r.nomor} tidak ditemukan.`);
+        if (h.retj_cus_kode !== cusKode)
+          throw new Error(`Retur ${r.nomor} bukan milik customer ini.`);
+        const [[dipakai]] = await conn0.query(
+          `SELECT bycd_byc_nomor FROM tbayarcus_dtl
+           WHERE bycd_fp_nomor = ? AND bycd_byc_nomor <> ? LIMIT 1`,
+          [r.nomor, nomor]
+        );
+        if (dipakai)
+          throw new Error(`Retur ${r.nomor} sudah dipakai penerimaan ${dipakai.bycd_byc_nomor}.`);
+        listRetur.push({ nomor: h.retj_nomor, amount: Number(h.retj_amount) || 0 });
+      }
+
+      const totalDetail = (detail || []).reduce((s, d) => s + Number(d.bayar || 0), 0);
+      const totalRetur = listRetur.reduce((s, r) => s + r.amount, 0);
+      const totalMetode =
+        Number(cash) + Number(transfer) + Number(potongan) +
+        Number(giro) + Number(ppn) + Number(pph);
+      if (totalRetur > totalDetail)
+        throw new Error("Total retur melebihi total pembayaran invoice.");
+      const selisih = totalDetail - totalRetur - totalMetode;
+      if (selisih > 10 || selisih < -10) {
+        throw new Error(
+          `Pembayaran dengan Total ${totalDetail - totalRetur} yang di bayar Beda ${totalMetode}`
+        );
+      }
+    } finally {
+      conn0.release();
+    }
   }
 
   const conn = await db.getConnection();
@@ -355,6 +419,36 @@ const saveData = async (payload, user) => {
       }
     }
 
+    // Baris retur: bycd_fp_nomor = nomor retur (bukan faktur) — trigger
+    // tfp_hdr dari DB akan no-op karena nomor tidak match.
+    for (const r of listRetur) {
+      await conn.query(
+        `INSERT INTO tbayarcus_dtl (bycd_byc_nomor, bycd_fp_nomor, bycd_bayar, bycd_jthtempo)
+         VALUES (?, ?, ?, NULL)`,
+        [actualNomor, r.nomor, r.amount]
+      );
+    }
+
+    // ── Jurnal setle retur: RK PIUTANG kembali ke PIUTANG DAGANG ────
+    // RK PIUTANG (14.007) Debit = retur | PIUTANG (14.001) Kredit = retur
+    // Jurnal utama penerimaan tetap dibangun trigger DB; jurnal setle
+    // ini dibangun di Node dengan jur_no = {nomor}R.
+    await deleteJurnal(conn, `${actualNomor}R`);
+    const totalRetur = listRetur.reduce((s, r) => s + r.amount, 0);
+    if (totalRetur > 0) {
+      await insertJurnal(conn, {
+        nomor: `${actualNomor}R`,
+        tanggal,
+        tipetransaksi: "Setle Retur Penjualan",
+        keterangan: `Setle Retur Penerimaan ${actualNomor}`,
+        user,
+        items: [
+          { rek: REK.rkPiutang, debit: totalRetur, kredit: 0 },
+          { rek: REK.piutang, debit: 0, kredit: totalRetur },
+        ],
+      });
+    }
+
     await conn.commit();
     return { nomor: actualNomor };
   } catch (e) {
@@ -370,6 +464,7 @@ module.exports = {
   getCustomer,
   getRekening,
   getInvoice,
+  getReturByCustomer,
   getDetailForm,
   saveData,
   getBatas,

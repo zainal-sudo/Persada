@@ -12,6 +12,7 @@ router.get("/customer", verifyToken, checkPermission("view"), ctrl.getCustomer);
 router.get("/rekening", verifyToken, checkPermission("view"), ctrl.getRekening);
 router.get("/get-batas/:kode", verifyToken, checkPermission("view"), ctrl.getBatas);
 router.get("/invoice", verifyToken, checkPermission("view"), ctrl.getInvoice);
+router.get("/retur-by-customer", verifyToken, checkPermission("view"), ctrl.getReturByCustomer);
 router.get("/:nomor", verifyToken, checkPermission("view"), ctrl.getDetailForm);
 router.post("/save", verifyToken, checkPermission("insert"), ctrl.saveData);
 

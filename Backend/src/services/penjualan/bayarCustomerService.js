@@ -1,5 +1,6 @@
 // services/penjualan/bayarCustomerService.js
 const db = require("../../config/database");
+const { deleteJurnal } = require("../jurnalHelper");
 
 const getBrowse = async (startDate, endDate) => {
   const [rows] = await db.query(
@@ -45,12 +46,13 @@ const getBrowseDetail = async (nomor) => {
     `SELECT 
        d.bycd_byc_nomor AS Nomor,
        d.bycd_fp_nomor AS Invoice,
-       DATE_FORMAT(fp.fp_tanggal, '%Y-%m-%d') AS Tgl_Invoice,
-       DATE_FORMAT(fp.fp_jthtempo, '%Y-%m-%d') AS JthTempo,
-       IFNULL(fp.fp_amount, 0) AS Nilai,
+       DATE_FORMAT(IF(rj.retj_nomor IS NOT NULL, rj.retj_tanggal, fp.fp_tanggal), '%Y-%m-%d') AS Tgl_Invoice,
+       DATE_FORMAT(IF(rj.retj_nomor IS NOT NULL, rj.retj_tanggal, fp.fp_jthtempo), '%Y-%m-%d') AS JthTempo,
+       IF(rj.retj_nomor IS NOT NULL, IFNULL(rj.retj_amount, 0), IFNULL(fp.fp_amount, 0)) AS Nilai,
        IFNULL(d.bycd_bayar, 0) AS Bayar
      FROM tbayarcus_dtl d
-     INNER JOIN tfp_hdr fp ON fp.fp_nomor = d.bycd_fp_nomor
+     LEFT JOIN tfp_hdr fp ON fp.fp_nomor = d.bycd_fp_nomor
+     LEFT JOIN tretj_hdr rj ON rj.retj_nomor = d.bycd_fp_nomor
      WHERE d.bycd_byc_nomor = ?
      ORDER BY d.bycd_byc_nomor ASC`,
     [nomor]
@@ -70,6 +72,9 @@ const deleteData = async (nomor) => {
   try {
     await conn.query(`DELETE FROM tbayarcus_dtl WHERE bycd_byc_nomor = ?`, [nomor]);
     await conn.query(`DELETE FROM tbayarcus_hdr WHERE byc_nomor = ?`, [nomor]);
+    // Trigger DB menghapus jurnal utama; jurnal setle retur (nomor + 'R')
+    // dibuat dari Node → dihapus di sini.
+    await deleteJurnal(conn, `${nomor}R`);
     await conn.commit();
   } catch (e) {
     await conn.rollback();
@@ -124,16 +129,17 @@ const getPrintData = async (nomor) => {
     `
     SELECT
       d.bycd_fp_nomor AS fpNomor,
-      DATE_FORMAT(fp.fp_tanggal, '%m/%d/%Y') AS fpTanggal,
-      DATE_FORMAT(fp.fp_jthtempo, '%m/%d/%Y') AS fpJthTempo,
-      IFNULL(fp.fp_amount, 0) AS fpAmount,
+      DATE_FORMAT(IF(rj.retj_nomor IS NOT NULL, rj.retj_tanggal, fp.fp_tanggal), '%m/%d/%Y') AS fpTanggal,
+      DATE_FORMAT(IF(rj.retj_nomor IS NOT NULL, rj.retj_tanggal, fp.fp_jthtempo), '%m/%d/%Y') AS fpJthTempo,
+      IF(rj.retj_nomor IS NOT NULL, IFNULL(rj.retj_amount, 0), IFNULL(fp.fp_amount, 0)) AS fpAmount,
       IFNULL(fp.fp_dp, 0) AS fpDp,
       IFNULL(fp.fp_cn, 0) AS fpCn,
       IFNULL(fp.fp_bayar, 0) AS fpBayar,
       IFNULL((SELECT SUM(retj_amount) FROM tretj_hdr WHERE retj_fp_nomor = fp.fp_nomor), 0) AS retur,
       d.bycd_bayar AS bayar
     FROM tbayarcus_dtl d
-    INNER JOIN tfp_hdr fp ON fp.fp_nomor = d.bycd_fp_nomor
+    LEFT JOIN tfp_hdr fp ON fp.fp_nomor = d.bycd_fp_nomor
+    LEFT JOIN tretj_hdr rj ON rj.retj_nomor = d.bycd_fp_nomor
     WHERE d.bycd_byc_nomor = ?
     ORDER BY d.bycd_fp_nomor ASC
     `,

@@ -61,28 +61,42 @@ const getRekening = async (search = "") => {
 };
 
 // ── Lookup Barang ────────────────────────────────────────────────────
-const getBarang = async (search = "", jenisCustomer = "") => {
+const getBarang = async (search = "", jenisCustomer = "", divKode = "") => {
+  if (!divKode) {
+    throw new Error("Divisi wajib dipilih sebelum mencari barang.");
+  }
   const [rows] = await db.query(
     `SELECT b.brg_kode AS kode, b.brg_nama AS nama, b.brg_satuan AS satuan,
             IFNULL(h.hjj_hargajual, b.brg_hrgjual) AS hargaJual,
             IFNULL(b.brg_disc_sales, 0) AS discSales
      FROM tbarang b
-     LEFT JOIN thargajualjenis h 
-       ON h.hjj_brg_kode = b.brg_kode 
+     LEFT JOIN thargajualjenis h
+       ON h.hjj_brg_kode = b.brg_kode
        AND h.hjj_jc_kode = ?
-     WHERE b.brg_nama LIKE ? OR b.brg_kode LIKE ?
+     WHERE b.brg_div_kode = ?
+       AND (b.brg_nama LIKE ? OR b.brg_kode LIKE ?)
      ORDER BY b.brg_nama LIMIT 50`,
-    [jenisCustomer, `%${search}%`, `%${search}%`]
+    [jenisCustomer, divKode, `%${search}%`, `%${search}%`]
   );
   return rows;
 };
 
 // ── Generate Nomor SO ────────────────────────────────────────────────
-const getMaxNomor = async (tanggal, isTax, cabang = "01") => {
+// Format baru: PREFIX.SO.yymm.NNNN (PREFIX = div_prefix dari tdivisi),
+// contoh: AMP.SO.2611.0001. Sequence terpisah pajak/non-pajak, terpisah
+// dari nomor format lama (01-SO.yymm.xxxx).
+const getMaxNomor = async (tanggal, isTax, divKode) => {
+  if (!divKode) throw new Error("Divisi wajib dipilih untuk membuat nomor SO.");
+  const [[div]] = await db.query(
+    `SELECT div_prefix FROM tdivisi WHERE div_kode = ?`,
+    [divKode]
+  );
+  if (!div || !div.div_prefix) throw new Error("Prefix divisi tidak ditemukan.");
+
   const d = new Date(tanggal);
   const yy = String(d.getFullYear()).slice(2);
   const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const prefix = `${cabang}-SO.${yy}${mm}.`;
+  const prefix = `${div.div_prefix}.SO.${yy}${mm}.`;
 
   if (Number(isTax) === 1) {
     // PAJAK: 10000 + max(4 digit terakhir) + 1 → ambil 4 digit terakhir
@@ -280,9 +294,10 @@ const getDetailForm = async (nomor) => {
             IFNULL(so_taxamount, 0) AS taxAmount,
             IFNULL(so_dp, 0) AS dp, 
             IFNULL(so_rek_dp, '') AS rekDp, 
-            IFNULL(so_istax, 0) AS isTax, 
-            IFNULL(so_isecer, 0) AS isEcer, 
-            IFNULL(so_isproforma, 0) AS isProforma
+            IFNULL(so_istax, 0) AS isTax,
+            IFNULL(so_isecer, 0) AS isEcer,
+            IFNULL(so_isproforma, 0) AS isProforma,
+            IFNULL(so_div_kode, '') AS divKode
      FROM tso_hdr WHERE so_nomor = ?`,
     [nomor]
   );
@@ -343,8 +358,12 @@ const saveData = async (payload, user) => {
   const {
     isEdit, nomor, tanggal, memo, cusKode, shipAddress,
     slsKode, slaKode, discFaktur, discFakturPr, amount, taxAmount,
-    dp, rekDp, isTax, isEcer, isProforma, detail,
+    dp, rekDp, isTax, isEcer, isProforma, divKode, detail,
   } = payload;
+
+  if (!divKode) {
+    throw new Error("Divisi wajib dipilih.");
+  }
 
   const conn = await db.getConnection();
   await conn.beginTransaction();
@@ -368,27 +387,28 @@ const saveData = async (payload, user) => {
            so_sls_kode = ?, so_sla_kode = ?, so_disc_faktur = ?,
            so_disc_fakturpr = ?, so_amount = ?, so_taxamount = ?,
            so_dp = ?, so_rek_dp = ?, so_istax = ?, so_isecer = ?,
-           so_isproforma = ?, date_modified = NOW(), user_modified = ?
+           so_isproforma = ?, so_div_kode = ?,
+           date_modified = NOW(), user_modified = ?
          WHERE so_nomor = ?`,
         [
           tanggal, memo, cusKode, shipAddress, slsKode, slaKode,
           discFaktur, discFakturPr, amount, taxAmount, dp, rekDp,
-          isTax, isEcer, isProforma, user.kode, nomor,
+          isTax, isEcer, isProforma, divKode, user.kode, nomor,
         ]
       );
     } else {
-      actualNomor = await getMaxNomor(tanggal, isTax, user.cabang);
+      actualNomor = await getMaxNomor(tanggal, isTax, divKode);
       await conn.query(
         `INSERT INTO tso_hdr
            (so_nomor, so_tanggal, so_memo, so_cus_kode, so_shipaddress,
             so_sls_kode, so_sla_kode, so_disc_faktur, so_disc_fakturpr,
             so_amount, so_taxamount, so_dp, so_rek_dp, so_istax,
-            so_isecer, so_isproforma, date_create, user_create)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
+            so_isecer, so_isproforma, so_div_kode, date_create, user_create)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
         [
           actualNomor, tanggal, memo, cusKode, shipAddress, slsKode,
           slaKode, discFaktur, discFakturPr, amount, taxAmount, dp,
-          rekDp, isTax, isEcer, isProforma, user.kode,
+          rekDp, isTax, isEcer, isProforma, divKode, user.kode,
         ]
       );
     }

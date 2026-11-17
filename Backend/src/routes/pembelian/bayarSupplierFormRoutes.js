@@ -12,6 +12,7 @@ router.use(resolveMenuId);
 router.get("/supplier", verifyToken, checkPermission("view"), ctrl.getSupplier);
 router.get("/rekening", verifyToken, checkPermission("view"), ctrl.getRekening);
 router.get("/invoice-by-supplier", verifyToken, checkPermission("view"), ctrl.getInvoiceBySupplier);
+router.get("/retur-by-supplier", verifyToken, checkPermission("view"), ctrl.getReturBySupplier);
 
 // Utility
 router.get("/get-nomor", verifyToken, checkPermission("view"), ctrl.getNomor);

@@ -1,9 +1,8 @@
 // services/pembelian/returBeliService.js
 const db = require("../../config/database");
+const { deleteJurnal } = require("../jurnalHelper");
 
-/**
- * Browse Retur Beli — paritas Delphi ufrmBrowseReturBeli.btnRefreshClick
- */
+// Browse Retur Beli — paritas Delphi ufrmBrowseReturBeli.btnRefreshClick
 const getBrowse = async (startDate, endDate) => {
   const [rows] = await db.query(
     `SELECT
@@ -60,11 +59,22 @@ const deleteData = async (nomor) => {
   );
   if (!header) throw new Error("Data Retur Beli tidak ditemukan.");
 
+  // Blokir bila retur sudah dipakai untuk setle pembayaran supplier
+  const [[dipakai]] = await db.query(
+    `SELECT bysd_bys_nomor FROM tbayarsup_dtl WHERE bysd_inv_nomor = ? LIMIT 1`,
+    [nomor]
+  );
+  if (dipakai) {
+    throw new Error(`Retur sudah dipakai pembayaran ${dipakai.bysd_bys_nomor}. Hapus pembayaran terlebih dahulu.`);
+  }
+
   const conn = await db.getConnection();
   await conn.beginTransaction();
   try {
     await conn.query(`DELETE FROM tret_dtl WHERE retd_ret_nomor = ?`, [nomor]);
     await conn.query(`DELETE FROM tret_hdr WHERE ret_nomor = ?`, [nomor]);
+    // Jurnal retur dibuat dari Node (bukan trigger) → ikut dihapus
+    await deleteJurnal(conn, nomor);
     await conn.commit();
   } catch (e) {
     await conn.rollback();

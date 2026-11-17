@@ -7,6 +7,8 @@ const db = require("../config/database");
 const HIDDEN_MENU_LABELS = new Set([
   "laporan pencapaian marketing",
   "faktur pajak v3",
+  "setting biaya promosi",
+  "pembayaran biaya promosi",
 ]);
 
 const isHiddenMenu = (m) => {

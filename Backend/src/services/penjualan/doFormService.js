@@ -2,11 +2,21 @@
 const db = require("../../config/database");
 
 // ── Generate Nomor DO ────────────────────────────────────────────────
-const getMaxNomor = async (tanggal, isTax, cabang = "01") => {
+// Format: PREFIX.DO.yymm.NNNN (PREFIX = div_prefix divisi SO), contoh:
+// AMP.DO.2611.0001. Sequence terpisah pajak/non-pajak, terpisah dari
+// nomor format lama (01-DO.yymm.xxxx).
+const getMaxNomor = async (tanggal, isTax, divKode) => {
+  if (!divKode) throw new Error("Divisi SO tidak ditemukan.");
+  const [[div]] = await db.query(
+    `SELECT div_prefix FROM tdivisi WHERE div_kode = ?`,
+    [divKode]
+  );
+  if (!div || !div.div_prefix) throw new Error("Prefix divisi tidak ditemukan.");
+
   const d = new Date(tanggal);
   const yy = String(d.getFullYear()).slice(2);
   const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const prefix = `${cabang}-DO.${yy}${mm}.`;
+  const prefix = `${div.div_prefix}.DO.${yy}${mm}.`;
 
   if (Number(isTax) === 1) {
     const [[row]] = await db.query(
@@ -72,7 +82,7 @@ const loadSO = async (nomorSO) => {
   if (setorErr) throw new Error(setorErr);
 
   const [[row]] = await db.query(
-    `SELECT so.so_nomor, so.so_istax, so.so_isecer,
+    `SELECT so.so_nomor, so.so_istax, so.so_isecer, so.so_div_kode,
             so.so_cus_kode, c.cus_nama, c.cus_alamat, c.cus_shipaddress
      FROM tso_hdr so
      LEFT JOIN tcustomer c ON c.cus_kode = so.so_cus_kode
@@ -86,6 +96,7 @@ const loadSO = async (nomorSO) => {
     nomorSO: row.so_nomor,
     isTax: row.so_istax,
     isEcer: row.so_isecer,
+    divKode: row.so_div_kode || "",
     cusKode: row.so_cus_kode,
     cusNama: row.cus_nama || "",
     alamat: row.cus_alamat || "",
@@ -96,7 +107,8 @@ const loadSO = async (nomorSO) => {
 // ── Lookup Gudang ────────────────────────────────────────────────────
 const getGudang = async (search = "") => {
   const [rows] = await db.query(
-    `SELECT gdg_kode AS kode, gdg_nama AS nama
+    `SELECT gdg_kode AS kode, gdg_nama AS nama,
+            IFNULL(gdg_iskonsinyasi, 0) AS isKonsinyasi
      FROM tgudang
      WHERE gdg_nama LIKE ? OR gdg_kode LIKE ?
      ORDER BY gdg_nama LIMIT 50`,
@@ -136,13 +148,14 @@ const getDriver = async () => {
 const searchStok = async (nomorSO, gdgKode, nomorDO, search = "") => {
   const q = `%${search}%`;
   const [rows] = await db.query(
-    `SELECT b.brg_kode AS sku, 
+    `SELECT b.brg_kode AS sku,
             DATE_FORMAT(m.mst_expired_date, '%Y-%m-%d') AS expired,
             b.brg_nama AS namaBarang,
             m.mst_idbatch AS idBatch,
             SUM(m.mst_stok_in - m.mst_stok_out) AS stok,
             b.brg_satuan AS satuan,
             IFNULL(b.brg_isexpired, 0) AS isExpired,
+            IFNULL(b.brg_iskonsinyasi, 0) AS isKonsinyasi,
             (SELECT IFNULL(SUM(t.sod_qty - IFNULL(t.sod_qty_kirim, 0)), 0)
              FROM tso_dtl t
              WHERE t.sod_so_nomor = ? AND t.sod_brg_kode = b.brg_kode) AS kurang
@@ -152,6 +165,8 @@ const searchStok = async (nomorSO, gdgKode, nomorDO, search = "") => {
       INNER JOIN tso_dtl d ON d.sod_brg_kode = b.brg_kode 
         AND d.sod_so_nomor = ?
       WHERE m.mst_noreferensi <> ?
+        -- Item konsinyasi dicari lewat searchStokKons (stok di gudang konsinyasi)
+        AND IFNULL(b.brg_iskonsinyasi, 0) = 0
         AND (b.brg_nama LIKE ? OR b.brg_kode LIKE ?)
       GROUP BY b.brg_kode, b.brg_nama, b.brg_satuan, m.mst_expired_date, m.mst_idbatch
       HAVING SUM(m.mst_stok_in - m.mst_stok_out) <> 0
@@ -167,6 +182,7 @@ const searchStok = async (nomorSO, gdgKode, nomorDO, search = "") => {
              0 AS stok,
              b.brg_satuan AS satuan,
              IFNULL(b.brg_isexpired, 0) AS isExpired,
+             IFNULL(b.brg_iskonsinyasi, 0) AS isKonsinyasi,
              (SELECT IFNULL(SUM(t2.sod_qty - IFNULL(t2.sod_qty_kirim, 0)), 0)
               FROM tso_dtl t2
               WHERE t2.sod_so_nomor = ? AND t2.sod_brg_kode = b.brg_kode) AS kurang
@@ -184,8 +200,75 @@ const searchStok = async (nomorSO, gdgKode, nomorDO, search = "") => {
         GROUP BY b2.brg_kode, b2.brg_nama, b2.brg_satuan, m2.mst_expired_date, m2.mst_idbatch
         HAVING SUM(m2.mst_stok_in - m2.mst_stok_out) <> 0
       )
+        AND IFNULL(b.brg_iskonsinyasi, 0) = 0
         AND (b.brg_nama LIKE ? OR b.brg_kode LIKE ?)`,
     [nomorSO, gdgKode, nomorSO, nomorDO, q, q, nomorSO, nomorSO, gdgKode, nomorSO, nomorDO, q, q]
+  );
+  return rows;
+};
+
+// ── Search Stok Konsinyasi ───────────────────────────────────────────
+// Stok barang konsinyasi di SEMUA gudang konsinyasi (hasil Titip Barang),
+// lengkap dengan expired/idbatch + gudang konsinyasinya per baris.
+const searchStokKons = async (nomorSO, nomorDO, search = "") => {
+  const q = `%${search}%`;
+  const [rows] = await db.query(
+    `SELECT b.brg_kode AS sku,
+            DATE_FORMAT(m.mst_expired_date, '%Y-%m-%d') AS expired,
+            b.brg_nama AS namaBarang,
+            m.mst_idbatch AS idBatch,
+            SUM(m.mst_stok_in - m.mst_stok_out) AS stok,
+            b.brg_satuan AS satuan,
+            IFNULL(b.brg_isexpired, 0) AS isExpired,
+            1 AS isKonsinyasi,
+            m.mst_gdg_kode AS gdgKons,
+            (SELECT IFNULL(SUM(t.sod_qty - IFNULL(t.sod_qty_kirim, 0)), 0)
+             FROM tso_dtl t
+             WHERE t.sod_so_nomor = ? AND t.sod_brg_kode = b.brg_kode) AS kurang
+      FROM tbarang b
+      INNER JOIN tmasterstok m ON m.mst_brg_kode = b.brg_kode
+        AND m.mst_gdg_kode IN (SELECT gdg_kode FROM tgudang WHERE IFNULL(gdg_iskonsinyasi, 0) = 1)
+      INNER JOIN tso_dtl d ON d.sod_brg_kode = b.brg_kode
+        AND d.sod_so_nomor = ?
+      WHERE IFNULL(b.brg_iskonsinyasi, 0) = 1
+        AND m.mst_noreferensi <> ?
+        AND (b.brg_nama LIKE ? OR b.brg_kode LIKE ?)
+      GROUP BY b.brg_kode, b.brg_nama, b.brg_satuan, m.mst_expired_date, m.mst_idbatch, m.mst_gdg_kode
+      HAVING SUM(m.mst_stok_in - m.mst_stok_out) <> 0
+
+      UNION
+
+      -- Bagian 2: item konsinyasi di SO yang belum punya stok di gudang
+      -- konsinyasi mana pun, tetap tampil dengan stok 0.
+      SELECT b.brg_kode AS sku,
+             NULL AS expired,
+             b.brg_nama AS namaBarang,
+             '' AS idBatch,
+             0 AS stok,
+             b.brg_satuan AS satuan,
+             IFNULL(b.brg_isexpired, 0) AS isExpired,
+             1 AS isKonsinyasi,
+             '' AS gdgKons,
+             (SELECT IFNULL(SUM(t2.sod_qty - IFNULL(t2.sod_qty_kirim, 0)), 0)
+              FROM tso_dtl t2
+              WHERE t2.sod_so_nomor = ? AND t2.sod_brg_kode = b.brg_kode) AS kurang
+      FROM tbarang b
+      INNER JOIN tso_dtl d ON d.sod_brg_kode = b.brg_kode
+        AND d.sod_so_nomor = ?
+      WHERE IFNULL(b.brg_iskonsinyasi, 0) = 1
+        AND b.brg_kode NOT IN (
+          SELECT b2.brg_kode
+          FROM tbarang b2
+          INNER JOIN tmasterstok m2 ON m2.mst_brg_kode = b2.brg_kode
+            AND m2.mst_gdg_kode IN (SELECT gdg_kode FROM tgudang WHERE IFNULL(gdg_iskonsinyasi, 0) = 1)
+          INNER JOIN tso_dtl d2 ON d2.sod_brg_kode = b2.brg_kode
+            AND d2.sod_so_nomor = ?
+          WHERE m2.mst_noreferensi <> ?
+          GROUP BY b2.brg_kode, b2.brg_nama, b2.brg_satuan, m2.mst_expired_date, m2.mst_idbatch, m2.mst_gdg_kode
+          HAVING SUM(m2.mst_stok_in - m2.mst_stok_out) <> 0
+        )
+        AND (b.brg_nama LIKE ? OR b.brg_kode LIKE ?)`,
+    [nomorSO, nomorSO, nomorDO, q, q, nomorSO, nomorSO, nomorDO, q, q]
   );
   return rows;
 };
@@ -195,6 +278,37 @@ const searchStok = async (nomorSO, gdgKode, nomorDO, search = "") => {
 // sudah = 0 dan kurang = sisa SO penuh (sod_qty), karena DO ini sendiri
 // belum dihitung sebagai pengiriman untuk baris baru.
 const getDetailStok = async (sku, expired, nomorSO, gdgKode, isEdit = false, idBatch = null) => {
+  // Baris bagian 2 konsinyasi belum punya stok & gudang → kembalikan info
+  // barang + sisa SO saja (stok 0). Gudang konsinyasi diisi user di grid.
+  if (!gdgKode) {
+    const [[row0]] = await db.query(
+      `SELECT b.brg_kode AS sku,
+              NULL AS expired,
+              b.brg_nama AS namaBarang,
+              b.brg_satuan AS satuan,
+              '' AS idBatch,
+              0 AS stok,
+              IFNULL(b.brg_isexpired, 0) AS isExpired,
+              IFNULL(b.brg_iskonsinyasi, 0) AS isKonsinyasi,
+              d.sod_qty_kirim AS sudah,
+              d.sod_qty - d.sod_qty_kirim AS kurang
+        FROM tbarang b
+        LEFT JOIN tso_dtl d ON d.sod_brg_kode = b.brg_kode
+          AND d.sod_so_nomor = ?
+        WHERE b.brg_kode = ? LIMIT 1`,
+      [nomorSO, sku]
+    );
+    if (!row0) return null;
+    if (isEdit) {
+      const [[dtl0]] = await db.query(
+        `SELECT sod_qty FROM tso_dtl WHERE sod_so_nomor = ? AND sod_brg_kode = ? LIMIT 1`,
+        [nomorSO, sku]
+      );
+      row0.sudah = 0;
+      row0.kurang = Number(dtl0?.sod_qty || 0);
+    }
+    return row0;
+  }
   const [[row]] = await db.query(
     `SELECT b.brg_kode AS sku,
             DATE_FORMAT(m.mst_expired_date, '%Y-%m-%d') AS expired,
@@ -203,6 +317,7 @@ const getDetailStok = async (sku, expired, nomorSO, gdgKode, isEdit = false, idB
             m.mst_idbatch AS idBatch,
             SUM(m.mst_stok_in - m.mst_stok_out) AS stok,
             IFNULL(b.brg_isexpired, 0) AS isExpired,
+            IFNULL(b.brg_iskonsinyasi, 0) AS isKonsinyasi,
             d.sod_qty_kirim AS sudah,
             d.sod_qty - d.sod_qty_kirim AS kurang
       FROM tbarang b
@@ -267,19 +382,23 @@ const getDetailForm = async (nomor) => {
 
   // Ambil detail + hitung sudah & kurang
   const [detailRows] = await db.query(
-    `SELECT d.dod_brg_kode AS brgKode, 
+    `SELECT d.dod_brg_kode AS brgKode,
             b.brg_nama AS brgNama,
-            d.dod_brg_satuan AS satuan, 
+            d.dod_brg_satuan AS satuan,
             d.dod_qty AS qty,
-            DATE_FORMAT(d.dod_tgl_expired, '%Y-%m-%d') AS expired, 
+            DATE_FORMAT(d.dod_tgl_expired, '%Y-%m-%d') AS expired,
             d.dod_status AS closed,
-            d.dod_gdg_kode AS gudang, 
+            d.dod_gdg_kode AS gudang,
+            d.dod_gdg_kons AS gdgKons,
             d.dod_idbatch AS idBatch,
             IFNULL(b.brg_isexpired, 0) AS isExpired,
+            IFNULL(b.brg_iskonsinyasi, 0) AS isKonsinyasi,
             (SELECT IFNULL(SUM(st.mst_stok_in - st.mst_stok_out), 0)
              FROM tmasterstok st
              WHERE st.mst_brg_kode = d.dod_brg_kode
-               AND st.mst_gdg_kode = d.dod_gdg_kode
+               -- Stok barang konsinyasi dihitung di gudang konsinyasinya
+               AND st.mst_gdg_kode = IF(IFNULL(b.brg_iskonsinyasi, 0) = 1,
+                                        IFNULL(d.dod_gdg_kons, ''), d.dod_gdg_kode)
                AND st.mst_expired_date = d.dod_tgl_expired) AS stok
      FROM tdo_dtl d
      LEFT JOIN tbarang b ON b.brg_kode = d.dod_brg_kode
@@ -332,6 +451,8 @@ const getDetailForm = async (nomor) => {
       expired: d.expired || "",
       closed: Number(d.closed) || 0,
       gudang: d.gudang || "",
+      gdgKons: d.gdgKons || "",
+      isKonsinyasi: Number(d.isKonsinyasi) || 0,
       isExpired: Number(d.isExpired) || 0,
       stok: Number(d.stok) || 0,
     });
@@ -430,6 +551,38 @@ const saveData = async (payload, user) => {
   try {
     let actualNomor = nomor;
 
+    // Validasi konsinyasi: barang konsinyasi wajib mengisi gudang konsinyasi
+    // di tiap detail, dan gudangnya harus benar-benar gudang konsinyasi.
+    const brgKodes = [...new Set((detail || [])
+      .filter((d) => Number(d.qty) > 0 && d.brgKode)
+      .map((d) => d.brgKode))];
+    if (brgKodes.length) {
+      const [brgRows] = await conn.query(
+        `SELECT brg_kode, IFNULL(brg_iskonsinyasi, 0) AS isk
+         FROM tbarang WHERE brg_kode IN (?)`,
+        [brgKodes]
+      );
+      const konsMap = new Map(brgRows.map((r) => [r.brg_kode, Number(r.isk)]));
+      for (const d of detail) {
+        if (Number(d.qty) <= 0 || !d.brgKode) continue;
+        if (konsMap.get(d.brgKode) === 1 && !d.gdgKons) {
+          throw new Error(
+            `Barang ${d.brgKode} konsinyasi — gudang konsinyasi wajib diisi.`
+          );
+        }
+        if (d.gdgKons) {
+          const [[g]] = await conn.query(
+            `SELECT IFNULL(gdg_iskonsinyasi, 0) AS isk
+             FROM tgudang WHERE gdg_kode = ?`,
+            [d.gdgKons]
+          );
+          if (!g || Number(g.isk) !== 1) {
+            throw new Error(`Gudang ${d.gdgKons} bukan gudang konsinyasi.`);
+          }
+        }
+      }
+    }
+
     if (isEdit) {
       // Paritas Delphi ufrmBrowseDO.cekinvoice: DO yang sudah ada invoice
       // tidak boleh diedit.
@@ -461,15 +614,15 @@ const saveData = async (payload, user) => {
         [tanggal, gdgKode, memo, shipAddress, isEcer, driver, user.kode, nomor]
       );
     } else {
-      // Get isTax dari SO
+      // Get isTax + divisi dari SO
       const [[so]] = await conn.query(
-        `SELECT so_istax FROM tso_hdr WHERE so_nomor = ?`,
+        `SELECT so_istax, so_div_kode FROM tso_hdr WHERE so_nomor = ?`,
         [nomorSO]
       );
       const isTax = so?.so_istax || 1;
-      const cabang = user.cabang || "01";
+      const divKode = so?.so_div_kode || "";
 
-      actualNomor = await getMaxNomor(tanggal, isTax, cabang);
+      actualNomor = await getMaxNomor(tanggal, isTax, divKode);
 
       await conn.query(
         `INSERT INTO tdo_hdr
@@ -493,11 +646,13 @@ const saveData = async (payload, user) => {
         await conn.query(
           `INSERT INTO tdo_dtl
              (dod_do_nomor, dod_brg_kode, dod_brg_satuan, dod_qty,
-              dod_tgl_expired, dod_nourut, dod_status, dod_gdg_kode, dod_idbatch)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              dod_tgl_expired, dod_nourut, dod_status, dod_gdg_kode,
+              dod_gdg_kons, dod_idbatch)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             actualNomor, d.brgKode, d.satuan, d.qty,
-            d.expired, nourut, d.closed, d.gudang, d.idBatch,
+            d.expired, nourut, d.closed, d.gudang,
+            d.gdgKons || null, d.idBatch,
           ]
         );
         nourut++;
@@ -525,6 +680,7 @@ module.exports = {
   getGudang,
   getDriver,
   searchStok,
+  searchStokKons,
   getDetailStok,
   getStok,
   getDetailForm,

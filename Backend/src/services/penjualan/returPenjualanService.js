@@ -1,5 +1,6 @@
 // services/penjualan/returPenjualanService.js
 const db = require("../../config/database");
+const { deleteJurnal } = require("../jurnalHelper");
 
 const getBrowse = async (startDate, endDate) => {
   const [rows] = await db.query(
@@ -53,11 +54,22 @@ const deleteData = async (nomor) => {
   );
   if (!header) throw new Error("Data tidak ditemukan.");
 
+  // Blokir bila retur sudah dipakai untuk setle penerimaan customer
+  const [[dipakai]] = await db.query(
+    `SELECT bycd_byc_nomor FROM tbayarcus_dtl WHERE bycd_fp_nomor = ? LIMIT 1`,
+    [nomor]
+  );
+  if (dipakai) {
+    throw new Error(`Retur sudah dipakai penerimaan ${dipakai.bycd_byc_nomor}. Hapus penerimaan terlebih dahulu.`);
+  }
+
   const conn = await db.getConnection();
   await conn.beginTransaction();
   try {
     await conn.query(`DELETE FROM tretj_dtl WHERE retjd_retj_nomor = ?`, [nomor]);
     await conn.query(`DELETE FROM tretj_hdr WHERE retj_nomor = ?`, [nomor]);
+    // Jurnal retur dibuat dari Node (bukan trigger) → ikut dihapus
+    await deleteJurnal(conn, nomor);
     await conn.commit();
   } catch (e) {
     await conn.rollback();

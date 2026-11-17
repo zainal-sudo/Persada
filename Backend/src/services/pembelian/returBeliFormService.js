@@ -1,5 +1,8 @@
 // services/pembelian/returBeliFormService.js
 const db = require("../../config/database");
+const {
+  REK, getRekPersediaan, insertJurnal, deleteJurnal, netSetelahDisc,
+} = require("../jurnalHelper");
 
 // ── Generate Nomor RET (paritas Delphi ufrmReturBeli.getmaxkode) ──────
 // Pajak    : dasar 10000
@@ -38,8 +41,7 @@ const searchInvoice = async (search = "") => {
             i.inv_amount AS total
      FROM tinv_hdr i
      INNER JOIN tsupplier s ON s.sup_kode = i.inv_sup_kode
-     WHERE i.inv_isbayar = 0
-       AND (i.inv_nomor LIKE ? OR s.sup_nama LIKE ?)
+     WHERE (i.inv_nomor LIKE ? OR s.sup_nama LIKE ?)
      ORDER BY i.inv_tanggal DESC LIMIT 50`,
     [`%${search}%`, `%${search}%`]
   );
@@ -155,12 +157,8 @@ const getDetailForm = async (nomor) => {
     [h.gdgKode]
   );
 
-  // Cek invoice sudah dibayar (paritas cekbayar Delphi) → locked
-  const [[inv]] = await db.query(
-    `SELECT inv_isbayar FROM tinv_hdr WHERE inv_nomor = ?`,
-    [h.nomorInvoice]
-  );
-  const locked = Number(inv?.inv_isbayar) === 1;
+  // Invoice boleh sudah LUNAS — retur terhadap invoice lunas diperbolehkan
+  // (nilainya nanti dipakai untuk setle pembayaran supplier).
 
   const [details] = await db.query(
     `SELECT d.retd_brg_kode AS brgKode, b.brg_nama AS brgNama,
@@ -182,9 +180,8 @@ const getDetailForm = async (nomor) => {
     ...h,
     supNama: supplier?.supNama || "",
     alamat: supplier?.alamat || "",
-    gdgNama: gudang?.gdg_nama || "",
-    locked,
-    detail: details,
+     gdgNama: gudang?.gdg_nama || "",
+     detail: details,
   };
 };
 
@@ -274,6 +271,30 @@ const saveData = async (payload, user) => {
         nourut++;
       }
     }
+
+    // ── Jurnal Retur Pembelian (menyusul nilai trigger DB lama yang tidak aktif)
+    // Debit  RK HUTANG (19.014)  = ret_amount  → mampir, disetle saat pembayaran
+    // Debit  POT. PEMBELIAN (21.005) = (disc_fakturpr * anet/100) + disc_faktur
+    // Kredit PERSEDIAAN (rek cabang) = anet = ((amount - tax) + disc_faktur) / (100 - pr) * 100
+    // Kredit  PPN MASUKAN (16.001)   = ret_taxamount
+    await deleteJurnal(conn, actualNomor);
+    const rekPersediaan = await getRekPersediaan(conn);
+    const anet = netSetelahDisc(amount, taxAmount, discFaktur, discFakturPr);
+    const anilpotongan = ((Number(discFakturPr) || 0) * anet) / 100 + (Number(discFaktur) || 0);
+
+    await insertJurnal(conn, {
+      nomor: actualNomor,
+      tanggal,
+      tipetransaksi: "Retur Pembelian",
+      keterangan: `Retur Pembelian ${nomorInvoice}`,
+      user,
+      items: [
+        { rek: REK.rkHutang, debit: Number(amount) || 0, kredit: 0 },
+        { rek: REK.potonganBeli, debit: anilpotongan, kredit: 0 },
+        { rek: rekPersediaan, debit: 0, kredit: anet },
+        { rek: REK.ppnMasukan, debit: 0, kredit: Number(taxAmount) || 0 },
+      ],
+    });
 
     await conn.commit();
     return { nomor: actualNomor };

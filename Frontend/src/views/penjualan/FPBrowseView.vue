@@ -93,7 +93,6 @@ const {
     { key: "Retur", title: "Retur", width: 14, numFmt: "#,##0" },
     { key: "Disc_Faktur", title: "Disc Faktur", width: 14, numFmt: "#,##0" },
     { key: "Biaya_Promosi", title: "Biaya Promosi", width: 14, numFmt: "#,##0" },
-    { key: "Kontrak", title: "Kontrak", width: 12, numFmt: "#,##0" },
     { key: "Freight", title: "Freight", width: 12, numFmt: "#,##0" },
     { key: "Bayar", title: "Bayar", width: 14, numFmt: "#,##0" },
     { key: "Status_Bayar", title: "Status Bayar", width: 12, align: "center" },
@@ -101,9 +100,6 @@ const {
     { key: "Keterangan", title: "Ket", width: 10, align: "center" },
     { key: "Status_Faktur", title: "Status Faktur", width: 12, align: "center" },
     { key: "Status_Cetak", title: "Cetak", width: 8, align: "center" },
-    { key: "Tipe", title: "Tipe", width: 10, align: "center" },
-    { key: "DTP", title: "DTP", width: 8, align: "center" },
-    { key: "IsCatalog", title: "Catalog", width: 10, align: "center" },
   ],
   detailColumns: [
     { key: "Kode", title: "Kode", width: 12 },
@@ -113,7 +109,6 @@ const {
     { key: "Harga", title: "Harga", width: 14, numFmt: "#,##0" },
     { key: "Disc", title: "Disc%", width: 8, numFmt: "#,##0.00" },
     { key: "Nilai", title: "Nilai", width: 16, numFmt: "#,##0" },
-    { key: "Kontrak", title: "Kontrak", width: 10 },
     { key: "ED", title: "ED", width: 12, align: "center" },
     { key: "Batch", title: "ID Batch", width: 16 },
   ],
@@ -143,7 +138,6 @@ const headers = [
   { key: "Retur", title: "Retur", width: "100px", align: "right" as const },
   { key: "Disc_Faktur", title: "Disc Faktur", width: "110px", align: "right" as const },
   { key: "Biaya_Promosi", title: "Biaya Promosi", width: "110px", align: "right" as const },
-  { key: "Kontrak", title: "Kontrak", width: "80px", align: "right" as const },
   { key: "Freight", title: "Freight", width: "80px", align: "right" as const },
   { key: "Bayar", title: "Bayar", width: "100px", align: "right" as const },
   { key: "Status_Bayar", title: "Status Bayar", width: "90px", align: "center" as const },
@@ -151,9 +145,6 @@ const headers = [
   { key: "Keterangan", title: "Ket", width: "70px", align: "center" as const },
   { key: "Status_Faktur", title: "Status Faktur", width: "100px", align: "center" as const },
   { key: "Status_Cetak", title: "Cetak", width: "70px", align: "center" as const },
-  { key: "Tipe", title: "Tipe", width: "80px", align: "center" as const },
-  { key: "DTP", title: "DTP", width: "60px", align: "center" as const },
-  { key: "IsCatalog", title: "Catalog", width: "70px", align: "center" as const },
 ];
 
 const expanded = ref<any[]>([]);
@@ -534,7 +525,6 @@ const rowPropsFn = (data: any) => {
               <th style="width: 110px" class="tr">Harga</th>
               <th style="width: 60px" class="tr">Disc%</th>
               <th style="width: 110px" class="tr">Nilai</th>
-              <th style="width: 70px" class="tr">Kontrak</th>
               <th style="width: 90px" class="tc">ED</th>
               <th style="min-width: 110px">ID Batch</th>
             </tr>
@@ -548,12 +538,11 @@ const rowPropsFn = (data: any) => {
               <td class="tr">{{ fmt(d.Harga) }}</td>
               <td class="tr">{{ d.Disc }}%</td>
               <td class="tr bold accent">{{ fmt(d.Nilai) }}</td>
-              <td class="tr">{{ d.Kontrak }}</td>
               <td class="tc">{{ fmtDate(d.ED) }}</td>
               <td class="mono">{{ d.Batch }}</td>
             </tr>
             <tr v-if="!detailMap[item.Nomor]?.length">
-              <td colspan="10" class="empty-td">Tidak ada detail barang.</td>
+              <td colspan="9" class="empty-td">Tidak ada detail barang.</td>
             </tr>
           </tbody>
         </table>

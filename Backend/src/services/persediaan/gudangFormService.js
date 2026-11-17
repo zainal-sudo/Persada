@@ -1,8 +1,6 @@
 const db = require("../../config/database");
 
 // ── Generate Kode Otomatis ───────────────────────────────────────────
-// Delphi: select max(SUBSTR(gdg_kode,4,2)) from tgudang WHERE gdg_kode <> 'WH-99'
-// Format: WH-01, WH-02, dst
 const getMaxKode = async () => {
   const [[row]] = await db.query(
     `SELECT IFNULL(MAX(CAST(SUBSTR(gdg_kode, 4, 2) AS UNSIGNED)), 0) AS max_val
@@ -20,7 +18,8 @@ const getDetailForm = async (kode) => {
        gdg_kode AS kode,
        IFNULL(gdg_nama, '') AS nama,
        IFNULL(gdg_penanggungjawab, '') AS penanggungjawab,
-       IFNULL(gdg_keterangan, '') AS keterangan
+       IFNULL(gdg_keterangan, '') AS keterangan,
+       IFNULL(gdg_iskonsinyasi, 0) AS iskonsinyasi
      FROM tgudang
      WHERE gdg_kode = ?`,
     [kode]
@@ -32,21 +31,22 @@ const getDetailForm = async (kode) => {
 
 // ── Save Data ────────────────────────────────────────────────────────
 const saveData = async (payload) => {
-  const { isEdit, kode, nama, penanggungjawab, keterangan } = payload;
+  const { isEdit, kode, nama, penanggungjawab, keterangan, iskonsinyasi } = payload;
+  const isKonsinyasiVal = iskonsinyasi ? 1 : 0;
 
   if (isEdit) {
     await db.query(
       `UPDATE tgudang SET
-         gdg_nama = ?, gdg_penanggungjawab = ?, gdg_keterangan = ?
+         gdg_nama = ?, gdg_penanggungjawab = ?, gdg_keterangan = ?, gdg_iskonsinyasi = ?
        WHERE gdg_kode = ?`,
-      [nama, penanggungjawab, keterangan, kode]
+      [nama, penanggungjawab, keterangan, isKonsinyasiVal, kode]
     );
   } else {
     const maxKode = await getMaxKode();
     await db.query(
-      `INSERT INTO tgudang (gdg_kode, gdg_nama, gdg_penanggungjawab, gdg_keterangan)
-       VALUES (?, ?, ?, ?)`,
-      [maxKode, nama, penanggungjawab, keterangan]
+      `INSERT INTO tgudang (gdg_kode, gdg_nama, gdg_penanggungjawab, gdg_keterangan, gdg_iskonsinyasi)
+       VALUES (?, ?, ?, ?, ?)`,
+      [maxKode, nama, penanggungjawab, keterangan, isKonsinyasiVal]
     );
   }
 

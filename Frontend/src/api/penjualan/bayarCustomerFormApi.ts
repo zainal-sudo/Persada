@@ -7,7 +7,6 @@ export interface BayarCustomerDetail {
   invoice: string;
   tanggal: string;
   jthTempo: string;
-  retur: number;
   ppn: number;
   nilai: number;
   terbayar: number;
@@ -17,6 +16,15 @@ export interface BayarCustomerDetail {
   memo: string;
   /** 1 = baris termin dari faktur angsur (tjatuhtempofp). 0 = faktur biasa. */
   angsur?: number;
+}
+
+export interface ReturJualRow {
+  nomor: string;
+  tanggal: string;
+  invoice: string;
+  amount: number;
+  memo: string;
+  checked?: number;
 }
 
 export interface BayarCustomerForm {
@@ -52,6 +60,7 @@ export interface BayarCustomerForm {
   rekPPHNama: string;
   ntpn: string;
   detail: BayarCustomerDetail[];
+  retur: ReturJualRow[];
 }
 
 export const bayarCustomerFormApi = {
@@ -85,6 +94,15 @@ export const bayarCustomerFormApi = {
       params: { cusKode, isTax },
     });
     return data.data;
+  },
+
+  // GET /api/penjualan/bayar-customer/form/retur-by-customer?cusKode=&nomorByc=
+  getReturByCustomer: async (cusKode: string, nomorByc: string = "") => {
+    const { data } = await api.get(
+      "/penjualan/bayar-customer/form/retur-by-customer",
+      { params: { cusKode, nomorByc } }
+    );
+    return data.data as ReturJualRow[];
   },
 
   // GET /api/penjualan/bayar-customer/form/get-batas/:kode — tsetting set_tgl

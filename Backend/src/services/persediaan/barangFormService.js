@@ -40,6 +40,14 @@ const getSupplier = async () => {
   return rows;
 };
 
+// ── Lookup Divisi (tdivisi) ──────────────────────────────────────────
+const getDivisi = async () => {
+  const [rows] = await db.query(
+    `SELECT div_kode AS kode, div_nama AS nama FROM tdivisi ORDER BY div_nama`
+  );
+  return rows;
+};
+
 // ── Get Harga Jual per Jenis Customer ───────────────────────────────
 const getHargaJualJenis = async (brgKode = "") => {
   const [rows] = await db.query(
@@ -66,8 +74,10 @@ const getDetailForm = async (kode) => {
        brg_isexpired AS isExpired, brg_isproductfocus AS isProductFocus,
        brg_hrgbeli AS hargaBeli, brg_hrgjual AS hargaJual,
        brg_min_stok AS minStok, brg_max_stok AS maxStok,
-       brg_merk AS merk, brg_disc_sales AS discSales,
-       brg_harga_min AS het
+        brg_merk AS merk, brg_disc_sales AS discSales,
+        brg_harga_min AS het,
+        IFNULL(brg_div_kode, '') AS divisi,
+        IFNULL(brg_iskonsinyasi, 0) AS iskonsinyasi
      FROM tbarang
      WHERE brg_kode = ?`,
     [kode]
@@ -86,6 +96,7 @@ const saveData = async (payload, user) => {
     isEdit, kode, nama, satuan, ktgKode, grKode, gdgDefault, supKode,
     isAktif, isStok, isExpired, isProductFocus,
     hargaBeli, hargaJual, minStok, maxStok, merk, discSales, het,
+    divisi, iskonsinyasi,
     detail,
   } = payload;
 
@@ -103,13 +114,15 @@ const saveData = async (payload, user) => {
            brg_hrgbeli = ?, brg_isaktif = ?, brg_isstok = ?,
            brg_isexpired = ?, brg_min_stok = ?, brg_max_stok = ?,
            brg_isproductfocus = ?, brg_disc_sales = ?, brg_harga_min = ?,
-           brg_merk = ?, date_modified = NOW(), user_modified = ?
+           brg_merk = ?, brg_div_kode = ?, brg_iskonsinyasi = ?,
+           date_modified = NOW(), user_modified = ?
          WHERE brg_kode = ?`,
         [
           nama, satuan, ktgKode, grKode, gdgDefault, supKode,
           hargaJual, hargaBeli, isAktif ? 1 : 0, isStok ? 1 : 0,
           isExpired ? 1 : 0, minStok, maxStok,
           isProductFocus ? 1 : 0, discSales, het, merk,
+          divisi || "", iskonsinyasi ? 1 : 0,
           user.kode, actualKode,
         ]
       );
@@ -122,13 +135,16 @@ const saveData = async (payload, user) => {
             brg_hrgjual, brg_hrgbeli, brg_isaktif, brg_isstok,
             brg_isexpired, brg_isproductfocus, brg_disc_sales,
             brg_min_stok, brg_max_stok, brg_harga_min,
+            brg_div_kode, brg_iskonsinyasi,
             date_create, user_create)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
         [
           actualKode, nama, satuan, merk, grKode, ktgKode, gdgDefault,
           supKode, hargaJual, hargaBeli, isAktif ? 1 : 0, isStok ? 1 : 0,
           isExpired ? 1 : 0, isProductFocus ? 1 : 0, discSales,
-          minStok, maxStok, het, user.kode,
+          minStok, maxStok, het,
+          divisi || "", iskonsinyasi ? 1 : 0,
+          user.kode,
         ]
       );
     }
@@ -166,6 +182,7 @@ module.exports = {
   getKategori,
   getGudang,
   getSupplier,
+  getDivisi,
   getHargaJualJenis,
   getDetailForm,
   saveData,

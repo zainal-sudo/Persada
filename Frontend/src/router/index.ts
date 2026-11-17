@@ -125,6 +125,40 @@ const router = createRouter({
     browseRoute: "doBrowse",
   },
 },
+
+// ── Titip Barang Konsinyasi ──────────────────────────────────────────
+{
+  path: "/persediaan/titip",
+  name: "titipBrowse",
+  component: () => import("@/views/persediaan/TitipBrowseView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Titip Barang Konsinyasi",
+  },
+},
+{
+  path: "/persediaan/titip/create",
+  name: "titipCreate",
+  component: () => import("@/views/persediaan/TitipFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Tambah Titip Barang",
+    browseRoute: "titipBrowse",
+  },
+},
+{
+  path: "/persediaan/titip/edit/:nomor",
+  name: "titipEdit",
+  component: () => import("@/views/persediaan/TitipFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Ubah Titip Barang",
+    browseRoute: "titipBrowse",
+  },
+},
 // router/index.ts
 {
   path: "/penjualan/fp",

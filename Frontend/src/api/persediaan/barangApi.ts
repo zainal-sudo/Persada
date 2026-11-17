@@ -18,6 +18,8 @@ export interface BarangRow {
   Avgs_Sales_per_Bulan: number;
   TOR: number;
   IN_Terakhir: string | null;
+  Divisi: string;
+  IsKonsinyasi: number;
 }
 
 export interface BarangDetailRow {

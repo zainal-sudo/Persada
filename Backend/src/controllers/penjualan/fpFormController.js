@@ -3,15 +3,17 @@ const svc = require("../../services/penjualan/fpFormService");
 
 const getNomor = async (req, res) => {
   try {
-    const { tanggal, isTax } = req.query;
+    const { tanggal, isTax, divKode } = req.query;
     if (!tanggal) {
       return res.status(400).json({ success: false, message: "Tanggal wajib." });
     }
-    const cabang = req.user?.cabang || "01";
-    const nomor = await svc.getMaxNomor(tanggal, Number(isTax) || 1, cabang);
+    if (!divKode) {
+      return res.status(400).json({ success: false, message: "Divisi wajib dipilih." });
+    }
+    const nomor = await svc.getMaxNomor(tanggal, Number(isTax) || 1, divKode);
     res.json({ success: true, data: { nomor } });
   } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+    res.status(400).json({ success: false, message: e.message });
   }
 };
 

@@ -1,5 +1,8 @@
 // services/penjualan/returPenjualanFormService.js
 const db = require("../../config/database");
+const {
+  REK, getRekPersediaan, insertJurnal, deleteJurnal, netSetelahDisc,
+} = require("../jurnalHelper");
 
 // ── Generate Nomor ───────────────────────────────────────────────────
 const getMaxNomor = async (tanggal, isTax, cabang = "01") => {
@@ -160,12 +163,8 @@ const getDetailForm = async (nomor) => {
     [h.cusKode]
   );
 
-  // Cek apakah faktur sudah dibayar (paritas cekbayar Delphi)
-  const [[fp]] = await db.query(
-    `SELECT fp_isbayar FROM tfp_hdr WHERE fp_nomor = ?`,
-    [h.nomorFaktur]
-  );
-  const locked = Number(fp?.fp_isbayar) === 1;
+  // Faktur boleh sudah LUNAS — retur terhadap faktur lunas diperbolehkan
+  // (nilainya nanti dipakai untuk setle penerimaan customer).
 
   const [[gudang]] = await db.query(
     `SELECT gdg_nama FROM tgudang WHERE gdg_kode = ? LIMIT 1`,
@@ -190,9 +189,8 @@ const getDetailForm = async (nomor) => {
     ...h,
     cusNama: customer?.cus_nama || "",
     alamat: customer?.cus_alamat || "",
-    gdgNama: gudang?.gdg_nama || "",
-    locked,
-    detail: details.map((d) => ({
+     gdgNama: gudang?.gdg_nama || "",
+     detail: details.map((d) => ({
       ...d,
       cn: 0,
       nilaiCN: 0,
@@ -219,13 +217,15 @@ const saveData = async (payload, user) => {
   // 2. Customer wajib
   if (!cusKode) throw new Error("Customer belum di pilih.");
 
-  // 3. Sisa piutang faktur
+  // 3. Cap terhadap nilai faktur (faktur boleh sudah LUNAS —
+  //    retur terhadap faktur lunas diperbolehkan, nilainya dipakai
+  //    untuk setle penerimaan customer)
   const [[fp]] = await db.query(
-    `SELECT fp_amount - fp_bayar AS sisa FROM tfp_hdr WHERE fp_nomor = ?`,
+    `SELECT fp_amount FROM tfp_hdr WHERE fp_nomor = ?`,
     [nomorFaktur]
   );
-  if (Number(amount) > Number(fp?.sisa || 0)) {
-    throw new Error("Total Retur Melebihi sisa Piutang");
+  if (Number(amount) > Number(fp?.fp_amount || 0)) {
+    throw new Error("Total Retur Melebihi Nilai Faktur");
   }
 
   // 4. SKU wajib per baris qty>0
@@ -295,6 +295,39 @@ const saveData = async (payload, user) => {
         nourut++;
       }
     }
+
+    // ── Jurnal Retur Penjualan (menyusul nilai trigger DB lama yang tidak aktif)
+    // COGS dari stok masuk akibat retur (mst_hargabeli * mst_stok_out),
+    // dihitung SETELAH detail diinsert (trigger dtl membuat baris stok).
+    await deleteJurnal(conn, actualNomor);
+    const rekPersediaan = await getRekPersediaan(conn);
+    const anet = netSetelahDisc(amount, taxAmount, discFaktur, discFakturPr);
+    const anilpotongan = ((Number(discFakturPr) || 0) * anet) / 100 + (Number(discFaktur) || 0);
+
+    const [[pers]] = await conn.query(
+      `SELECT IFNULL(SUM(mst_hargabeli * mst_stok_out), 0) AS anilpersediaan
+       FROM tmasterstok WHERE mst_noreferensi = ?`,
+      [actualNomor]
+    );
+    const anilpersediaan = Number(pers?.anilpersediaan || 0);
+
+    await insertJurnal(conn, {
+      nomor: actualNomor,
+      tanggal,
+      tipetransaksi: "Retur Penjualan",
+      keterangan: `Retur Penjualan ${nomorFaktur}`,
+      user,
+      items: [
+        { rek: REK.returPenjualan, debit: anet, kredit: 0 },
+        { rek: REK.ppnKeluaran, debit: Number(taxAmount) || 0, kredit: 0 },
+        { rek: rekPersediaan, debit: anilpersediaan, kredit: 0 },
+        { rek: REK.piutangCn, debit: Number(cn) || 0, kredit: 0 },
+        { rek: REK.discPenjualan, debit: 0, kredit: anilpotongan },
+        { rek: REK.rkPiutang, debit: 0, kredit: Number(amount) || 0 },
+        { rek: REK.bpp, debit: 0, kredit: anilpersediaan },
+        { rek: REK.potonganJual, debit: 0, kredit: Number(cn) || 0 },
+      ],
+    });
 
     await conn.commit();
     return { nomor: actualNomor };

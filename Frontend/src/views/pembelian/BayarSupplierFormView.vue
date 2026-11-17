@@ -6,7 +6,7 @@ import { isAuthExpiredError } from "@/api/axios";
 import BaseForm from "@/components/BaseForm.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import { IconCash, IconSearch } from "@tabler/icons-vue";
-import { bayarSupplierFormApi, type BayarSupplierForm, type InvoiceBayarRow } from "@/api/pembelian/bayarSupplierFormApi";
+import { bayarSupplierFormApi, type BayarSupplierForm, type InvoiceBayarRow, type ReturBeliRow } from "@/api/pembelian/bayarSupplierFormApi";
 import { useAfterSave } from "@/composables/useAfterSave";
 import DsDatePicker from "@/components/DsDatePicker.vue";
 
@@ -34,6 +34,7 @@ const form = ref<BayarSupplierForm>({
   nilai: 0,
   isTax: 0,
   detail: [],
+  retur: [],
 });
 
 const showSupplierModal = ref(false);
@@ -42,6 +43,15 @@ const supplierLoading = ref(false);
 
 const showRekModal = ref(false);
 const rekOptions = ref<any[]>([]);
+
+// Retur pembelian untuk setle di header (checkbox)
+const returOptions = ref<ReturBeliRow[]>([]);
+const selectedRetur = computed(() =>
+  returOptions.value.filter((r) => r.checked === 1)
+);
+const totalRetur = computed(() =>
+  selectedRetur.value.reduce((s, r) => s + Number(r.amount || 0), 0)
+);
 
 const loadNomor = async () => {
   try {
@@ -69,7 +79,7 @@ const selectSupplier = async (sup: any) => {
   form.value.supKode = sup.kode;
   form.value.supNama = sup.nama;
   showSupplierModal.value = false;
-  await loadInvoiceAuto();
+  await Promise.all([loadInvoiceAuto(), loadRetur()]);
 };
 
 const loadRekening = async (query: string) => {
@@ -139,6 +149,21 @@ const loadInvoiceAuto = async () => {
   }
 };
 
+const loadRetur = async () => {
+  if (!form.value.supKode) return;
+  try {
+    const data = await bayarSupplierFormApi.getReturBySupplier(
+      form.value.supKode,
+      form.value.nomor
+    );
+    returOptions.value = data;
+    hitungTotal();
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error("Gagal memuat retur.");
+  }
+};
+
 const sisaHutang = (d: InvoiceBayarRow) =>
   Math.max((Number(d.nilai) || 0) - (Number(d.terbayar) || 0), 0);
 
@@ -168,7 +193,8 @@ const onBayarInput = (e: Event, d: InvoiceBayarRow) => {
 };
 
 const hitungTotal = () => {
-  form.value.nilai = form.value.detail.reduce((s, d) => s + Number(d.bayar || 0), 0);
+  const totalBayar = form.value.detail.reduce((s, d) => s + Number(d.bayar || 0), 0);
+  form.value.nilai = Math.max(totalBayar - totalRetur.value, 0);
 };
 
 const validateSave = async (): Promise<boolean> => {
@@ -191,6 +217,11 @@ const validateSave = async (): Promise<boolean> => {
       return false;
     }
   }
+  const totalBayar = form.value.detail.reduce((s, d) => s + Number(d.bayar || 0), 0);
+  if (totalRetur.value > totalBayar) {
+    toast.warning("Total retur melebihi total pembayaran invoice.");
+    return false;
+  }
   if (form.value.nilai <= 0) {
     toast.warning("Total bayar harus > 0.");
     return false;
@@ -203,6 +234,13 @@ const confirmSave = async (action: "new" | "close") => {
   if (isSaving.value) return;
   isSaving.value = true;
   try {
+    form.value.retur = selectedRetur.value.map((r) => ({
+      nomor: r.nomor,
+      tanggal: r.tanggal,
+      invoice: r.invoice,
+      amount: r.amount,
+      memo: r.memo,
+    }));
     const res = await bayarSupplierFormApi.save(form.value);
     const nomor = res.data?.nomor || form.value.nomor;
     handlePostSave(action, nomor);
@@ -234,6 +272,7 @@ const loadData = async () => {
         bayarTampil: bayar > 0 ? fmtNum(bayar) : "",
       };
     });
+    returOptions.value = data.retur || [];
     hitungTotal();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
@@ -259,7 +298,9 @@ const resetForm = () => {
     nilai: 0,
     isTax: 0,
     detail: [],
+    retur: [],
   };
+  returOptions.value = [];
   loadNomor();
 };
 
@@ -342,6 +383,36 @@ onMounted(async () => {
         </fieldset>
       </div>
 
+      <fieldset v-if="returOptions.length > 0" class="bys-groupbox bys-retur-group">
+        <legend class="bys-legend">Retur Pembelian (Setle)</legend>
+        <div class="retur-list">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th class="tc" style="width: 40px">Setle</th>
+                <th style="width: 170px">Nomor Retur</th>
+                <th class="tc" style="width: 100px">Tanggal</th>
+                <th style="width: 170px">Invoice</th>
+                <th class="tr" style="width: 120px">Nilai</th>
+                <th>Memo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="r in returOptions" :key="r.nomor">
+                <td class="tc" style="width: 40px">
+                  <input v-model="r.checked" type="checkbox" :true-value="1" :false-value="0" @change="hitungTotal" />
+                </td>
+                <td class="mono" style="width: 170px">{{ r.nomor }}</td>
+                <td class="tc" style="width: 100px">{{ r.tanggal }}</td>
+                <td style="width: 170px">{{ r.invoice }}</td>
+                <td class="tr" style="width: 120px">{{ fmt(r.amount) }}</td>
+                <td>{{ r.memo }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+
       <fieldset class="bys-groupbox bys-detail-group">
         <legend class="bys-legend">Detail Invoice</legend>
         <div class="detail-table-wrap">
@@ -385,6 +456,7 @@ onMounted(async () => {
             </table>
           </div>
           <div class="detail-footer">
+            <span v-if="totalRetur > 0">Setle Retur: <strong class="accent">{{ fmt(totalRetur) }}</strong></span>
             <span>Total Bayar: <strong>{{ fmt(form.nilai) }}</strong></span>
           </div>
         </div>
@@ -426,6 +498,8 @@ onMounted(async () => {
 .bys-legend { font-size: 11px; font-weight: 700; color: var(--ds-primary, #0284c7); text-transform: uppercase; letter-spacing: 0.03em; padding: 2px 6px; margin-left: 6px; background: var(--ds-surface, #F0F3F8); border: 1px solid var(--ds-border, #A0AAB8); border-bottom: none; align-self: flex-start; line-height: 1.4; }
 .bys-groupbody { padding: 8px; display: flex; flex-direction: column; gap: 5px; }
 .bys-detail-group { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.bys-retur-group { flex-shrink: 0; }
+.retur-list { max-height: 150px; overflow: auto; border-top: 1px solid var(--ds-border, #A0AAB8); }
 .detail-table-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; border-top: 1px solid var(--ds-border, #A0AAB8); overflow: hidden; }
 .detail-table-header { flex-shrink: 0; overflow: hidden; }
 .detail-table-body { flex: 1; min-height: 0; overflow: auto; }

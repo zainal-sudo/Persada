@@ -27,6 +27,8 @@ export interface BarangForm {
   merk: string;
   discSales: number;
   het: number;
+  divisi: string;
+  iskonsinyasi: boolean | number;
   detail: HargaJualJenis[];
 }
 
@@ -53,6 +55,11 @@ export const barangFormApi = {
 
   getSupplier: async () => {
     const { data } = await api.get("/persediaan/barang/form/supplier");
+    return data.data as { kode: string; nama: string }[];
+  },
+
+  getDivisi: async () => {
+    const { data } = await api.get("/persediaan/barang/form/divisi");
     return data.data as { kode: string; nama: string }[];
   },
 

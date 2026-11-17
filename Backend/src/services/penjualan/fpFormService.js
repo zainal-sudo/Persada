@@ -2,11 +2,21 @@
 const db = require("../../config/database");
 
 // ── Generate Nomor FP ────────────────────────────────────────────────
-const getMaxNomor = async (tanggal, isTax, cabang = "01") => {
+// Format: PREFIX.FP.yymm.NNNN (PREFIX = div_prefix divisi SO), contoh:
+// AMP.FP.2611.0001. Sequence terpisah pajak/non-pajak, terpisah dari
+// nomor format lama (01-FP.yymm.xxxx).
+const getMaxNomor = async (tanggal, isTax, divKode) => {
+  if (!divKode) throw new Error("Divisi wajib dipilih untuk membuat nomor FP.");
+  const [[div]] = await db.query(
+    `SELECT div_prefix FROM tdivisi WHERE div_kode = ?`,
+    [divKode]
+  );
+  if (!div || !div.div_prefix) throw new Error("Prefix divisi tidak ditemukan.");
+
   const d = new Date(tanggal);
   const yy = String(d.getFullYear()).slice(2);
   const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const prefix = `${cabang}-FP.${yy}${mm}.`;
+  const prefix = `${div.div_prefix}.FP.${yy}${mm}.`;
 
   if (Number(isTax) === 1) {
     const [[row]] = await db.query(
@@ -57,15 +67,17 @@ const searchSO = async (search = "") => {
 };
 
 // ── Load SO ──────────────────────────────────────────────────────────
-// 1 SO = 1 invoice. Qty faktur = TOTAL TERKIRIM dari semua DO milik SO,
-// di-group per brg (Opsi A, tanpa expired/batch), dikurangi yang sudah
-// di-invoice (sod_qty_invoice) — tidak boleh lebih dari qty kirim.
+// 1 SO = 1 invoice. Qty faktur = akumulasi SEMUA DO milik SO, ditampilkan
+// per baris detail DO (paritas Delphi loaddataDO): granularity sama dengan
+// DO, yaitu per (barang + expired + idBatch + gudang) — barang yang
+// dikirim dalam beberapa batch muncul sebagai baris terpisah.
+// Qty baris = SUM(dod_qty) - SUM(dod_qty_invoice) baris batch tersebut.
 const loadSO = async (nomorSO) => {
   const [[h]] = await db.query(
     `SELECT so.so_nomor,
        DATE_FORMAT(so.so_tanggal, '%Y-%m-%d') AS so_tanggal,
        so.so_isecer, so.so_cus_kode, so.so_istax, so.so_sls_kode,
-       so.so_disc_faktur, so.so_disc_fakturpr,
+       so.so_div_kode, so.so_disc_faktur, so.so_disc_fakturpr,
        c.cus_nama, c.cus_alamat, c.cus_telp, c.cus_top,
        s.sls_nama
      FROM tso_hdr so
@@ -76,67 +88,32 @@ const loadSO = async (nomorSO) => {
   );
   if (!h) throw new Error("SO tidak ditemukan.");
 
-  // Paritas ufrmFP.loaddataDO: expired/idBatch/gudang tidak ada di tso_dtl (SO
-  // level SKU) — di Delphi FP di-load per nomor DO dan nilainya dari tdo_dtl.
-  // Di sini SO yang dipilih, jadi ambil DO terbaru milik SO itu (yang belum
-  // closed diprioritaskan) sebagai sumber batch per baris.
-  const [[doRow]] = await db.query(
-    `SELECT do_nomor FROM tdo_hdr
-     WHERE do_so_nomor = ?
-     ORDER BY do_isclosed ASC, do_tanggal DESC, do_nomor DESC
-     LIMIT 1`,
-    [nomorSO]
-  );
-  const batchByBrg = {};
-  if (doRow) {
-    const [brows] = await db.query(
-      `SELECT dod_brg_kode AS brgKode,
-         DATE_FORMAT(dod_tgl_expired, '%Y-%m-%d') AS expired,
-         dod_idbatch AS idBatch,
-         dod_gdg_kode AS gudang
-       FROM tdo_dtl
-       WHERE dod_do_nomor = ?
-       ORDER BY dod_nourut ASC`,
-      [doRow.do_nomor]
-    );
-    for (const b of brows) {
-      if (!batchByBrg[String(b.brgKode)]) batchByBrg[String(b.brgKode)] = b;
-    }
-  }
-
-  // Baris detail diambil dari tso_dtl (level SO), lalu difilter qty > 0.
-  //
-  // Filter ini WAJIB: tanpa itu, barang yang ada di SO tapi belum pernah
-  // dikirim muncul sebagai baris qty 0. Sumbernya tso_dtl, sedangkan qty-nya
-  // dihitung subquery dari tdo_dtl dengan COALESCE(...,0) - barang yang tidak
-  // ada di DO tetap dapat baris, hanya qty-nya 0. Di FE baris seperti itu
-  // tidak bisa diisi operator (hanya qty/harga/discPr/cn yang editable) dan
-  // validateQty justru meloloskannya (`if (qty <= 0) return true`), jadi cuma
-  // jadi baris kosong yang sia-sia.
-  //
-  // Filter ini sekaligus menutup kasus kedua tanpa kode tambahan: barang yang
-  // sudah pernah di-invoice (sod_qty_invoice sudah terpakai) menghasilkan qty 0,
-  // jadi tidak muncul lagi kalau SO yang sama dipilih ulang.
-  //
-  // sod_nourut tidak ikut diselect, jadi ORDER BY dipindah ke luar subquery.
+  // Baris detail diambil dari tdo_dtl (semua DO milik SO), di-group per
+  // barang + expired + idBatch + gudang. Qty = terkirim - sudah di-invoice.
+  // Harga/disc tetap dari tso_dtl (harga di-set di SO, bukan di DO).
   const [rows] = await db.query(
-    `SELECT x.brgKode, x.brgNama, x.satuan, x.qty, x.harga, x.discPr, x.hrgMin
+    `SELECT x.brgKode, x.brgNama, x.satuan, x.qty, x.harga, x.discPr, x.hrgMin,
+            x.expired, x.idBatch, x.gudang
      FROM (
        SELECT d.sod_brg_kode AS brgKode,
               b.brg_nama AS brgNama,
               d.sod_brg_satuan AS satuan,
-              (COALESCE((
-                  SELECT SUM(dd.dod_qty) FROM tdo_dtl dd
-                  INNER JOIN tdo_hdr hh ON hh.do_nomor = dd.dod_do_nomor
-                  WHERE hh.do_so_nomor = d.sod_so_nomor AND dd.dod_brg_kode = d.sod_brg_kode
-              ), 0) - IFNULL(d.sod_qty_invoice, 0)) AS qty,
+              (IFNULL(SUM(dd.dod_qty), 0) - IFNULL(SUM(dd.dod_qty_invoice), 0)) AS qty,
               d.sod_harga AS harga,
               d.sod_discpr AS discPr,
               b.brg_harga_min AS hrgMin,
-              d.sod_nourut AS nourut
-       FROM tso_dtl d
-       INNER JOIN tbarang b ON b.brg_kode = d.sod_brg_kode
-       WHERE d.sod_so_nomor = ?
+              DATE_FORMAT(dd.dod_tgl_expired, '%Y-%m-%d') AS expired,
+              dd.dod_idbatch AS idBatch,
+              dd.dod_gdg_kode AS gudang,
+              MIN(dd.dod_nourut) AS nourut
+       FROM tdo_dtl dd
+       INNER JOIN tdo_hdr hh ON hh.do_nomor = dd.dod_do_nomor
+       INNER JOIN tso_dtl d ON d.sod_so_nomor = hh.do_so_nomor
+         AND d.sod_brg_kode = dd.dod_brg_kode
+       INNER JOIN tbarang b ON b.brg_kode = dd.dod_brg_kode
+       WHERE hh.do_so_nomor = ?
+       GROUP BY d.sod_brg_kode, b.brg_nama, d.sod_brg_satuan, d.sod_harga,
+                d.sod_discpr, b.brg_harga_min, expired, idBatch, gudang
      ) x
      WHERE x.qty > 0
      ORDER BY x.nourut ASC`,
@@ -150,43 +127,26 @@ const loadSO = async (nomorSO) => {
     const discPr = Number(d.discPr) || 0;
     const total = qty * harga * (100 - discPr) / 100;
 
-    const [[promosi]] = await db.query(
-      `SELECT bpd_persen, bpd_rupiah 
-       FROM tbiayapromosi_dtl 
-       INNER JOIN tbiayapromosi_hdr ON bph_nomor = bpd_bph_nomor
-       WHERE bph_cus_kode = ? AND bpd_brg_kode = ? LIMIT 1`,
-      [h.so_cus_kode, d.brgKode]
-    );
-
-    const [[fee]] = await db.query(
-      `SELECT fmd_persen, fmd_rupiah 
-       FROM tfeemarketing_dtl 
-       INNER JOIN tfeemarketing_hdr ON fmh_nomor = fmd_fmh_nomor
-       WHERE fmh_cus_kode = ? AND fmd_brg_kode = ? LIMIT 1`,
-      [h.so_cus_kode, d.brgKode]
-    );
-
-    const cn = await getDiscCN(d.brgKode, h.so_cus_kode, new Date().toISOString().split("T")[0]);
-
+    // Biaya promosi/fee/CN dihapus dari transaksi FP — selalu 0.
     detailWithExtras.push({
       brgKode: d.brgKode,
       brgNama: d.brgNama,
       satuan: d.satuan,
-      idBatch: batchByBrg[String(d.brgKode)]?.idBatch || "",
+      idBatch: d.idBatch || "",
       qty,
-      expired: batchByBrg[String(d.brgKode)]?.expired || "",
-      gudang: batchByBrg[String(d.brgKode)]?.gudang || "",
+      expired: d.expired || "",
+      gudang: d.gudang || "",
       harga,
       discPr,
       total,
-      cn,
-      nilaiCN: cn * total / 100,
+      cn: 0,
+      nilaiCN: 0,
       kurang: qty,
       hrgMin: Number(d.hrgMin) || 0,
-      promosiRp: Number(promosi?.bpd_rupiah || 0),
-      promosiPr: Number(promosi?.bpd_persen || 0),
-      feeRp: Number(fee?.fmd_rupiah || 0),
-      feePr: Number(fee?.fmd_persen || 0),
+      promosiRp: 0,
+      promosiPr: 0,
+      feeRp: 0,
+      feePr: 0,
     });
   }
 
@@ -194,6 +154,7 @@ const loadSO = async (nomorSO) => {
     nomorSO: h.so_nomor,
     isTax: h.so_istax,
     isEcer: h.so_isecer,
+    divKode: h.so_div_kode || "",
     cusKode: h.so_cus_kode,
     cusNama: h.cus_nama,
     alamat: h.cus_alamat,
@@ -466,7 +427,13 @@ const saveData = async (payload, user) => {
         ]
       );
     } else {
-      actualNomor = await getMaxNomor(tanggal, isTax, user.cabang);
+      // Divisi diwarisi dari SO (prefix nomor FP)
+      const [[soRow]] = await conn.query(
+        `SELECT so_div_kode FROM tso_hdr WHERE so_nomor = ?`,
+        [nomorSO]
+      );
+      const divKode = soRow?.so_div_kode || "";
+      actualNomor = await getMaxNomor(tanggal, isTax, divKode);
       await conn.query(
         `INSERT INTO tfp_hdr
            (fp_nomor, fp_so_nomor, fp_do_nomor, fp_tanggal, fp_jthtempo, fp_memo, fp_cus_kode,

@@ -45,6 +45,15 @@ const getSupplier = async (req, res) => {
   }
 };
 
+const getDivisi = async (req, res) => {
+  try {
+    const data = await svc.getDivisi();
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 const getHargaJualJenis = async (req, res) => {
   try {
     const brgKode = req.query.brgKode || "";
@@ -79,6 +88,7 @@ module.exports = {
   getKategori,
   getGudang,
   getSupplier,
+  getDivisi,
   getHargaJualJenis,
   getDetailForm,
   saveData,

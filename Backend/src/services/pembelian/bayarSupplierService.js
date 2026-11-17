@@ -1,5 +1,6 @@
 // services/pembelian/bayarSupplierService.js
 const db = require("../../config/database");
+const { deleteJurnal } = require("../jurnalHelper");
 
 /**
  * Browse Pembayaran Supplier — paritas Delphi ufrmBrowseBayarSupplier.btnRefreshClick
@@ -29,21 +30,24 @@ const getBrowse = async (startDate, endDate) => {
 
 /**
  * Browse Detail Pembayaran Supplier — paritas Delphi SQLDetail
+ * LEFT JOIN tinv_hdr: baris retur (bysd_inv_nomor = nomor retur) tetap tampil.
  */
 const getBrowseDetail = async (nomor) => {
   const [rows] = await db.query(
     `SELECT
        d.bysd_bys_nomor AS Nomor,
        d.bysd_inv_nomor AS Invoice,
-       IFNULL(i.inv_nobukti, '') AS Nobukti,
-       DATE_FORMAT(i.inv_tanggal, '%Y-%m-%d') AS Tgl_Invoice,
-       DATE_FORMAT(i.inv_jthtempo, '%Y-%m-%d') AS JthTempo,
-       IFNULL(i.inv_amount, 0) AS Nilai,
-       IFNULL((SELECT SUM(r.ret_amount) FROM tret_hdr r WHERE r.ret_inv_nomor = i.inv_nomor), 0) AS Retur,
+       IFNULL(i.inv_nobukti, IF(r.ret_nomor IS NOT NULL, 'RETUR', '')) AS Nobukti,
+       DATE_FORMAT(IF(r.ret_nomor IS NOT NULL, r.ret_tanggal, i.inv_tanggal), '%Y-%m-%d') AS Tgl_Invoice,
+       DATE_FORMAT(IF(r.ret_nomor IS NOT NULL, r.ret_tanggal, i.inv_jthtempo), '%Y-%m-%d') AS JthTempo,
+       IFNULL(i.inv_amount, IF(r.ret_nomor IS NOT NULL, r.ret_amount, 0)) AS Nilai,
+       IF(r.ret_nomor IS NOT NULL, IFNULL(r.ret_amount, 0),
+          IFNULL((SELECT SUM(rr.ret_amount) FROM tret_hdr rr WHERE rr.ret_inv_nomor = i.inv_nomor), 0)) AS Retur,
        IFNULL(d.bysd_bayar, 0) AS Bayar
      FROM tbayarsup_dtl d
      INNER JOIN tbayarsup_hdr h ON h.bys_nomor = d.bysd_bys_nomor
-     INNER JOIN tinv_hdr i ON i.inv_nomor = d.bysd_inv_nomor
+     LEFT JOIN tinv_hdr i ON i.inv_nomor = d.bysd_inv_nomor
+     LEFT JOIN tret_hdr r ON r.ret_nomor = d.bysd_inv_nomor
      WHERE d.bysd_bys_nomor = ?
      ORDER BY d.bysd_bys_nomor DESC`,
     [nomor]
@@ -68,6 +72,10 @@ const deleteData = async (nomor) => {
   try {
     await conn.query(`DELETE FROM tbayarsup_dtl WHERE bysd_bys_nomor = ?`, [nomor]);
     await conn.query(`DELETE FROM tbayarsup_hdr WHERE bys_nomor = ?`, [nomor]);
+    // Trigger DB tidak punya after_delete → jurnal ikut dibersihkan dari Node:
+    // jurnal utama (jur_no = nomor) + jurnal setle retur (jur_no = nomor + 'R').
+    await deleteJurnal(conn, nomor);
+    await deleteJurnal(conn, `${nomor}R`);
     await conn.commit();
   } catch (e) {
     await conn.rollback();
@@ -89,16 +97,17 @@ const getPrintData = async (nomor) => {
        IFNULL(h.bys_nilai, 0) AS bys_nilai,
        IFNULL(s.sup_nama, '') AS sup_nama,
        IFNULL(s.sup_alamat, '') AS sup_alamat,
-       IFNULL(r.rek_nama, '') AS rek_nama,
+       IFNULL(r2.rek_nama, '') AS rek_nama,
        d.bysd_inv_nomor AS inv_nomor,
-       IFNULL(i.inv_nobukti, '') AS inv_nobukti,
-       DATE_FORMAT(i.inv_tanggal, '%Y-%m-%d') AS inv_tanggal,
+       IFNULL(i.inv_nobukti, IF(r.ret_nomor IS NOT NULL, 'RETUR', '')) AS inv_nobukti,
+       DATE_FORMAT(IF(r.ret_nomor IS NOT NULL, r.ret_tanggal, i.inv_tanggal), '%Y-%m-%d') AS inv_tanggal,
        IFNULL(d.bysd_bayar, 0) AS bysd_bayar
      FROM tbayarsup_hdr h
      INNER JOIN tbayarsup_dtl d ON d.bysd_bys_nomor = h.bys_nomor
-     INNER JOIN tinv_hdr i ON i.inv_nomor = d.bysd_inv_nomor
+     LEFT JOIN tinv_hdr i ON i.inv_nomor = d.bysd_inv_nomor
+     LEFT JOIN tret_hdr r ON r.ret_nomor = d.bysd_inv_nomor
      INNER JOIN tsupplier s ON s.sup_kode = h.bys_sup_kode
-     INNER JOIN trekening r ON r.rek_kode = h.bys_rek_kode
+     INNER JOIN trekening r2 ON r2.rek_kode = h.bys_rek_kode
      WHERE h.bys_nomor = ?`,
     [nomor]
   );

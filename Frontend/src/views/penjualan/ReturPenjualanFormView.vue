@@ -611,10 +611,6 @@ const loadData = async () => {
   try {
     const data = await returPenjualanFormApi.getDetailForm(decodeURIComponent(nomor));
     form.value = { ...data, isEdit: true };
-    isLocked.value = !!data.locked;
-    if (isLocked.value) {
-      toast.warning("Transaksi ini sudah di Potong pembayaran, tidak dapat diubah.");
-    }
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message || "Gagal memuat data.");

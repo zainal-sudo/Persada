@@ -6,6 +6,7 @@ export interface GudangForm {
   nama: string;
   penanggungjawab: string;
   keterangan: string;
+  iskonsinyasi: boolean | number;
 }
 
 export const gudangFormApi = {

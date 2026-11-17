@@ -12,6 +12,7 @@ router.get("/tipe-barang", verifyToken, checkPermission("view"), ctrl.getTipeBar
 router.get("/kategori", verifyToken, checkPermission("view"), ctrl.getKategori);
 router.get("/gudang", verifyToken, checkPermission("view"), ctrl.getGudang);
 router.get("/supplier", verifyToken, checkPermission("view"), ctrl.getSupplier);
+router.get("/divisi", verifyToken, checkPermission("view"), ctrl.getDivisi);
 router.get("/harga-jual-jenis", verifyToken, checkPermission("view"), ctrl.getHargaJualJenis);
 router.get("/:kode", verifyToken, checkPermission("view"), ctrl.getDetailForm);
 // Save (paritas Delphi: insert utk baru, edit utk ubah — lihat checkPermission "save")

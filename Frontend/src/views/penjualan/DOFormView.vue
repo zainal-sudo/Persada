@@ -33,6 +33,7 @@ const authStore = useAuthStore();
 const isEdit = computed(() => !!route.params.nomor);
 const isLoading = ref(false);
 const isSaving = ref(false);
+const attemptedSave = ref(false);
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -73,13 +74,15 @@ const stokLoading = ref(false);
 const stokSearch = ref("");
 
 // ── Load Nomor ───────────────────────────────────────────────────────
-const loadNomor = async () => {
+// Nomor DO pakai prefix divisi SO — dibuat setelah SO dipilih.
+const loadNomor = async (divKode: string, isTax = 1) => {
+  if (!divKode) return;
   try {
-    const res = await doFormApi.getNomor(form.value.tanggal, 1);
+    const res = await doFormApi.getNomor(form.value.tanggal, isTax, divKode);
     form.value.nomor = res.nomor;
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
-    toast.error("Gagal generate nomor DO.");
+    toast.error(e.response?.data?.message || "Gagal generate nomor DO.");
   }
 };
 
@@ -117,9 +120,8 @@ const selectSO = async (so: any) => {
     form.value.shipAddress = data.shipAddress;
     form.value.isEcer = data.isEcer;
 
-    // Generate nomor DO sesuai isTax dari SO
-    const res = await doFormApi.getNomor(form.value.tanggal, data.isTax);
-    form.value.nomor = res.nomor;
+    // Generate nomor DO sesuai isTax + divisi dari SO
+    await loadNomor(data.divKode, data.isTax);
 
     // Clear detail
     form.value.detail = [];
@@ -143,10 +145,25 @@ const searchGudang = async (query: string) => {
 };
 
 const selectGudang = (g: any) => {
+  if (Number(g.isKonsinyasi) === 1) {
+    toast.warning("Gudang konsinyasi hanya untuk baris item konsinyasi.");
+    return;
+  }
   form.value.gdgKode = g.kode;
   form.value.gdgNama = g.nama;
   showGudangModal.value = false;
 };
+
+// ── Gudang Konsinyasi ────────────────────────────────────────────────
+// Item konsinyasi wajib punya gudang konsinyasi di tiap detail.
+const konsinyasiGudangOptions = computed(() =>
+  gudangOptions.value.filter((g: any) => Number(g.isKonsinyasi) === 1)
+);
+
+// Gudang header = hanya gudang yang BUKAN konsinyasi
+const headerGudangOptions = computed(() =>
+  gudangOptions.value.filter((g: any) => Number(g.isKonsinyasi) !== 1)
+);
 
 // ── Select Driver ────────────────────────────────────────────────────
 const selectDriver = (d: any) => {
@@ -163,8 +180,12 @@ watch(showStokModal, (val) => {
 });
 
 // ── Search Stok ──────────────────────────────────────────────────────
+// Baris konsinyasi mencari stok di gudang konsinyasi (searchStokKons),
+// baris internal mencari stok di gudang header (searchStok).
 const openStokModal = async (idx: number) => {
-  if (!form.value.gdgKode) {
+  const d = form.value.detail[idx];
+  const isKons = Number(d?.isKonsinyasi) === 1;
+  if (!isKons && !form.value.gdgKode) {
     toast.warning("Pilih gudang dahulu.");
     return;
   }
@@ -176,11 +197,13 @@ const openStokModal = async (idx: number) => {
   stokLoading.value = true;
   showStokModal.value = true;
   try {
-    stokItems.value = await doFormApi.searchStok(
-      form.value.nomorSO,
-      form.value.gdgKode,
-      form.value.nomor || ""
-    );
+    stokItems.value = isKons
+      ? await doFormApi.searchStokKons(form.value.nomorSO, form.value.nomor || "")
+      : await doFormApi.searchStok(
+          form.value.nomorSO,
+          form.value.gdgKode,
+          form.value.nomor || ""
+        );
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error("Gagal mencari stok.");
@@ -189,15 +212,23 @@ const openStokModal = async (idx: number) => {
   }
 };
 
+// Kolom Gud. Kons tampil di modal stok hanya bila ada baris konsinyasi.
+const stokModalHasKons = computed(() =>
+  stokItems.value.some((i: any) => Number(i.isKonsinyasi) === 1)
+);
+
 const selectStok = async (item: any) => {
   try {
     const expiredDate = item.expired || "";
+    const isKons = Number(item.isKonsinyasi) === 1;
+    // Barang konsinyasi: stok diambil dari gudang konsinyasi baris terpilih.
+    const stockGdg = isKons ? (item.gdgKons || "") : form.value.gdgKode;
 
     const detail = await doFormApi.getDetailStok(
       item.sku,
       expiredDate,
       form.value.nomorSO,
-      form.value.gdgKode,
+      stockGdg,
       isEdit.value,
       item.idBatch || ""
     );
@@ -207,7 +238,8 @@ const selectStok = async (item: any) => {
       return;
     }
 
-    // Paritas Delphi bantuansku: tolak SKU + expired + idBatch yang sama dengan baris lain
+    // Paritas Delphi bantuansku: tolak SKU + expired + idBatch yang sama dengan baris lain.
+    // Konsinyasi: gudang konsinyasi ikut jadi pembeda (SKU sama di 2 gudang kons = 2 baris).
     const activeIdx = isAddRowMode.value ? -1 : activeDetailIndex.value;
     const dupIdx = form.value.detail.findIndex(
       (x, i) =>
@@ -215,7 +247,7 @@ const selectStok = async (item: any) => {
         x.brgKode === Number(detail.sku) &&
         (x.expired || "") === (detail.expired || "") &&
         (x.idBatch || "") === (detail.idBatch || "") &&
-        x.gudang === form.value.gdgKode
+        (isKons ? x.gdgKons === (item.gdgKons || "") : x.gudang === form.value.gdgKode)
     );
     if (dupIdx >= 0) {
       toast.warning(`Sku, expired dan id batch sama dengan baris ${dupIdx + 1}.`);
@@ -234,6 +266,8 @@ const selectStok = async (item: any) => {
       expired: detail.expired || "",
       closed: 0,
       gudang: form.value.gdgKode,
+      gdgKons: isKons ? (item.gdgKons || "") : "",
+      isKonsinyasi: Number(detail.isKonsinyasi) || 0,
       stok: Number(detail.stok) || 0,
       isExpired: Number(detail.isExpired) || 0,
     };
@@ -265,16 +299,36 @@ const removeRow = (idx: number) => {
   form.value.detail.forEach((d, i) => (d.no = i + 1));
 };
 
+// Refresh stok saat gudang konsinyasi diganti — stok baris konsinyasi
+// selalu mengikuti gudang konsinyasinya (bukan gudang header).
+const onGdgKonsChange = async (d: DODetail) => {
+  if (Number(d.isKonsinyasi) !== 1 || !d.gdgKons || !d.brgKode) return;
+  try {
+    d.stok = await doFormApi.getStok(
+      Number(d.brgKode),
+      d.expired || "",
+      d.gdgKons,
+      form.value.nomor || "",
+      d.idBatch || ""
+    );
+  } catch {
+    /* biarkan nilai stok lama */
+  }
+};
+
 // ── Tambah Detail (dialog checklist barang — pola Retur Penjualan) ──
+// Dua mode: "internal" (stok gudang header) & "kons" (stok gudang konsinyasi).
 const showTambahDetailModal = ref(false);
+const tambahMode = ref<"internal" | "kons">("internal");
 const tambahDetailItems = ref<any[]>([]);
 const tambahDetailLoading = ref(false);
 const tambahDetailSearch = ref("");
 const selectedTambahDetail = ref<any[]>([]);
 
-// Kunci baris stok = SKU + expired + idBatch (paritas granularitas batch).
+// Kunci baris stok = SKU + expired + idBatch + gudang konsinyasi
+// (paritas granularitas batch; SKU sama di 2 gudang kons = 2 pilihan).
 const brgKey = (b: any) =>
-  `${String(b.sku)}|${b.expired || ""}|${b.idBatch || ""}`;
+  `${String(b.sku)}|${b.expired || ""}|${b.idBatch || ""}|${b.gdgKons || ""}`;
 
 const isTambahDetailSelected = (brg: any) =>
   selectedTambahDetail.value.some((b) => brgKey(b) === brgKey(brg));
@@ -312,13 +366,16 @@ const filteredTambahDetailItems = computed(() => {
 });
 
 // Tambah satu baris (reuse logika getDetailStok + dup-guard selectStok).
+// Konsinyasi: stok diambil dari gudang konsinyasi baris terpilih.
 const addStokRow = async (item: any): Promise<boolean> => {
   try {
+    const isKons = Number(item.isKonsinyasi) === 1;
+    const stockGdg = isKons ? (item.gdgKons || "") : form.value.gdgKode;
     const detail = await doFormApi.getDetailStok(
       item.sku,
       item.expired || "",
       form.value.nomorSO,
-      form.value.gdgKode,
+      stockGdg,
       isEdit.value,
       item.idBatch || ""
     );
@@ -332,7 +389,7 @@ const addStokRow = async (item: any): Promise<boolean> => {
         x.brgKode === Number(detail.sku) &&
         (x.expired || "") === (detail.expired || "") &&
         (x.idBatch || "") === (detail.idBatch || "") &&
-        x.gudang === form.value.gdgKode
+        (isKons ? x.gdgKons === (item.gdgKons || "") : x.gudang === form.value.gdgKode)
     );
     if (dupIdx >= 0) return false;
 
@@ -348,6 +405,8 @@ const addStokRow = async (item: any): Promise<boolean> => {
       expired: detail.expired || "",
       closed: 0,
       gudang: form.value.gdgKode,
+      gdgKons: isKons ? (item.gdgKons || "") : "",
+      isKonsinyasi: Number(detail.isKonsinyasi) || 0,
       stok: Number(detail.stok) || 0,
       isExpired: Number(detail.isExpired) || 0,
     });
@@ -358,8 +417,9 @@ const addStokRow = async (item: any): Promise<boolean> => {
   }
 };
 
-const openTambahDetail = async () => {
-  if (!form.value.gdgKode) {
+const openTambahDetail = async (mode: "internal" | "kons" = "internal") => {
+  tambahMode.value = mode;
+  if (mode !== "kons" && !form.value.gdgKode) {
     toast.warning("Pilih gudang dahulu.");
     return;
   }
@@ -372,11 +432,14 @@ const openTambahDetail = async () => {
   showTambahDetailModal.value = true;
   tambahDetailLoading.value = true;
   try {
-    tambahDetailItems.value = await doFormApi.searchStok(
-      form.value.nomorSO,
-      form.value.gdgKode,
-      form.value.nomor || ""
-    );
+    tambahDetailItems.value =
+      mode === "kons"
+        ? await doFormApi.searchStokKons(form.value.nomorSO, form.value.nomor || "")
+        : await doFormApi.searchStok(
+            form.value.nomorSO,
+            form.value.gdgKode,
+            form.value.nomor || ""
+          );
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error("Gagal memuat stok.");
@@ -390,15 +453,18 @@ let tambahTimer: ReturnType<typeof setTimeout> | undefined;
 const onTambahDetailSearch = (query: string) => {
   clearTimeout(tambahTimer);
   tambahTimer = setTimeout(async () => {
-    if (!form.value.nomorSO || !form.value.gdgKode) return;
+    if (!form.value.nomorSO || (tambahMode.value !== "kons" && !form.value.gdgKode)) return;
     tambahDetailLoading.value = true;
     try {
-      tambahDetailItems.value = await doFormApi.searchStok(
-        form.value.nomorSO,
-        form.value.gdgKode,
-        form.value.nomor || "",
-        query
-      );
+      tambahDetailItems.value =
+        tambahMode.value === "kons"
+          ? await doFormApi.searchStokKons(form.value.nomorSO, form.value.nomor || "", query)
+          : await doFormApi.searchStok(
+              form.value.nomorSO,
+              form.value.gdgKode,
+              form.value.nomor || "",
+              query
+            );
     } catch (e: any) {
       if (isAuthExpiredError(e)) return;
       toast.error("Gagal mencari stok.");
@@ -559,7 +625,11 @@ const validateQty = async (d: DODetail): Promise<boolean> => {
     return false;
   }
 
-  // Cek qty melebihi stok gudang (getstok Delphi: per gudang + expired + idBatch, exclude DO ini)
+  // Cek qty melebihi stok gudang (getstok Delphi: per gudang + expired + idBatch, exclude DO ini).
+  // Khusus barang konsinyasi: security stok dilewati — stok boleh minus,
+  // pembelian akan dilakukan di akhir bulan berdasarkan DO.
+  if (Number(d.isKonsinyasi) === 1) return true;
+
   try {
     const stok = await doFormApi.getStok(
       d.brgKode,
@@ -582,6 +652,7 @@ const validateQty = async (d: DODetail): Promise<boolean> => {
 };
 
 const validateSave = async (): Promise<boolean> => {
+  attemptedSave.value = true;
   if (!form.value.cusKode) {
     toast.warning("Customer belum dipilih.");
     return false;
@@ -598,6 +669,11 @@ const validateSave = async (): Promise<boolean> => {
     }
     if (d.brgKode === 0) {
       toast.warning(`SKU baris ${d.no} belum dipilih.`);
+      return false;
+    }
+    // Item konsinyasi wajib mengisi gudang konsinyasi di detail
+    if (Number(d.isKonsinyasi) === 1 && !d.gdgKons) {
+      toast.warning(`Baris ${d.no} (${d.brgNama}) konsinyasi — gudang konsinyasi wajib diisi.`);
       return false;
     }
     // Paritas Delphi cekdata + getstatusexpired: expired wajib hanya
@@ -653,7 +729,6 @@ const loadData = async () => {
   const nomor = route.params.nomor as string;
   if (!nomor) {
     form.value.isEdit = false;
-    await loadNomor();
     return;
   }
 
@@ -717,6 +792,7 @@ watch(
 );
 
 const resetForm = () => {
+  attemptedSave.value = false;
   form.value = {
     isEdit: false,
     nomor: "",
@@ -733,7 +809,6 @@ const resetForm = () => {
     isEcer: 0,
     detail: [],
   };
-  loadNomor();
 };
 
 // ── Detail table column widths — used by both header and body ───────
@@ -750,6 +825,7 @@ const DETAIL_COL_WIDTHS = [
   { key: 'expired', width: 85 },
   { key: 'closed', width: 60 },
   { key: 'gudang', width: 65 },
+  { key: 'gdgKons', width: 90 },
   { key: 'action', width: 30 },
 ] as const;
 
@@ -851,9 +927,13 @@ onMounted(async () => {
       <fieldset class="do-groupbox do-detail-group">
         <legend class="do-legend">Detail Barang</legend>
         <div class="do-detail-actions">
-          <button class="btn-add-detail" type="button" @click="openTambahDetail">
+          <button class="btn-add-detail" type="button" @click="openTambahDetail('internal')">
             <IconPlus :size="13" />
             Tambah Detail
+          </button>
+          <button class="btn-add-detail" type="button" title="Barang konsinyasi — stok dari gudang konsinyasi" @click="openTambahDetail('kons')">
+            <IconPlus :size="13" />
+            Tambah Detail Konsinyasi
           </button>
         </div>
         <div class="detail-table-wrap">
@@ -873,6 +953,7 @@ onMounted(async () => {
                   <th :style="detailColWidthStyle('expired')" class="tc">Expired</th>
                   <th :style="detailColWidthStyle('closed')" class="tc">Closed</th>
                   <th :style="detailColWidthStyle('gudang')">Gudang</th>
+                  <th :style="detailColWidthStyle('gdgKons')">Gud. Konsinyasi</th>
                   <th :style="detailColWidthStyle('action')" class="tc"></th>
                 </tr>
               </thead>
@@ -903,6 +984,13 @@ onMounted(async () => {
                     <input :id="'do-cell-closed-' + idx" v-model="d.closed" type="checkbox" :true-value="1" :false-value="0" />
                   </td>
                   <td class="cell-text" :style="detailColWidthStyle('gudang')">{{ d.gudang }}</td>
+                  <td class="tc" :style="detailColWidthStyle('gdgKons')">
+                    <select v-if="Number(d.isKonsinyasi) === 1" v-model="d.gdgKons" class="cell-inp tc" :class="{ 'cell-missing': attemptedSave && !d.gdgKons }" @change="onGdgKonsChange(d)">
+                      <option value="" disabled>Pilih...</option>
+                      <option v-for="g in konsinyasiGudangOptions" :key="g.kode" :value="g.kode">{{ g.kode }}</option>
+                    </select>
+                    <span v-else class="cell-muted">-</span>
+                  </td>
                   <td class="tc" :style="detailColWidthStyle('action')">
                     <button class="btn-del" type="button" title="Hapus baris" @click="removeRow(idx)">
                       <IconTrash :size="12" />
@@ -910,8 +998,8 @@ onMounted(async () => {
                   </td>
                 </tr>
                 <tr v-if="form.detail.length === 0">
-                  <td colspan="13" class="empty-state">
-                    Belum ada barang. Klik <strong>"Tambah Detail"</strong> untuk mulai mengisi.
+                  <td colspan="14" class="empty-state">
+                    Belum ada barang. Klik <strong>"Tambah Detail"</strong> (gudang internal) atau <strong>"Tambah Detail Konsinyasi"</strong> untuk mulai mengisi.
                   </td>
                 </tr>
               </tbody>
@@ -958,7 +1046,7 @@ onMounted(async () => {
       { key: 'kode', title: 'Kode', width: '100px' },
       { key: 'nama', title: 'Nama Gudang' },
     ]"
-    :items="gudangOptions"
+    :items="headerGudangOptions"
     :server-search="true"
     search-placeholder="Cari gudang..."
     @select="selectGudang"
@@ -981,7 +1069,7 @@ onMounted(async () => {
   <v-dialog v-model="showTambahDetailModal" max-width="680" scrollable>
     <v-card rounded="false">
       <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
-        Tambah Detail
+        {{ tambahMode === 'kons' ? 'Tambah Detail Konsinyasi' : 'Tambah Detail' }}
       </v-card-title>
       <v-card-text class="pa-3 pt-1">
         <div class="tb-search">
@@ -1008,10 +1096,11 @@ onMounted(async () => {
                 <th style="width: 80px" class="tr">Stok</th>
                 <th style="width: 80px" class="tr">Kurang</th>
                 <th style="width: 100px" class="tc">Expired</th>
+                <th v-if="tambahMode === 'kons'" style="width: 90px" class="tc">Gud. Kons</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="brg in filteredTambahDetailItems" :key="brg.sku + '|' + (brg.expired || '') + '|' + (brg.idBatch || '')" class="modal-row" @click="toggleTambahDetail(brg)">
+              <tr v-for="brg in filteredTambahDetailItems" :key="brg.sku + '|' + (brg.expired || '') + '|' + (brg.idBatch || '') + '|' + (brg.gdgKons || '')" class="modal-row" @click="toggleTambahDetail(brg)">
                 <td class="tc" @click.stop>
                   <input type="checkbox" :checked="isTambahDetailSelected(brg)" @change="toggleTambahDetail(brg)" />
                 </td>
@@ -1021,9 +1110,10 @@ onMounted(async () => {
                 <td class="tr">{{ fmtQty(brg.stok) }}</td>
                 <td class="tr">{{ fmtQty(brg.kurang) }}</td>
                 <td class="tc">{{ brg.expired || '-' }}</td>
+                <td v-if="tambahMode === 'kons'" class="tc">{{ brg.gdgKons || '-' }}</td>
               </tr>
               <tr v-if="filteredTambahDetailItems.length === 0">
-                <td colspan="7" class="empty-state">Tidak ada barang yang cocok.</td>
+                <td :colspan="tambahMode === 'kons' ? 8 : 7" class="empty-state">Tidak ada barang yang cocok.</td>
               </tr>
             </tbody>
           </table>
@@ -1058,16 +1148,18 @@ onMounted(async () => {
               <th>Expired</th>
               <th class="tr">Stok</th>
               <th>Satuan</th>
+              <th v-if="stokModalHasKons" class="tc">Gud. Kons</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="item in stokItems" :key="item.sku + '|' + (item.expired || '') + '|' + (item.idBatch || '')" class="modal-row" @click="selectStok(item)">
+            <tr v-for="item in stokItems" :key="item.sku + '|' + (item.expired || '') + '|' + (item.idBatch || '') + '|' + (item.gdgKons || '')" class="modal-row" @click="selectStok(item)">
               <td class="mono">{{ item.sku }}</td>
               <td>{{ item.namaBarang }}</td>
               <td>{{ item.idBatch || '-' }}</td>
               <td class="tc">{{ item.expired || '-' }}</td>
               <td class="tr">{{ fmtQty(item.stok) }}</td>
               <td class="tc">{{ item.satuan }}</td>
+              <td v-if="stokModalHasKons" class="tc">{{ item.gdgKons || '-' }}</td>
             </tr>
             <tr v-if="stokItems.length === 0">
               <td colspan="6" class="empty-state">Tidak ada stok.</td>
@@ -1181,6 +1273,7 @@ textarea:focus-visible {
 .do-detail-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 6px;
   padding: 4px 8px;
   border-bottom: 1px solid var(--ds-border, #A0AAB8);
   background: #F7FAFC;
@@ -1462,6 +1555,12 @@ textarea:focus-visible {
 
 .cell-inp:focus {
   border-color: var(--ds-primary, #0284c7);
+}
+
+/* Highlight merah utk gudang konsinyasi yang belum dipilih saat simpan */
+.cell-inp.cell-missing {
+  border-color: #d32f2f !important;
+  background: #fff5f5;
 }
 
 .cell-inp.readonly-bg {

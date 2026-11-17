@@ -6,7 +6,7 @@ import { isAuthExpiredError } from "@/api/axios";
 import BaseForm from "@/components/BaseForm.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import { IconCash, IconSearch } from "@tabler/icons-vue";
-import { bayarCustomerFormApi, type BayarCustomerForm, type BayarCustomerDetail } from "@/api/penjualan/bayarCustomerFormApi";
+import { bayarCustomerFormApi, type BayarCustomerForm, type BayarCustomerDetail, type ReturJualRow } from "@/api/penjualan/bayarCustomerFormApi";
 import { useAfterSave } from "@/composables/useAfterSave";
 import { useDetailGrid } from "@/composables/useDetailGrid";
 import { useAuthStore } from "@/stores/authStore";
@@ -60,7 +60,30 @@ const form = ref<BayarCustomerForm>({
   rekPPHNama: "",
   ntpn: "",
   detail: [],
+  retur: [],
 });
+
+// Retur penjualan untuk setle di header (checkbox)
+const returOptions = ref<ReturJualRow[]>([]);
+const selectedRetur = computed(() =>
+  returOptions.value.filter((r) => r.checked === 1)
+);
+const totalReturSel = computed(() =>
+  selectedRetur.value.reduce((s, r) => s + Number(r.amount || 0), 0)
+);
+
+const loadRetur = async () => {
+  if (!form.value.cusKode) return;
+  try {
+    returOptions.value = await bayarCustomerFormApi.getReturByCustomer(
+      form.value.cusKode,
+      form.value.nomor
+    );
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error("Gagal memuat retur.");
+  }
+};
 
 // ── Checkbox State ───────────────────────────────────────────────────
 const chkCash = ref(false);
@@ -143,8 +166,8 @@ const selectCustomer = async (cust: any) => {
   form.value.alamat = cust.alamat || "";
   showCustomerModal.value = false;
 
-  // Load invoice
-  await loadInvoice();
+  // Load invoice + retur milik customer
+  await Promise.all([loadInvoice(), loadRetur()]);
 
   // Pola DOFormView: setelah invoice termuat, sorot sel Pay baris pertama —
   // user tinggal Space/Enter untuk centang (bayar auto terisi), panah ke
@@ -219,7 +242,6 @@ const DETAIL_COL_WIDTHS = [
   { key: 'invoice', width: 150 },
   { key: 'tanggal', width: 90 },
   { key: 'jthTempo', width: 90 },
-  { key: 'retur', width: 70 },
   { key: 'ppn', width: 90 },
   { key: 'nilai', width: 130 },
   { key: 'terbayar', width: 90 },
@@ -432,7 +454,7 @@ const totalBayar = computed(() =>
 );
 const selisihMetode = computed(
   () =>
-    totalBayar.value -
+    totalBayar.value - totalReturSel.value -
     (Number(form.value.cash) + Number(form.value.transfer) +
       Number(form.value.potongan) + Number(form.value.giro) +
       Number(form.value.ppn) + Number(form.value.pph))
@@ -503,16 +525,20 @@ const validateSave = async (): Promise<boolean> => {
     }
   }
 
-  // 7. Balance: |Σ bayar - (cash+transfer+potongan+giro+ppn+pph)| <= 10
+  // 7. Balance: |Σ bayar - retur - (cash+transfer+potongan+giro+ppn+pph)| <= 10
   const totalDetail = form.value.detail.reduce((s, d) => s + Number(d.bayar || 0), 0);
+  if (totalReturSel.value > totalDetail) {
+    toast.warning("Total retur melebihi total pembayaran invoice.");
+    return false;
+  }
   const totalMetode =
     Number(form.value.cash) + Number(form.value.transfer) +
     Number(form.value.potongan) + Number(form.value.giro) +
     Number(form.value.ppn) + Number(form.value.pph);
-  const selisih = totalDetail - totalMetode;
+  const selisih = totalDetail - totalReturSel.value - totalMetode;
   if (selisih > 10 || selisih < -10) {
     toast.warning(
-      `Pembayaran dengan Total ${totalDetail} yang di bayar Beda ${totalMetode}`
+      `Pembayaran dengan Total ${totalDetail - totalReturSel.value} yang di bayar Beda ${totalMetode}`
     );
     return false;
   }
@@ -526,6 +552,13 @@ const confirmSave = async (action: "new" | "close") => {
   if (isSaving.value) return;
   isSaving.value = true;
   try {
+    form.value.retur = selectedRetur.value.map((r) => ({
+      nomor: r.nomor,
+      tanggal: r.tanggal,
+      invoice: r.invoice,
+      amount: r.amount,
+      memo: r.memo,
+    }));
     const res = await bayarCustomerFormApi.save(form.value);
     const nomor = res.data.nomor || form.value.nomor;
     handlePostSave(action, nomor);
@@ -551,6 +584,7 @@ const loadData = async () => {
     const data = await bayarCustomerFormApi.getDetailForm(decodeURIComponent(nomor));
     form.value = { ...data, isEdit: true };
     tanggalOld.value = form.value.tanggal;
+    returOptions.value = data.retur || [];
 
     // Set checkbox state
     chkCash.value = Number(data.cash) > 0;
@@ -602,7 +636,9 @@ const resetForm = () => {
     rekPPHNama: "",
     ntpn: "",
     detail: [],
+    retur: [],
   };
+  returOptions.value = [];
   chkCash.value = false;
   chkTransfer.value = false;
   chkPotongan.value = false;
@@ -773,6 +809,37 @@ onMounted(async () => {
         </fieldset>
       </div>
 
+      <!-- ═══ RETUR PENJUALAN (Setle) — hanya bila customer punya retur ═══ -->
+      <fieldset v-if="returOptions.length > 0" class="byc-groupbox byc-retur-group">
+        <legend class="byc-legend">Retur Penjualan (Setle)</legend>
+        <div class="retur-list">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th class="tc" style="width: 40px">Setle</th>
+                <th style="width: 170px">Nomor Retur</th>
+                <th class="tc" style="width: 100px">Tanggal</th>
+                <th style="width: 170px">Invoice</th>
+                <th class="tr" style="width: 120px">Nilai</th>
+                <th>Memo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="r in returOptions" :key="r.nomor">
+                <td class="tc" style="width: 40px">
+                  <input v-model="r.checked" type="checkbox" :true-value="1" :false-value="0" />
+                </td>
+                <td class="mono" style="width: 170px">{{ r.nomor }}</td>
+                <td class="tc" style="width: 100px">{{ r.tanggal }}</td>
+                <td style="width: 170px">{{ r.invoice }}</td>
+                <td class="tr" style="width: 120px">{{ fmt(r.amount) }}</td>
+                <td>{{ r.memo }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+
       <!-- ═══ DETAIL GRID ═══ -->
       <fieldset class="byc-groupbox byc-detail-group">
         <legend class="byc-legend">Detail Invoice</legend>
@@ -786,7 +853,6 @@ onMounted(async () => {
                   <th :style="detailColWidthStyle('invoice')">Invoice</th>
                   <th :style="detailColWidthStyle('tanggal')" class="tc">Tgl Faktur</th>
                   <th :style="detailColWidthStyle('jthTempo')" class="tc">Jth Tempo</th>
-                  <th :style="detailColWidthStyle('retur')" class="tr">Retur</th>
                   <th :style="detailColWidthStyle('ppn')" class="tr">PPN</th>
                   <th :style="detailColWidthStyle('nilai')" class="tr">Nilai</th>
                   <th :style="detailColWidthStyle('terbayar')" class="tr">Terbayar</th>
@@ -809,7 +875,6 @@ onMounted(async () => {
                   <td class="tc" :style="detailColWidthStyle('jthTempo')">
                     {{ d.jthTempo }}<span v-if="d.angsur" class="angsur-mark" title="Termin faktur angsur">*</span>
                   </td>
-                  <td class="tr cell-muted" :style="detailColWidthStyle('retur')">{{ fmt(d.retur) }}</td>
                   <td class="tr cell-muted" :style="detailColWidthStyle('ppn')">{{ fmt(d.ppn) }}</td>
                   <td class="tr" :style="detailColWidthStyle('nilai')">{{ fmt(d.nilai) }}</td>
                   <td class="tr cell-muted" :style="detailColWidthStyle('terbayar')">{{ fmt(d.terbayar) }}</td>
@@ -823,7 +888,7 @@ onMounted(async () => {
                   <td :style="detailColWidthStyle('memo')">{{ d.memo }}</td>
                 </tr>
                 <tr v-if="form.detail.length === 0">
-                  <td colspan="13" class="empty-state">
+                  <td colspan="12" class="empty-state">
                     Pilih customer untuk memuat invoice.
                   </td>
                 </tr>
@@ -832,6 +897,7 @@ onMounted(async () => {
           </div>
           <!-- Footer total bayar (paritas footer summary cxGrdMain Delphi) -->
           <div class="detail-footer">
+            <span v-if="totalReturSel > 0">Setle Retur: <strong>{{ fmt(totalReturSel) }}</strong></span>
             <span>Total Bayar: <strong>{{ fmt(totalBayar) }}</strong></span>
             <span :class="Math.abs(selisihMetode) > 10 ? 'selisih-bad' : 'selisih-ok'">
               Selisih dgn Metode: <strong>{{ fmt(selisihMetode) }}</strong>
@@ -988,6 +1054,44 @@ textarea:focus-visible {
   display: flex;
   flex-direction: column;
 }
+
+/* ── Retur Penjualan (Setle) — hanya tampil bila ada retur ───── */
+.byc-retur-group {
+  flex-shrink: 0;
+}
+.byc-retur-group .retur-list {
+  max-height: 150px;
+  overflow: auto;
+  border-top: 1px solid var(--ds-border, #A0AAB8);
+}
+.byc-retur-group table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.byc-retur-group thead tr {
+  background: var(--ds-primary, #0284c7);
+}
+.byc-retur-group th {
+  color: white;
+  font-weight: 700;
+  padding: 4px 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  border-right: 1px solid var(--ds-primary-dark, #0369a1);
+}
+.byc-retur-group td {
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--ds-border-light, #C4CAD3);
+  border-right: 1px solid var(--ds-border-light, #C4CAD3);
+  white-space: nowrap;
+}
+.byc-retur-group tbody tr:nth-child(odd) { background: #F0F3F8; }
+.byc-retur-group tbody tr:nth-child(even) { background: #E4EBF4; }
+.byc-retur-group tbody tr:hover td { background: #D8E2EF; }
+.byc-retur-group .tc { text-align: center; }
+.byc-retur-group .tr { text-align: right; }
+.byc-retur-group .mono { font-family: monospace; font-size: 10px; }
 
 .byc-detail-group .byc-groupbody {
   flex: 1;

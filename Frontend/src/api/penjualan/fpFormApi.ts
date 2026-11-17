@@ -58,10 +58,10 @@ export interface FPForm {
 }
 
 export const fpFormApi = {
-  // GET /api/penjualan/fp/form/get-nomor?tanggal=&isTax=
-  getNomor: async (tanggal: string, isTax: number) => {
+  // GET /api/penjualan/fp/form/get-nomor?tanggal=&isTax=&divKode=
+  getNomor: async (tanggal: string, isTax: number, divKode: string) => {
     const { data } = await api.get("/penjualan/fp/form/get-nomor", {
-      params: { tanggal, isTax },
+      params: { tanggal, isTax, divKode },
     });
     return data.data;
   },

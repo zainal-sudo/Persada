@@ -42,7 +42,8 @@ const headers = [
   { key: "Min", title: "Min", width: "80px", align: "right" as const },
   { key: "Disc_Salesman", title: "Disc Salesman", width: "100px", align: "right" as const },
   { key: "Merk", title: "Merk", width: "100px" },
-  { key: "Product_Focus", title: "Product Focus", width: "100px", align: "center" as const },
+  { key: "Divisi", title: "Divisi", width: "90px" },
+  { key: "IsKonsinyasi", title: "Konsinyasi", width: "90px", align: "center" as const },
   { key: "Last_Sale", title: "Last Sale", width: "100px", align: "center" as const },
   { key: "Stok_Baik", title: "Stok Baik", width: "80px", align: "right" as const },
   { key: "Avgs_Sales_per_Bulan", title: "Avg Sales/Bulan", width: "110px", align: "right" as const },
@@ -146,7 +147,7 @@ const fmtTOR = (v: number) => {
 const showExportDialog = ref(false);
 const isExporting = ref(false);
 
-const headerCols: ExportColumn[] = [{"key":"Kode","title":"Kode","width":15},{"key":"Nama","title":"Nama","width":30},{"key":"Satuan","title":"Satuan","width":10,"align":"center"},{"key":"Kategori","title":"Kategori","width":20},{"key":"Tipe","title":"Tipe","width":15},{"key":"HargaJual","title":"Harga Jual","width":16,"numFmt":"#,##0"},{"key":"Stok","title":"Stok","width":12,"numFmt":"#,##0"},{"key":"Min","title":"Min","width":12,"numFmt":"#,##0"},{"key":"Disc_Salesman","title":"Disc Salesman","width":14,"numFmt":"#,##0"},{"key":"Merk","title":"Merk","width":15}];
+const headerCols: ExportColumn[] = [{"key":"Kode","title":"Kode","width":15},{"key":"Nama","title":"Nama","width":30},{"key":"Satuan","title":"Satuan","width":10,"align":"center"},{"key":"Kategori","title":"Kategori","width":20},{"key":"Tipe","title":"Tipe","width":15},{"key":"HargaJual","title":"Harga Jual","width":16,"numFmt":"#,##0"},{"key":"Stok","title":"Stok","width":12,"numFmt":"#,##0"},{"key":"Min","title":"Min","width":12,"numFmt":"#,##0"},{"key":"Disc_Salesman","title":"Disc Salesman","width":14,"numFmt":"#,##0"},{"key":"Merk","title":"Merk","width":15},{"key":"Divisi","title":"Divisi","width":12},{"key":"IsKonsinyasi","title":"Konsinyasi","width":12,"align":"center"}];
 const detailCols: ExportColumn[] = [{"key":"Kode","title":"Kode","width":15},{"key":"KD_Gudang","title":"Gudang","width":15},{"key":"Gudang","title":"Nama Gudang","width":25},{"key":"Expired","title":"Expired","width":12,"align":"center"},{"key":"stok","title":"Stok","width":12,"numFmt":"#,##0"}];
 
 const doExportHeader = () => {
@@ -157,6 +158,7 @@ const doExportHeader = () => {
       ...r,
       Tanggal: r.Tanggal ? fmtDate(r.Tanggal) : r.Tanggal,
       Expired: r.Expired ? fmtDate(r.Expired) : r.Expired,
+      IsKonsinyasi: r.IsKonsinyasi === 1 ? "Ya" : "Tidak",
     }));
     exportStyledHeader({
       title: "Daftar Barang",
@@ -268,6 +270,11 @@ const doExportDetail = async () => {
     <template #item.Product_Focus="{ value }">
       <span :class="value === 'Ya' || value === 1 ? 'badge-focus' : ''">
         {{ value === 'Ya' || value === 1 ? 'Ya' : 'Tidak' }}
+      </span>
+    </template>
+    <template #item.IsKonsinyasi="{ value }">
+      <span :class="value === 1 ? 'badge-focus' : ''">
+        {{ value === 1 ? 'Ya' : 'Tidak' }}
       </span>
     </template>
     <template #item.Last_Sale="{ value }">

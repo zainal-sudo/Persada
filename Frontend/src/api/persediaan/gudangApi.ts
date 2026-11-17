@@ -5,6 +5,7 @@ export interface GudangRow {
   Nama: string;
   Penanggungjawab: string;
   Keterangan: string;
+  IsKonsinyasi: number;
 }
 
 export const gudangApi = {

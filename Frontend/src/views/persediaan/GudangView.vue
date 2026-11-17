@@ -29,7 +29,8 @@ const headers = [
   { title: "Kode", key: "Kode", width: "100px", align: "center" },
   { title: "Nama", key: "Nama", width: "200px" },
   { title: "Penanggungjawab", key: "Penanggungjawab", width: "200px" },
-  { title: "Keterangan", key: "Keterangan", minWidth: "200px" },
+  { title: "Keterangan", key: "Keterangan", minWidth: "180px" },
+  { title: "Konsinyasi", key: "IsKonsinyasi", width: "100px", align: "center" as const },
 ];
 
 // ── Modal State ──────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ const emptyForm = () => ({
   nama: "",
   penanggungjawab: "",
   keterangan: "",
+  iskonsinyasi: false,
 });
 const form = ref(emptyForm());
 
@@ -67,6 +69,7 @@ const openEdit = async (item: GudangRow) => {
       nama: d.nama,
       penanggungjawab: d.penanggungjawab,
       keterangan: d.keterangan,
+      iskonsinyasi: Boolean(d.iskonsinyasi),
     };
     dialogTitle.value = "Ubah Gudang";
     dialog.value = true;
@@ -82,6 +85,7 @@ const headerCols: ExportColumn[] = [
   { key: "Nama", title: "Nama", width: 30 },
   { key: "Penanggungjawab", title: "Penanggungjawab", width: 25 },
   { key: "Keterangan", title: "Keterangan", width: 25 },
+  { key: "IsKonsinyasi", title: "Konsinyasi", width: 15, align: "center" },
 ];
 
 const doExport = () => {
@@ -92,7 +96,10 @@ const doExport = () => {
   exportStyledHeader({
     title: "Daftar Gudang",
     columns: headerCols,
-    items: items.value,
+    items: items.value.map((i) => ({
+      ...i,
+      IsKonsinyasi: i.IsKonsinyasi ? "Ya" : "Tidak",
+    })),
     fileName: `Gudang_${new Date().toISOString().slice(0, 10)}.xlsx`,
     subtitle: "Daftar Gudang",
   });
@@ -137,7 +144,17 @@ const handleSave = async () => {
     @add="openCreate"
     @edit="openEdit"
     :export-fn="doExport"
-  />
+  >
+    <template #item.IsKonsinyasi="{ value }">
+      <v-chip
+        size="x-small"
+        :color="value ? 'success' : 'grey'"
+        class="font-weight-bold"
+      >
+        {{ value ? "Ya" : "Tidak" }}
+      </v-chip>
+    </template>
+  </BaseBrowse>
 
   <!-- ═══ MODAL ADD / EDIT ═══ -->
   <FormDialog
@@ -166,6 +183,17 @@ const handleSave = async () => {
     <div class="fd-row">
       <label class="fd-label">Keterangan</label>
       <input v-model="form.keterangan" class="fd-input" placeholder="Keterangan..." />
+    </div>
+    <div class="fd-row">
+      <label class="fd-label">Status Konsinyasi</label>
+      <div class="d-flex align-center" style="gap: 8px;">
+        <v-checkbox
+          v-model="form.iskonsinyasi"
+          label="Gudang Konsinyasi"
+          density="compact"
+          hide-details
+        />
+      </div>
     </div>
   </FormDialog>
 </template>

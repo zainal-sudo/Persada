@@ -140,6 +140,9 @@ const kendaraanFormRoutes = require("./daftar/kendaraanFormRoutes");
 const ekspedisiRoutes = require("./daftar/ekspedisiRoutes");
 const ekspedisiFormRoutes = require("./daftar/ekspedisiFormRoutes");
 
+const divisiRoutes = require("./daftar/divisiRoutes");
+const divisiFormRoutes = require("./daftar/divisiFormRoutes");
+
 // PERSEDIAAN 
 
 const subBarangRoutes = require("./persediaan/subBarangRoutes");
@@ -323,6 +326,9 @@ router.use("/daftar/kendaraan/form", kendaraanFormRoutes);
 router.use("/daftar/ekspedisi", ekspedisiRoutes);
 router.use("/daftar/ekspedisi/form", ekspedisiFormRoutes);
 
+router.use("/daftar/divisi", divisiRoutes);
+router.use("/daftar/divisi/form", divisiFormRoutes);
+
 router.use("/daftar/rekening", rekeningRoutes);
 router.use("/daftar/rekening/form", rekeningFormRoutes);
 
@@ -359,6 +365,11 @@ router.use("/persediaan/tagihan-ekspedisi/form", tagihanEkspedisiFormRoutes);
 
 router.use("/persediaan/permintaan-barang", permintaanBarangRoutes);
 router.use("/persediaan/permintaan-barang/form", permintaanBarangFormRoutes);
+
+// TITIP BARANG KONSINYASI
+
+const titipRoutes = require("./persediaan/titipRoutes");
+router.use("/persediaan/titip", titipRoutes);
 
 // KAS BANK
 

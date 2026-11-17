@@ -37,6 +37,7 @@ export interface SOForm {
   isTax: number;
   isEcer: number;
   isProforma: number;
+  divKode: string;
   detail: SODetail[];
 }
 
@@ -69,18 +70,18 @@ export const soFormApi = {
     return data.data;
   },
 
-  // GET /api/penjualan/so/form/barang?search=&jenisCustomer=
-  getBarang: async (search: string, jenisCustomer: string) => {
+  // GET /api/penjualan/so/form/barang?search=&jenisCustomer=&divKode=
+  getBarang: async (search: string, jenisCustomer: string, divKode: string) => {
     const { data } = await api.get("/penjualan/so/form/barang", {
-      params: { search, jenisCustomer },
+      params: { search, jenisCustomer, divKode },
     });
     return data.data;
   },
 
-  // GET /api/penjualan/so/form/get-nomor?tanggal=&isTax=
-  getNomor: async (tanggal: string, isTax: number) => {
+  // GET /api/penjualan/so/form/get-nomor?tanggal=&isTax=&divKode=
+  getNomor: async (tanggal: string, isTax: number, divKode: string) => {
     const { data } = await api.get("/penjualan/so/form/get-nomor", {
-      params: { tanggal, isTax },
+      params: { tanggal, isTax, divKode },
     });
     return data.data;
   },

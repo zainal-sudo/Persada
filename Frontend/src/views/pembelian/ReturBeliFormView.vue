@@ -505,10 +505,6 @@ const loadData = async () => {
   try {
     const data = await returBeliFormApi.getDetailForm(decodeURIComponent(nomor));
     form.value = { ...data, isEdit: true };
-    isLocked.value = !!data.locked;
-    if (isLocked.value) {
-      toast.warning("Invoice ini sudah dibayar, retur tidak dapat diubah.");
-    }
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message || "Gagal memuat data.");

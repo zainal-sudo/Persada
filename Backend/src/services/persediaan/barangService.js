@@ -33,10 +33,13 @@ const getBrowse = async (search = "") => {
           INNER JOIN tfp_hdr ON fp_nomor = fpd_fp_nomor
           WHERE fpd_brg_kode = brg_kode
             AND fp_tanggal >= DATE_ADD(NOW(), INTERVAL -90 DAY)) AS Avgs_Sales_per_Bulan,
-         DATE_FORMAT(brg_tanggal_in, '%Y-%m-%d') AS IN_Terakhir
+         DATE_FORMAT(brg_tanggal_in, '%Y-%m-%d') AS IN_Terakhir,
+         IFNULL(d.div_nama, '') AS Divisi,
+         IFNULL(brg_iskonsinyasi, 0) AS IsKonsinyasi
        FROM tbarang
        INNER JOIN tkategori ON ktg_kode = brg_ktg_kode
        INNER JOIN tgroup ON gr_kode = brg_gr_kode
+       LEFT JOIN tdivisi d ON d.div_kode = brg_div_kode
        WHERE brg_nama LIKE ?
      ) final
      ORDER BY Kode`,

@@ -14,6 +14,15 @@ export interface InvoiceBayarRow {
   bayarTampil?: string;
 }
 
+export interface ReturBeliRow {
+  nomor: string;
+  tanggal: string;
+  invoice: string;
+  amount: number;
+  memo: string;
+  checked?: number;
+}
+
 export interface BayarSupplierForm {
   isEdit: boolean;
   nomor: string;
@@ -28,6 +37,7 @@ export interface BayarSupplierForm {
   nilai: number;
   isTax: number;
   detail: InvoiceBayarRow[];
+  retur: ReturBeliRow[];
 }
 
 export const bayarSupplierFormApi = {
@@ -54,6 +64,17 @@ export const bayarSupplierFormApi = {
     const { data } = await api.get(
       "/pembelian/bayar-supplier/form/invoice-by-supplier",
       { params: { supKode, isTax, isEdit, nomorBys } }
+    );
+    return data.data;
+  },
+
+  getReturBySupplier: async (
+    supKode: string,
+    nomorBys: string = ""
+  ): Promise<ReturBeliRow[]> => {
+    const { data } = await api.get(
+      "/pembelian/bayar-supplier/form/retur-by-supplier",
+      { params: { supKode, nomorBys } }
     );
     return data.data;
   },

@@ -25,6 +25,16 @@ const getBrowse = async (params, user = {}) => {
     : "";
 
   // ── Select kolom bagian utama penjualan (paritas Delphi aktif) ──────
+  // Kolom Divisi beda antar database: konveksi/sip = BRG_DIVISI,
+  // ampersada = brg_div_kode. Cek sekali per pemanggilan supaya query
+  // tidak gagal ER_BAD_FIELD_ERROR (menyebabkan chart dashboard kosong).
+  const [divCols] = await db.query(
+    "SELECT COLUMN_NAME FROM information_schema.COLUMNS" +
+      " WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'tbarang'" +
+      " AND COLUMN_NAME = 'BRG_DIVISI'",
+  );
+  const divisiExpr = divCols.length ? "BRG_DIVISI Divisi" : "brg_div_kode Divisi";
+
   const selectBase = [
     'fp_nomor Nomor',
     'date_format(fp_tanggal,"%Y-%m-%d") Tanggal',
@@ -43,7 +53,7 @@ const getBrowse = async (params, user = {}) => {
     'ktg_nama Kategori',
     '(SELECT ktg_nama FROM tkategori where ktg_kode=SUBSTRING_INDEX(brg_ktg_kode, ".", 2)) SubDepartemen',
     '(SELECT ktg_nama FROM tkategori where ktg_kode=SUBSTRING_INDEX(brg_ktg_kode, ".", 1)) Departemen',
-    'BRG_DIVISI Divisi',
+    divisiExpr,
     'fpd_brg_satuan Satuan',
     'if(brg_isproductfocus=1,"Ya","Tidak") IsPf',
     'if(fp_isecer=0,"Tidak","Ya") Eceran',
@@ -160,7 +170,7 @@ const getBrowse = async (params, user = {}) => {
     + " sls_nama Rayon,(SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = so_sla_kode limit 1) Salesman,"
     + " cus_nama Outlet,'' Golongan,'' JenisCustomer,brg_kode Kode,brg_nama Nama,brg_merk Merk,ktg_nama Kategori,"
     + " (SELECT ktg_nama FROM tkategori where ktg_kode=SUBSTRING_INDEX(brg_ktg_kode, \".\", 2)) SubDepartemen,"
-    + " (SELECT ktg_nama FROM tkategori where ktg_kode=SUBSTRING_INDEX(brg_ktg_kode, \".\", 1)) Departemen,BRG_DIVISI Divisi,"
+    + " (SELECT ktg_nama FROM tkategori where ktg_kode=SUBSTRING_INDEX(brg_ktg_kode, \".\", 1)) Departemen," + divisiExpr + ","
     + " fpd_brg_satuan Satuan,\"Tidak\" IsPf,\"\" Eceran,\"\" isCatalog,0 fpd_cn,"
     + " -sum(ifnull(retjd_qty,0)) Qty,"
     + " -sum((100-fpd_discpr)*(fpd_harga*ifnull(retjd_qty,0))/100*if(fp_istax=1,if(fp_tanggal<\"2022/04/01\",1.1,1.11),1)) Nilai,"

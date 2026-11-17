@@ -9,6 +9,7 @@ import SearchModal from "@/components/SearchModal.vue";
 import { IconShoppingBag, IconSearch, IconPlus, IconTrash, IconAlertTriangle, IconHistory, IconFilter, IconAdjustmentsHorizontal } from "@tabler/icons-vue";
 import ColumnFilter, { type ColumnFilterValue } from "@/components/ColumnFilter.vue";
 import { soFormApi, type SOForm, type SODetail } from "@/api/penjualan/soFormApi";
+import { divisiApi } from "@/api/daftar/divisiApi";
 import { useAfterSave } from "@/composables/useAfterSave";
 import { useDetailGrid } from "@/composables/useDetailGrid";
 import { useSoPrint } from "@/composables/useSoPrint";
@@ -68,6 +69,7 @@ const form = ref<SOForm>({
   isTax: 1,
   isEcer: 0,
   isProforma: 0,
+  divKode: "",
   detail: [],
 });
 
@@ -80,6 +82,7 @@ const customerOptions = ref<any[]>([]);
 const salesmanAktifOptions = ref<any[]>([]);
 const rekeningOptions = ref<any[]>([]);
 const barangOptions = ref<any[]>([]);
+const divisiOptions = ref<{ div_kode: string; div_nama: string }[]>([]);
 const customerLoading = ref(false);
 const barangLoading = ref(false);
 // Rayon milik salesman yang dipilih (dari tsalesmanaktif_dtl)
@@ -311,13 +314,26 @@ watch(showAmbilSOModal, (val) => {
 
 // ── Load Nomor Otomatis ──────────────────────────────────────────────
 const loadNomor = async () => {
+  if (!form.value.divKode) return;
   try {
-    const res = await soFormApi.getNomor(form.value.tanggal, form.value.isTax);
+    const res = await soFormApi.getNomor(form.value.tanggal, form.value.isTax, form.value.divKode);
     form.value.nomor = res.nomor;
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
-    toast.error("Gagal generate nomor SO.");
+    toast.error(e.response?.data?.message || "Gagal generate nomor SO.");
   }
+};
+
+// ── Ganti Divisi ─────────────────────────────────────────────────────
+// Barang difilter per divisi — ganti divisi mengosongkan detail lama
+// dan meng-generate ulang nomor (mode create).
+const onDivisiChange = () => {
+  if (form.value.detail.length > 0) {
+    form.value.detail = [];
+    hitung();
+    toast.info("Detail dikosongkan karena divisi berubah.");
+  }
+  if (!form.value.isEdit) loadNomor();
 };
 
 // ── Guard tanggal edit (paritas dtTanggalChange) ─────────────────────
@@ -347,6 +363,7 @@ const onTanggalChange = () => {
 const loadOptions = async () => {
   try {
     salesmanAktifOptions.value = await soFormApi.getSalesmanAktif();
+    divisiOptions.value = await divisiApi.getBrowse();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error("Gagal memuat data salesman.");
@@ -366,10 +383,15 @@ const searchCustomer = async (query: string) => {
 };
 
 const searchBarang = async (query: string) => {
+  if (!form.value.divKode) {
+    barangOptions.value = [];
+    toast.warning("Pilih divisi dahulu.");
+    return;
+  }
   barangLoading.value = true;
   try {
     const jenisCustomer = customerOptions.value.find(c => c.kode === form.value.cusKode)?.jenisCustomer || "";
-    barangOptions.value = await soFormApi.getBarang(query || "", jenisCustomer);
+    barangOptions.value = await soFormApi.getBarang(query || "", jenisCustomer, form.value.divKode);
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error("Gagal mencari barang.");
@@ -551,13 +573,17 @@ const openTambahDetail = async () => {
     toast.warning("Pilih customer dahulu.");
     return;
   }
+  if (!form.value.divKode) {
+    toast.warning("Pilih divisi dahulu.");
+    return;
+  }
   selectedTambahDetail.value = [];
   tambahDetailSearch.value = "";
   showTambahDetailModal.value = true;
   tambahDetailLoading.value = true;
   try {
     const jenisCustomer = customerOptions.value.find(c => c.kode === form.value.cusKode)?.jenisCustomer || "";
-    tambahDetailItems.value = await soFormApi.getBarang("", jenisCustomer);
+    tambahDetailItems.value = await soFormApi.getBarang("", jenisCustomer, form.value.divKode);
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error("Gagal memuat barang.");
@@ -571,11 +597,11 @@ let tambahTimer: ReturnType<typeof setTimeout> | undefined;
 const onTambahDetailSearch = (query: string) => {
   clearTimeout(tambahTimer);
   tambahTimer = setTimeout(async () => {
-    if (!form.value.cusKode) return;
+    if (!form.value.cusKode || !form.value.divKode) return;
     tambahDetailLoading.value = true;
     try {
       const jenisCustomer = customerOptions.value.find(c => c.kode === form.value.cusKode)?.jenisCustomer || "";
-      tambahDetailItems.value = await soFormApi.getBarang(query, jenisCustomer);
+      tambahDetailItems.value = await soFormApi.getBarang(query, jenisCustomer, form.value.divKode);
     } catch (e: any) {
       if (isAuthExpiredError(e)) return;
       toast.error("Gagal mencari barang.");
@@ -810,6 +836,10 @@ const validateLastCost = async (d: SODetail): Promise<void> => {
 const validateSave = async () => {
   attemptedSave.value = true;
 
+  if (!form.value.divKode) {
+    toast.warning("Divisi belum dipilih.");
+    return;
+  }
   if (!form.value.cusKode) {
     toast.warning("Customer belum dipilih.");
     return;
@@ -1080,6 +1110,7 @@ const resetForm = () => {
     isTax: 1,
     isEcer: 0,
     isProforma: 0,
+    divKode: "",
     detail: [],
   };
   rayonOptions.value = [];
@@ -1196,6 +1227,22 @@ onMounted(async () => {
         <fieldset class="so-groupbox">
           <legend class="so-legend">Informasi Order</legend>
           <div class="so-groupbody">
+            <div class="f-row" :class="{ 'field-error': attemptedSave && !form.divKode }">
+              <label class="f-lbl">Divisi <span class="req">*</span></label>
+              <div class="combo-group">
+                <select
+                  v-model="form.divKode"
+                  class="f-inp combo-nama"
+                  :disabled="isEdit"
+                  @change="onDivisiChange"
+                >
+                  <option value="" disabled>Pilih Divisi...</option>
+                  <option v-for="d in divisiOptions" :key="d.div_kode" :value="d.div_kode">
+                    {{ d.div_nama || d.div_kode }}
+                  </option>
+                </select>
+              </div>
+            </div>
             <div class="f-row">
               <label class="f-lbl">Nomor</label>
               <input :value="form.nomor" class="f-inp readonly-bg" readonly />
@@ -1209,16 +1256,20 @@ onMounted(async () => {
                 <input v-model="form.isTax" type="checkbox" :true-value="1" :false-value="0" disabled title="Pajak terkunci — selalu aktif (paritas Delphi chkPajak)" />
                 Pajak
               </label>
-              <label class="check-lbl">
-                <input v-model="form.isProforma" type="checkbox" :true-value="1" :false-value="0" />
-                Proforma
-              </label>
-              <label class="check-lbl">
-                <input v-model="form.isEcer" type="checkbox" :true-value="1" :false-value="0" />
-                Eceran
-              </label>
+              <!-- Proforma / Eceran / Ambil Data SO disembunyikan sesuai permintaan.
+                   Data & logika masih ada (nilai field tetap disimpan saat edit). -->
+              <template v-if="false">
+                <label class="check-lbl">
+                  <input v-model="form.isProforma" type="checkbox" :true-value="1" :false-value="0" />
+                  Proforma
+                </label>
+                <label class="check-lbl">
+                  <input v-model="form.isEcer" type="checkbox" :true-value="1" :false-value="0" />
+                  Eceran
+                </label>
+              </template>
             </div>
-            <div class="f-row">
+            <div class="f-row" v-if="false">
               <button class="btn-ambil-so" type="button" @click="openAmbilSO">
                 Ambil Data SO
               </button>
@@ -1312,7 +1363,7 @@ onMounted(async () => {
                 </tr>
                 <tr v-if="form.detail.length === 0">
                   <td colspan="10" class="empty-state">
-                    Belum ada barang. Klik <strong>"Tambah Detail"</strong> atau <strong>"Ambil Data SO"</strong> untuk mulai mengisi.
+                    Belum ada barang. Klik <strong>"Tambah Detail"</strong> untuk mulai mengisi.
                   </td>
                 </tr>
               </tbody>
@@ -1331,28 +1382,32 @@ onMounted(async () => {
               <label class="f-lbl">Memo</label>
               <textarea v-model="form.memo" class="f-txa" rows="2"></textarea>
             </div>
-            <div class="f-row">
-              <label class="f-lbl">Uang Muka</label>
-              <input
-                type="text"
-                inputmode="numeric"
-                class="f-inp f-inp-sm tr"
-                :value="getInputValue('dp', form.dp)"
-                @focus="startEdit('dp', $event, form.dp)"
-                @input="onDpInput"
-                @blur="endEdit('dp', $event, form.dp)"
-              />
-            </div>
-            <div class="f-row">
-              <label class="f-lbl">Rekening</label>
-              <div class="search-group">
-                <input :value="form.rekDp" class="f-inp w-20 readonly-bg" readonly />
-                <input :value="form.rekNama" class="f-inp w-80 readonly-bg" readonly placeholder="Pilih Rekening..." />
-                <button class="btn-search" type="button" @click="showRekeningModal = true; searchRekening('')">
-                  <IconSearch :size="13" />
-                </button>
+            <!-- Uang Muka & Rekening disembunyikan sementara (permintaan).
+                 Data & logika DP tetap ada — nilai lama tetap tampil saat edit. -->
+            <template v-if="false">
+              <div class="f-row">
+                <label class="f-lbl">Uang Muka</label>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  class="f-inp f-inp-sm tr"
+                  :value="getInputValue('dp', form.dp)"
+                  @focus="startEdit('dp', $event, form.dp)"
+                  @input="onDpInput"
+                  @blur="endEdit('dp', $event, form.dp)"
+                />
               </div>
-            </div>
+              <div class="f-row">
+                <label class="f-lbl">Rekening</label>
+                <div class="search-group">
+                  <input :value="form.rekDp" class="f-inp w-20 readonly-bg" readonly />
+                  <input :value="form.rekNama" class="f-inp w-80 readonly-bg" readonly placeholder="Pilih Rekening..." />
+                  <button class="btn-search" type="button" @click="showRekeningModal = true; searchRekening('')">
+                    <IconSearch :size="13" />
+                  </button>
+                </div>
+              </div>
+            </template>
           </div>
         </fieldset>
 

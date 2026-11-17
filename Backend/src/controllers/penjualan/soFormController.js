@@ -30,11 +30,11 @@ const getRekening = async (req, res) => {
 
 const getBarang = async (req, res) => {
   try {
-    const { search = "", jenisCustomer = "" } = req.query;
-    const data = await svc.getBarang(search, jenisCustomer);
+    const { search = "", jenisCustomer = "", divKode = "" } = req.query;
+    const data = await svc.getBarang(search, jenisCustomer, divKode);
     res.json({ success: true, data });
   } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+    res.status(400).json({ success: false, message: e.message });
   }
 };
 
@@ -49,16 +49,17 @@ const getSalesman = async (req, res) => {
 
 const getNomor = async (req, res) => {
   try {
-    const { tanggal, isTax } = req.query;
+    const { tanggal, isTax, divKode } = req.query;
     if (!tanggal) {
       return res.status(400).json({ success: false, message: "Tanggal wajib." });
     }
-    console.log("req.user:", req.user);
-    const cabang = req.user?.cabang || "01";
-    const nomor = await svc.getMaxNomor(tanggal, Number(isTax) || 0, cabang);
+    if (!divKode) {
+      return res.status(400).json({ success: false, message: "Divisi wajib dipilih." });
+    }
+    const nomor = await svc.getMaxNomor(tanggal, Number(isTax) || 0, divKode);
     res.json({ success: true, data: { nomor } });
   } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+    res.status(400).json({ success: false, message: e.message });
   }
 };
 

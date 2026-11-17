@@ -3,15 +3,17 @@ const svc = require("../../services/penjualan/doFormService");
 
 const getNomor = async (req, res) => {
   try {
-    const { tanggal, isTax } = req.query;
+    const { tanggal, isTax, divKode } = req.query;
     if (!tanggal) {
       return res.status(400).json({ success: false, message: "Tanggal wajib." });
     }
-    const cabang = req.user?.cabang || "01";
-    const nomor = await svc.getMaxNomor(tanggal, Number(isTax) || 1, cabang);
+    if (!divKode) {
+      return res.status(400).json({ success: false, message: "Divisi wajib dipilih." });
+    }
+    const nomor = await svc.getMaxNomor(tanggal, Number(isTax) || 1, divKode);
     res.json({ success: true, data: { nomor } });
   } catch (e) {
-    res.status(500).json({ success: false, message: e.message });
+    res.status(400).json({ success: false, message: e.message });
   }
 };
 
@@ -64,18 +66,32 @@ const searchStok = async (req, res) => {
   }
 };
 
+const searchStokKons = async (req, res) => {
+  try {
+    const { nomorSO, nomorDO, search } = req.query;
+    if (!nomorSO) {
+      return res.status(400).json({ success: false, message: "nomorSO wajib." });
+    }
+    const data = await svc.searchStokKons(nomorSO, nomorDO || "", search || "");
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 const getDetailStok = async (req, res) => {
   try {
     const { sku, expired, nomorSO, gdgKode, isEdit, idBatch } = req.query;
-    if (!sku || !nomorSO || !gdgKode) {
+    if (!sku || !nomorSO) {
       return res.status(400).json({ success: false, message: "Parameter tidak lengkap." });
     }
-    // Barang tanpa stok (UNION bagian 2) tidak punya expired → kirim null
+    // Barang tanpa stok (UNION bagian 2) tidak punya expired → kirim null.
+    // gdgKode boleh kosong utk baris bagian 2 konsinyasi (belum ada gudang).
     const data = await svc.getDetailStok(
       Number(sku),
       expired || null,
       nomorSO,
-      gdgKode,
+      gdgKode || "",
       isEdit === "1",
       idBatch !== undefined ? String(idBatch) : null
     );
@@ -136,6 +152,7 @@ module.exports = {
   getGudang,
   getDriver,
   searchStok,
+  searchStokKons,
   getDetailStok,
   getStok,
   getDetailForm,

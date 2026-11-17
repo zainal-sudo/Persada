@@ -21,6 +21,7 @@ router.get("/driver", verifyToken, checkPermission("view"), ctrl.getDriver);
 
 // Stok
 router.get("/search-stok", verifyToken, checkPermission("view"), ctrl.searchStok);
+router.get("/search-stok-kons", verifyToken, checkPermission("view"), ctrl.searchStokKons);
 router.get("/detail-stok", verifyToken, checkPermission("view"), ctrl.getDetailStok);
 router.get("/stok", verifyToken, checkPermission("view"), ctrl.getStok);
 

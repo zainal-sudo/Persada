@@ -51,6 +51,18 @@ const getInvoice = async (req, res) => {
   }
 };
 
+const getReturByCustomer = async (req, res) => {
+  try {
+    const { cusKode, nomorByc = "" } = req.query;
+    if (!cusKode)
+      return res.status(400).json({ success: false, message: "cusKode wajib." });
+    const data = await svc.getReturByCustomer(cusKode, nomorByc);
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 const getDetailForm = async (req, res) => {
   try {
     const data = await svc.getDetailForm(decodeURIComponent(req.params.nomor));
@@ -69,4 +81,4 @@ const saveData = async (req, res) => {
   }
 };
 
-module.exports = { getNomor, getCustomer, getRekening, getBatas, getInvoice, getDetailForm, saveData };
+module.exports = { getNomor, getCustomer, getRekening, getBatas, getInvoice, getReturByCustomer, getDetailForm, saveData };
