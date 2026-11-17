@@ -355,9 +355,9 @@ const fmtQty = (v: number) =>
               </tr>
               <tr v-for="(d, i) in expanded[item.SKU] || []" :key="i">
                 <td>{{ d.Nomor }}</td>
-                <td class="num-cell" style="text-align: right">{{ fmtQty(d.Minta) }}</td>
-                <td class="num-cell" style="text-align: right">{{ fmtQty(d.Terima) }}</td>
-                <td class="num-cell" style="text-align: right">{{ fmtQty(d.Kurang) }}</td>
+                <td style="text-align: right">{{ fmtQty(d.Minta) }}</td>
+                <td style="text-align: right">{{ fmtQty(d.Terima) }}</td>
+                <td style="text-align: right">{{ fmtQty(d.Kurang) }}</td>
               </tr>
             </tbody>
           </table>

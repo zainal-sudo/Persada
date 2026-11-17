@@ -127,10 +127,10 @@ const selectSKU = async (item: any) => {
   if (idx < 0 || !form.value.detail[idx]) return;
 
   const duplicate = form.value.detail.find(
-    (d, i) => i !== idx && d.sku === item.sku && d.expired === item.expired
+    (d, i) => i !== idx && d.sku === item.sku && (d.idBatch || "") === (item.idbatch || item.idBatch || "")
   );
   if (duplicate) {
-    toast.warning(`SKU dan expired ada yang sama dengan baris lain.`);
+    toast.warning(`SKU dan Id Batch sudah ada di baris lain.`);
     return;
   }
 
@@ -223,7 +223,8 @@ const tambahDetailLoading = ref(false);
 const tambahDetailSearch = ref("");
 const selectedTambahDetail = ref<any[]>([]);
 
-const skuKey = (s: any) => `${String(s.sku)}|${s.expired || ""}`;
+// PK barang = kode barang + id batch
+const skuKey = (s: any) => `${String(s.sku)}|${s.idbatch || s.idBatch || ""}`;
 
 const isTambahDetailSelected = (item: any) =>
   selectedTambahDetail.value.some((s) => skuKey(s) === skuKey(item));
@@ -308,8 +309,8 @@ const addSelectedTambahDetail = async () => {
   const firstRow = form.value.detail.length;
   let added = 0;
   for (const item of selectedTambahDetail.value) {
-    // Dup-guard: SKU + expired yang sudah ada di detail di-skip diam-diam.
-    if (form.value.detail.some((x) => x.sku === item.sku && (x.expired || "") === (item.expired || ""))) continue;
+    // Dup-guard: SKU + Id Batch yang sudah ada di detail di-skip diam-diam.
+    if (form.value.detail.some((x) => x.sku === item.sku && (x.idBatch || "") === (item.idbatch || item.idBatch || ""))) continue;
     try {
       const detail = await penyesuaianStokFormApi.getDetailSKU(
         form.value.gudang, item.sku, item.expired
@@ -675,6 +676,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
                 </th>
                 <th style="width: 90px">SKU</th>
                 <th>Nama Barang</th>
+                <th style="width: 100px" class="tc">Id Batch</th>
                 <th style="width: 100px" class="tc">Expired</th>
                 <th style="width: 80px" class="tr">Stok</th>
               </tr>
@@ -686,11 +688,12 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
                 </td>
                 <td class="mono">{{ item.sku }}</td>
                 <td>{{ item.namaBarang }}</td>
+                <td class="mono tc">{{ item.idbatch || '-' }}</td>
                 <td class="tc">{{ item.expired || '-' }}</td>
                 <td class="tr">{{ fmt(item.stok) }}</td>
               </tr>
               <tr v-if="filteredTambahDetailItems.length === 0">
-                <td colspan="5" class="empty-state">Tidak ada barang yang cocok.</td>
+                <td colspan="6" class="empty-state">Tidak ada barang yang cocok.</td>
               </tr>
             </tbody>
           </table>

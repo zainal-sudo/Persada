@@ -138,13 +138,19 @@ const detailHeaders = [
   { key: "Nomor", title: "Nomor", minWidth: "120px" },
   { key: "Keterangan", title: "Keterangan", minWidth: "140px" },
   { key: "Gudang", title: "Gudang", minWidth: "100px" },
-  { key: "_IN", title: "Masuk", align: "end" as const },
-  { key: "_OUT", title: "Keluar", align: "end" as const },
-  { key: "Expired", title: "Expired", align: "center" as const },
-  { key: "Hargabeli", title: "Harga Beli", align: "end" as const },
+  { key: "_IN", title: "Masuk", align: "end" as const, width: "100px" },
+  { key: "_OUT", title: "Keluar", align: "end" as const, width: "100px" },
+  { key: "Expired", title: "Expired", align: "center" as const, width: "110px" },
+  { key: "Hargabeli", title: "Harga Beli", align: "end" as const, width: "120px" },
   { key: "Customer", title: "Customer", minWidth: "140px" },
   { key: "no_Faktur", title: "No. Faktur", minWidth: "100px" },
 ];
+
+// Header detail yang dirender — Harga Beli hanya untuk user FINANCE,
+// harus sinkron dengan <td> di body agar kolom tidak bergeser.
+const visibleDetailHeaders = computed(() =>
+  detailHeaders.filter((h) => h.key !== "Hargabeli" || isFinance.value)
+);
 
 const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 const fmtQty = (v: number) =>
@@ -244,22 +250,26 @@ const fmtDate = (val: string | null) => {
           <table v-else class="detail-table">
             <thead>
               <tr>
-                <th v-for="h in detailHeaders" :key="h.key" :style="{ textAlign: h.align || 'left' }">{{ h.title }}</th>
+                <th
+                  v-for="h in visibleDetailHeaders"
+                  :key="h.key"
+                  :style="{ textAlign: h.align || 'left', width: h.width, minWidth: h.minWidth }"
+                >{{ h.title }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-if="!(expanded[item.Kode] || []).length">
-                <td :colspan="detailHeaders.length" class="detail-empty">Tidak ada transaksi pada periode ini.</td>
+                <td :colspan="visibleDetailHeaders.length" class="detail-empty">Tidak ada transaksi pada periode ini.</td>
               </tr>
               <tr v-for="(d, i) in expanded[item.Kode] || []" :key="i">
                 <td style="text-align: center">{{ fmtDate(d.Tanggal) }}</td>
                 <td>{{ d.Nomor }}</td>
                 <td>{{ d.Keterangan }}</td>
                 <td>{{ d.Gudang }}</td>
-                <td class="num-cell" style="text-align: right">{{ fmtQty(d._IN) }}</td>
-                <td class="num-cell" style="text-align: right">{{ fmtQty(d._OUT) }}</td>
+                <td style="text-align: right">{{ fmtQty(d._IN) }}</td>
+                <td style="text-align: right">{{ fmtQty(d._OUT) }}</td>
                 <td style="text-align: center">{{ fmtDate(d.Expired) }}</td>
-                <td v-if="isFinance" class="num-cell" style="text-align: right">{{ fmt(d.Hargabeli) }}</td>
+                <td v-if="isFinance" style="text-align: right">{{ fmt(d.Hargabeli) }}</td>
                 <td>{{ d.Customer }}</td>
                 <td>{{ d.no_Faktur }}</td>
               </tr>

@@ -164,14 +164,7 @@ const selectFP = async (fp: any) => {
     const data = await returPenjualanFormApi.getFP(fp.nomor, excludeNomor);
 
     // ── Approve flow (paritas Delphi edtNomorfakturClickBtn) ──
-    // 1. Faktur > 7 hari → approve
-    if (Number(data.umurHari) > 7) {
-      const lanjut = await askConfirmDialog("Faktur sudah lebih dari 7 hari, apakah ingin Approve?");
-      if (!lanjut) return;
-      const ok = await askOtorisasi();
-      if (!ok) return;
-    }
-    // 2. Sudah faktur pajak → approve
+    // Sudah faktur pajak → approve
     if (data.sudahFakturPajak) {
       const lanjut = await askConfirmDialog("Faktur sudah di faktur pajak, ingin Approve?");
       if (!lanjut) return;
@@ -227,10 +220,10 @@ const selectBarang = (brg: any) => {
   const idx = activeDetailIndex.value;
   if (idx < 0 || !form.value.detail[idx]) return;
 
-  // Cek duplikat SKU+expired (paritas bantuansku Delphi)
+  // Cek duplikat SKU+idBatch (PK barang = kode barang + id batch)
   const isDuplicate = form.value.detail.some(
     (x, i) => i !== idx && String(x.brgKode) === String(brg.sku) &&
-              ((x.expired || "") === (brg.expired || ""))
+              ((x.idBatch || "") === (brg.idBatch || ""))
   );
   if (isDuplicate) {
     toast.warning("SKU dan Expired sudah ada di baris lain.");
@@ -273,11 +266,14 @@ const tambahBarangLoading = ref(false);
 const tambahBarangSearch = ref("");
 const selectedTambahBarang = ref<any[]>([]);
 
-const isTambahBarangSelected = (sku: any) =>
-  selectedTambahBarang.value.some(b => String(b.sku) === String(sku));
+// PK barang = kode barang + id batch
+const batchKey = (b: any) => `${String(b.sku)}|${b.idBatch || ""}`;
+
+const isTambahBarangSelected = (brg: any) =>
+  selectedTambahBarang.value.some(b => batchKey(b) === batchKey(brg));
 
 const toggleTambahBarang = (brg: any) => {
-  const idx = selectedTambahBarang.value.findIndex(b => String(b.sku) === String(brg.sku));
+  const idx = selectedTambahBarang.value.findIndex(b => batchKey(b) === batchKey(brg));
   if (idx >= 0) {
     selectedTambahBarang.value.splice(idx, 1);
   } else {
@@ -287,18 +283,18 @@ const toggleTambahBarang = (brg: any) => {
 
 const allTambahBarangChecked = computed(() =>
   tambahBarangItems.value.length > 0 &&
-  tambahBarangItems.value.every(b => isTambahBarangSelected(b.sku))
+  tambahBarangItems.value.every(b => isTambahBarangSelected(b))
 );
 
 const toggleAllTambahBarang = (e: Event) => {
   const checked = (e.target as HTMLInputElement).checked;
   if (checked) {
     for (const brg of tambahBarangItems.value) {
-      if (!isTambahBarangSelected(brg.sku)) selectedTambahBarang.value.push(brg);
+      if (!isTambahBarangSelected(brg)) selectedTambahBarang.value.push(brg);
     }
   } else {
-    const keys = new Set(tambahBarangItems.value.map(b => String(b.sku)));
-    selectedTambahBarang.value = selectedTambahBarang.value.filter(b => !keys.has(String(b.sku)));
+    const keys = new Set(tambahBarangItems.value.map(b => batchKey(b)));
+    selectedTambahBarang.value = selectedTambahBarang.value.filter(b => !keys.has(batchKey(b)));
   }
 };
 
@@ -341,10 +337,10 @@ const addSelectedTambahBarang = () => {
   const firstRow = form.value.detail.length;
   let skipped = 0;
   for (const brg of selectedTambahBarang.value) {
-    // Cek duplikat SKU+expired (paritas bantuansku Delphi)
+    // Cek duplikat SKU+idBatch (PK barang = kode barang + id batch)
     const isDuplicate = form.value.detail.some(
       (x) => String(x.brgKode) === String(brg.sku) &&
-            ((x.expired || "") === (brg.expired || ""))
+            ((x.idBatch || "") === (brg.idBatch || ""))
     );
     if (isDuplicate) { skipped++; continue; }
 
@@ -364,7 +360,7 @@ const addSelectedTambahBarang = () => {
     });
   }
   form.value.detail.forEach((d, i) => (d.no = i + 1));
-  if (skipped > 0) toast.warning(`${skipped} barang dilewati (duplikat SKU+Expired).`);
+  if (skipped > 0) toast.warning(`${skipped} barang dilewati (duplikat SKU+Id Batch).`);
   showTambahBarangModal.value = false;
   hitung();
   // Fokus langsung ke QTY baris pertama yang baru ditambahkan (pola DOFormView).
@@ -506,24 +502,6 @@ const onDiscFakturInput = (e: Event) => {
   hitung();
 };
 
-// ── CN faktur-level (paritas chkCNClick Delphi) ──────────────────────
-const chkCNFaktur = ref(false);
-const cnFakturPersen = ref(0);
-
-const onChkCNFaktur = async () => {
-  if (chkCNFaktur.value && form.value.cusKode && form.value.tanggal) {
-    try {
-      const res = await returPenjualanFormApi.getCNFaktur(form.value.cusKode, form.value.tanggal);
-      cnFakturPersen.value = Number(res.cnPotongInvoice || 0);
-    } catch {
-      cnFakturPersen.value = 0;
-    }
-  } else {
-    cnFakturPersen.value = 0;
-  }
-  hitung();
-};
-
 // ── Hitung ───────────────────────────────────────────────────────────
 const subtotalBruto = computed(() => {
   return form.value.detail.reduce((sum, d) => sum + Number(d.total || 0), 0);
@@ -548,18 +526,10 @@ const hitung = () => {
     form.value.amount = setelahDisc;
   }
 
-  // CN: faktur-level menimpa per-item (paritas Delphi chkCNClick)
-  if (chkCNFaktur.value && cnFakturPersen.value > 0) {
-    if (form.value.isTax === 1) {
-      form.value.cn = (cnFakturPersen.value / 100) * (form.value.amount / getAngkaPPN(form.value.tanggal));
-    } else {
-      form.value.cn = (cnFakturPersen.value / 100) * form.value.amount;
-    }
-  } else {
-    form.value.cn = form.value.isTax === 1
-      ? totalCN.value * getAngkaPPN(form.value.tanggal)
-      : totalCN.value;
-  }
+  // CN: per-item saja
+  form.value.cn = form.value.isTax === 1
+    ? totalCN.value * getAngkaPPN(form.value.tanggal)
+    : totalCN.value;
 };
 
 // ── Validasi (paritas cekdata Delphi) ─────────────────────────────────
@@ -803,11 +773,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
         <div class="retj-footer-right">
           <div class="calc-box">
             <div class="calc-row">
-              <label class="check-lbl" style="width: auto">
-                <input type="checkbox" v-model="chkCNFaktur" @change="onChkCNFaktur" style="accent-color: var(--ds-primary, #0284c7)" />
-                CN
-              </label>
-              <span v-if="chkCNFaktur && cnFakturPersen > 0" style="font-size:10px;color:var(--ds-text-muted,#8494A7)">({{ cnFakturPersen }}%)</span>
+              <label>CN</label>
               <span style="margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums">{{ fmt(form.cn) }}</span>
             </div>
             <div class="calc-row">
@@ -879,23 +845,25 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
                 <th style="width: 70px" class="tc">Sat</th>
                 <th style="width: 100px" class="tr">Harga</th>
                 <th style="width: 60px" class="tr">Disc%</th>
+                <th style="width: 90px" class="tc">Id Batch</th>
                 <th style="width: 90px" class="tc">Expired</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="brg in tambahBarangItems" :key="brg.sku" class="modal-row" @click="toggleTambahBarang(brg)">
+              <tr v-for="brg in tambahBarangItems" :key="brg.sku + '|' + (brg.idBatch || '')" class="modal-row" @click="toggleTambahBarang(brg)">
                 <td class="tc" @click.stop>
-                  <input type="checkbox" :checked="isTambahBarangSelected(brg.sku)" @change="toggleTambahBarang(brg)" />
+                  <input type="checkbox" :checked="isTambahBarangSelected(brg)" @change="toggleTambahBarang(brg)" />
                 </td>
                 <td class="mono">{{ brg.sku }}</td>
                 <td>{{ brg.namaBarang }}</td>
                 <td class="tc">{{ brg.satuan }}</td>
                 <td class="tr">{{ fmt(Number(brg.harga)) }}</td>
                 <td class="tr">{{ brg.discPr }}</td>
+                <td class="mono tc">{{ brg.idBatch || "-" }}</td>
                 <td class="tc">{{ brg.expired }}</td>
               </tr>
               <tr v-if="tambahBarangItems.length === 0">
-                <td colspan="7" class="empty-state">Tidak ada barang yang cocok.</td>
+                <td colspan="8" class="empty-state">Tidak ada barang yang cocok.</td>
               </tr>
             </tbody>
           </table>
@@ -949,6 +917,7 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
     :columns="[
       { key: 'sku', title: 'SKU', width: '80px' },
       { key: 'namaBarang', title: 'Nama Barang' },
+      { key: 'idBatch', title: 'Id Batch', width: '100px', align: 'center' },
       { key: 'expired', title: 'Expired', width: '100px', align: 'center' },
     ]"
     :items="barangOptions"

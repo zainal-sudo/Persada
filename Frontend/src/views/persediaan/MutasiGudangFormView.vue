@@ -157,10 +157,10 @@ const selectSKU = async (item: any) => {
   if (idx < 0 || !form.value.detail[idx]) return;
 
   const duplicate = form.value.detail.find(
-    (d, i) => i !== idx && d.sku === item.sku && d.expired === item.expired
+    (d, i) => i !== idx && d.sku === item.sku && (d.idBatch || "") === (item.idBatch || item.idbatch || "")
   );
   if (duplicate) {
-    toast.warning(`SKU dan expired ada yang sama dengan baris lain.`);
+    toast.warning(`SKU dan Id Batch sudah ada di baris lain.`);
     return;
   }
 
@@ -217,29 +217,32 @@ const tambahDetailLoading = ref(false);
 const tambahDetailSearch = ref("");
 const selectedTambahDetail = ref<any[]>([]);
 
-const isTambahDetailSelected = (sku: any) =>
-  selectedTambahDetail.value.some((b) => String(b.sku) === String(sku));
+// PK barang = kode barang + id batch
+const batchKey = (b: any) => `${String(b.sku)}|${b.idBatch || b.idbatch || ""}`;
+
+const isTambahDetailSelected = (brg: any) =>
+  selectedTambahDetail.value.some((b) => batchKey(b) === batchKey(brg));
 
 const toggleTambahDetail = (brg: any) => {
-  const idx = selectedTambahDetail.value.findIndex((b) => String(b.sku) === String(brg.sku));
+  const idx = selectedTambahDetail.value.findIndex((b) => batchKey(b) === batchKey(brg));
   if (idx >= 0) selectedTambahDetail.value.splice(idx, 1);
   else selectedTambahDetail.value.push(brg);
 };
 
 const allTambahDetailChecked = computed(() =>
   tambahDetailItems.value.length > 0 &&
-  tambahDetailItems.value.every((b) => isTambahDetailSelected(b.sku))
+  tambahDetailItems.value.every((b) => isTambahDetailSelected(b))
 );
 
 const toggleAllTambahDetail = (e: Event) => {
   const checked = (e.target as HTMLInputElement).checked;
   if (checked) {
     for (const brg of tambahDetailItems.value) {
-      if (!isTambahDetailSelected(brg.sku)) selectedTambahDetail.value.push(brg);
+      if (!isTambahDetailSelected(brg)) selectedTambahDetail.value.push(brg);
     }
   } else {
-    const keys = new Set(tambahDetailItems.value.map((b) => String(b.sku)));
-    selectedTambahDetail.value = selectedTambahDetail.value.filter((b) => !keys.has(String(b.sku)));
+    const keys = new Set(tambahDetailItems.value.map((b) => batchKey(b)));
+    selectedTambahDetail.value = selectedTambahDetail.value.filter((b) => !keys.has(batchKey(b)));
   }
 };
 
@@ -280,12 +283,14 @@ const addSelectedTambahDetail = () => {
     return;
   }
   const firstRow = form.value.detail.length;
-  const existsKey = (sku: any, expired: any) => `${String(sku)}|${expired || ""}`;
-  const existing = new Set(form.value.detail.map((d) => existsKey(d.sku, d.expired)));
+  // PK barang = kode barang + id batch
+  const existsKey = (sku: any, idBatch: any) => `${String(sku)}|${idBatch || ""}`;
+  const existing = new Set(form.value.detail.map((d) => existsKey(d.sku, d.idBatch)));
   let added = 0;
   for (const brg of selectedTambahDetail.value) {
-    if (existing.has(existsKey(brg.sku, brg.expired))) continue;
-    existing.add(existsKey(brg.sku, brg.expired));
+    const key = existsKey(brg.sku, brg.idBatch || brg.idbatch);
+    if (existing.has(key)) continue;
+    existing.add(key);
     form.value.detail.push({
       no: form.value.detail.length + 1,
       sku: String(brg.sku),
@@ -295,7 +300,7 @@ const addSelectedTambahDetail = () => {
       expired: brg.expired || "",
       keterangan: "",
       gudang: form.value.gudangAsal,
-      idBatch: brg.idBatch || "",
+      idBatch: brg.idBatch || brg.idbatch || "",
     });
     added++;
   }
@@ -581,22 +586,24 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
                 <th>Nama Barang</th>
                 <th style="width: 70px" class="tc">Satuan</th>
                 <th style="width: 90px" class="tr">Stok</th>
+                <th style="width: 100px" class="tc">Id Batch</th>
                 <th style="width: 100px" class="tc">Expired</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="brg in tambahDetailItems" :key="brg.sku + brg.expired" class="modal-row" @click="toggleTambahDetail(brg)">
+              <tr v-for="brg in tambahDetailItems" :key="brg.sku + '|' + (brg.idBatch || brg.idbatch || '')" class="modal-row" @click="toggleTambahDetail(brg)">
                 <td class="tc" @click.stop>
-                  <input type="checkbox" :checked="isTambahDetailSelected(brg.sku)" @change="toggleTambahDetail(brg)" />
+                  <input type="checkbox" :checked="isTambahDetailSelected(brg)" @change="toggleTambahDetail(brg)" />
                 </td>
                 <td class="mono">{{ brg.sku }}</td>
                 <td>{{ brg.namaBarang }}</td>
                 <td class="tc">{{ brg.satuan }}</td>
                 <td class="tr">{{ fmt(brg.stok) }}</td>
+                <td class="mono tc">{{ brg.idBatch || brg.idbatch || '-' }}</td>
                 <td class="tc">{{ brg.expired || '-' }}</td>
               </tr>
               <tr v-if="tambahDetailItems.length === 0">
-                <td colspan="6" class="empty-state">Tidak ada barang yang cocok.</td>
+                <td colspan="7" class="empty-state">Tidak ada barang yang cocok.</td>
               </tr>
             </tbody>
           </table>
@@ -623,6 +630,7 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
       { key: 'sku', title: 'SKU', width: '100px' },
       { key: 'expired', title: 'Expired', width: '100px', align: 'center' },
       { key: 'namaBarang', title: 'Nama Barang' },
+      { key: 'idBatch', title: 'Id Batch', width: '100px' },
       { key: 'satuan', title: 'Satuan', width: '60px', align: 'center' },
       { key: 'stok', title: 'Stok', width: '80px', align: 'right' },
     ]"
