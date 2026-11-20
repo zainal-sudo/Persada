@@ -38,6 +38,7 @@ export interface InvoicePrintData {
   amount: number;
   taxamount: number;
   freight: number;
+  materai: number;
   discFaktur: number;
   discFakturPr: number;
   nopajak: string;

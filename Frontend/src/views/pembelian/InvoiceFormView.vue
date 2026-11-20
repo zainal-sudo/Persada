@@ -41,6 +41,7 @@ const form = ref<InvoiceForm>({
   taxAmount: 0,
   isTax: 0,
   freight: 0,
+  materai: 0,
   isBayar: 0,
   bayar: 0,
   isPajak: 0,
@@ -157,10 +158,10 @@ const hitung = () => {
   const factor = new Date(form.value.tanggal) >= cutoff ? pph21Factor : pph10Factor;
   if (form.value.isTax === 1) {
     form.value.taxAmount = setelahDisc * (factor - 1);
-    form.value.amount = setelahDisc * factor + Number(form.value.freight);
+    form.value.amount = setelahDisc * factor + Number(form.value.freight) + Number(form.value.materai);
   } else {
     form.value.taxAmount = 0;
-    form.value.amount = setelahDisc + Number(form.value.freight);
+    form.value.amount = setelahDisc + Number(form.value.freight) + Number(form.value.materai);
   }
 };
 
@@ -188,6 +189,12 @@ const onDiscInput = (e: Event, d: InvoiceDetail) => {
 const onFreightInput = (e: Event) => {
   rawInputValues["freight"] = (e.target as HTMLInputElement).value;
   form.value.freight = parseInput((e.target as HTMLInputElement).value);
+  hitung();
+};
+
+const onMateraiInput = (e: Event) => {
+  rawInputValues["materai"] = (e.target as HTMLInputElement).value;
+  form.value.materai = parseInput((e.target as HTMLInputElement).value);
   hitung();
 };
 
@@ -312,6 +319,7 @@ const resetForm = () => {
     taxAmount: 0,
     isTax: 0,
     freight: 0,
+    materai: 0,
     isBayar: 0,
     bayar: 0,
     isPajak: 0,
@@ -458,6 +466,10 @@ onMounted(async () => {
             <div class="calc-row">
               <label class="calc-lbl">Freight</label>
               <input type="text" inputmode="numeric" class="calc-inp calc-inp-lg" :value="getInputValue('freight', form.freight)" @focus="startEdit('freight', $event, form.freight)" @input="onFreightInput" @blur="endEdit('freight', $event, form.freight)" />
+            </div>
+            <div class="calc-row">
+              <label class="calc-lbl">Materai</label>
+              <input type="text" inputmode="numeric" class="calc-inp calc-inp-lg" :value="getInputValue('materai', form.materai)" @focus="startEdit('materai', $event, form.materai)" @input="onMateraiInput" @blur="endEdit('materai', $event, form.materai)" />
             </div>
             <div class="calc-row calc-total-row">
               <label class="calc-lbl calc-lbl-total">TOTAL</label>

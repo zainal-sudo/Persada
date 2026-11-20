@@ -592,6 +592,17 @@ const router = createRouter({
   meta: { layout: "DefaultLayout", requiresAuth: true, title: "Laporan Laba Rugi" },
 },
 {
+  path: "/laporan/lap-laba-rugi/print",
+  name: "lapLabaRugiPrint",
+  component: () => import("@/views/laporan/LapLabaRugiPrintView.vue"),
+  meta: {
+    layout: "BlankLayout",
+    requiresAuth: true,
+    requiresPermission: false,
+    title: "Cetak Laporan Laba Rugi",
+  },
+},
+{
   path: "/laporan/history-harga-jual",
   name: "historyHargaJualBrowse",
   component: () => import("@/views/laporan/HistoryHargaJualView.vue"),
@@ -656,6 +667,12 @@ const router = createRouter({
   name: "tutupPeriode",
   component: () => import("@/views/utility/TutupPeriodeView.vue"),
   meta: { layout: "DefaultLayout", requiresAuth: true, title: "Tutup Periode" },
+},
+{
+  path: "/utility/posting-jurnal-bulanan",
+  name: "postingJurnalBulanan",
+  component: () => import("@/views/utility/PostingJurnalBulananView.vue"),
+  meta: { layout: "DefaultLayout", requiresAuth: true, title: "Posting Jurnal Bulanan" },
 },
 {
   path: "/utility/proses-biaya-promosi",

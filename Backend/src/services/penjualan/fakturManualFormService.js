@@ -82,8 +82,6 @@ const loadSO = async (nomorSO) => {
       total,
       expired: "",
       kurang: qty,
-      cn: 0,
-      nilaiCN: 0,
       gudang: "",
     };
   });
@@ -132,10 +130,9 @@ const getDetailForm = async (nomor) => {
             DATE_FORMAT(fp_jthtempo, '%Y-%m-%d') AS jthTempo,
             fp_cus_kode AS cusKode, fp_memo AS memo,
             fp_istax AS isTax, fp_disc_fakturpr AS discFakturPr,
-            fp_disc_faktur AS discFaktur, fp_freight AS freight,
-            fp_amount AS amount, fp_taxamount AS taxAmount,
-            fp_dp AS dp, fp_cn AS cn
-     FROM tfp_hdr_bayangan WHERE fp_nomor = ?`,
+             fp_disc_faktur AS discFaktur, fp_freight AS freight,
+             fp_amount AS amount, fp_taxamount AS taxAmount
+      FROM tfp_hdr_bayangan WHERE fp_nomor = ?`,
     [nomor]
   );
 
@@ -158,7 +155,7 @@ const getDetailForm = async (nomor) => {
             fpd_discpr AS discPr,
             ROUND(fpd_harga * fpd_qty * (100 - IFNULL(fpd_discpr,0)) / 100, 2) AS total,
             DATE_FORMAT(fpd_expired, '%Y-%m-%d') AS expired,
-            fpd_cn AS cn, fpd_gdg_kode AS gudang
+            fpd_gdg_kode AS gudang
      FROM tfp_dtl_bayangan
      WHERE fpd_fp_nomor = ?
      ORDER BY fpd_nourut ASC`,
@@ -174,7 +171,6 @@ const getDetailForm = async (nomor) => {
     detail: details.map((d) => ({
       ...d,
       kurang: Number(d.qty),
-      nilaiCN: Number(d.cn || 0) * Number(d.total || 0) / 100,
     })),
   };
 };
@@ -197,7 +193,7 @@ const saveData = async (payload, user) => {
   const {
     isEdit, nomor, tanggal, nomorSO, jthTempo, cusKode, memo,
     isTax, discFakturPr, discFaktur, freight, amount, taxAmount,
-    dp, cn, detail,
+    detail,
   } = payload;
 
   // ── Validasi (paritas cekdata Delphi) ──────────────────────────────
@@ -232,23 +228,23 @@ const saveData = async (payload, user) => {
            fp_cus_kode = ?, fp_so_nomor = ?, fp_do_nomor = ?, fp_memo = ?,
            fp_disc_faktur = ?, fp_disc_fakturpr = ?,
            fp_freight = ?, fp_amount = ?, fp_taxamount = ?,
-           fp_istax = ?, fp_jthtempo = ?, fp_dp = ?, fp_cn = ?,
+           fp_istax = ?, fp_jthtempo = ?, fp_dp = 0, fp_cn = 0,
            date_modified = NOW(), user_modified = ?
-         WHERE fp_nomor = ?`,
-        [cusKode, nomorSO, nomorDO, memo, discFaktur, discFakturPr,
-         freight, amount, taxAmount, isTax, jthTempo, dp, cn,
-         user.kode, nomor]
+          WHERE fp_nomor = ?`,
+         [cusKode, nomorSO, nomorDO, memo, discFaktur, discFakturPr,
+          freight, amount, taxAmount, isTax, jthTempo,
+          user.kode, nomor]
       );
     } else {
       await conn.query(
         `INSERT INTO tfp_hdr_bayangan
            (fp_nomor, fp_so_nomor, fp_do_nomor, fp_tanggal, fp_jthtempo, fp_memo, fp_cus_kode,
-            fp_disc_faktur, fp_disc_fakturpr, fp_amount, fp_taxamount,
-            fp_freight, fp_istax, fp_dp, fp_cn, date_create, user_create)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
-        [nomor, nomorSO, nomorDO, tanggal, jthTempo, memo, cusKode,
-         discFaktur, discFakturPr, amount, taxAmount,
-         freight, isTax, dp, cn, user.kode]
+             fp_disc_faktur, fp_disc_fakturpr, fp_amount, fp_taxamount,
+             fp_freight, fp_istax, fp_dp, fp_cn, date_create, user_create)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, NOW(), ?)`,
+         [nomor, nomorSO, nomorDO, tanggal, jthTempo, memo, cusKode,
+          discFaktur, discFakturPr, amount, taxAmount,
+          freight, isTax, user.kode]
       );
     }
 
@@ -259,11 +255,11 @@ const saveData = async (payload, user) => {
       await conn.query(
         `INSERT INTO tfp_dtl_bayangan
            (fpd_fp_nomor, fpd_brg_kode, fpd_brg_nama, fpd_brg_satuan,
-            fpd_idbatch, fpd_qty, fpd_discpr, fpd_harga, fpd_nourut,
-            fpd_expired, fpd_cn, fpd_gdg_kode)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [nomor, d.brgKode, d.brgNama, d.satuan, d.idBatch,
-         d.qty, d.discPr, d.harga, nourut, d.expired, d.cn, d.gudang]
+             fpd_idbatch, fpd_qty, fpd_discpr, fpd_harga, fpd_nourut,
+             fpd_expired, fpd_cn, fpd_gdg_kode)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+         [nomor, d.brgKode, d.brgNama, d.satuan, d.idBatch,
+          d.qty, d.discPr, d.harga, nourut, d.expired, d.gudang]
       );
       nourut++;
     }
@@ -276,33 +272,6 @@ const saveData = async (payload, user) => {
   } finally {
     conn.release();
   }
-};
-
-// ── DP auto dari SO (paritas chkDPClick Delphi) ──────────────────
-const getDP = async (nomorSO, nomorFP) => {
-  const [[soRow]] = await db.query(
-    `SELECT so_nomor, so_dp FROM tso_hdr
-     WHERE so_nomor = ? LIMIT 1`, [nomorSO]);
-  if (!soRow) return 0;
-
-  // Total dp dari FP bayangan lain utk SO sama
-  const [[dpRow]] = await db.query(
-    `SELECT IFNULL(SUM(h.fp_dp), 0) AS totalDp
-     FROM tfp_hdr_bayangan h
-     WHERE h.fp_so_nomor = ? AND h.fp_nomor <> ?`,
-    [soRow.so_nomor, nomorFP || ""]);
-
-  return Number(soRow.so_dp || 0) - Number(dpRow?.totalDp || 0);
-};
-
-// ── CN faktur-level dari tpiutangcn (paritas chkCNClick Delphi) ─────
-const getCN = async (cusKode, tanggal) => {
-  const [[row]] = await db.query(
-    `SELECT cn_potong_invoice FROM tpiutangcn
-     WHERE cn_cus_kode = ? AND cn_startdate <= ? AND cn_enddate >= ?
-     LIMIT 1`,
-    [cusKode, tanggal, tanggal]);
-  return Number(row?.cn_potong_invoice || 0);
 };
 
 // ── Lookup harga faktur lain (paritas clHargaPropertiesButtonClick) ──
@@ -329,7 +298,5 @@ module.exports = {
   getTop,
   getDetailForm,
   saveData,
-  getDP,
-  getCN,
   getHargaHistori,
 };

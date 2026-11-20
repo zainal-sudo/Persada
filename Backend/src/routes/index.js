@@ -11,6 +11,7 @@ const masterUserFormRoutes = require("./tools/masterUserFormRoutes");
 
 // ── Utility Routes ──
 const tutupPeriodeRoutes = require("./utility/tutupPeriodeRoutes");
+const postingJurnalBulananRoutes = require("./utility/postingJurnalBulananRoutes");
 const prosesBiayaPromosiRoutes = require("./utility/prosesBiayaPromosiRoutes");
 const prosesFeeMarketingRoutes = require("./utility/prosesFeeMarketingRoutes");
 const settingEstimasiSalesmanRoutes = require("./utility/settingEstimasiSalesmanRoutes");
@@ -205,6 +206,7 @@ router.use("/tools/master-user/form", masterUserFormRoutes);
 
 // ── Utility ──
 router.use("/utility/tutup-periode", tutupPeriodeRoutes);
+router.use("/utility/posting-jurnal-bulanan", postingJurnalBulananRoutes);
 router.use("/utility/proses-biaya-promosi", prosesBiayaPromosiRoutes);
 router.use("/utility/proses-fee-marketing", prosesFeeMarketingRoutes);
 router.use("/utility/setting-estimasi-salesman", settingEstimasiSalesmanRoutes);

@@ -43,7 +43,7 @@ const getBrowse = async (params, user = {}) => {
     '(SELECT pmh_nama FROM tprodukmarketing_hdr INNER JOIN tprodukmarketing_dtl ON pmd_pmh_nomor=pmh_nomor where pmd_brg_kode=brg_kode limit 1) Group_produk',
     '(SELECT sls_nama FROM tsalesman inner join tsalescustomer ON sls_kode=sc_sls_kode where sc_cus_kode=fp_cus_kode) Marketing',
     'sls_nama Rayon',
-    '(SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = so_sla_kode limit 1) Salesman',
+    '(SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = COALESCE(NULLIF(so_sla_kode, ""), fp_sla_kode) limit 1) Salesman',
     'cus_nama Outlet',
     'cus_gc_kode Golongan',
     'jc_nama JenisCustomer',
@@ -141,7 +141,7 @@ const getBrowse = async (params, user = {}) => {
     extraParams.push("%" + barangName + "%");
   }
   if (salesman) {
-    extraWhere += " and (SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = so_sla_kode limit 1) like ? ";
+    extraWhere += " and (SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = COALESCE(NULLIF(so_sla_kode, ''), fp_sla_kode) limit 1) like ? ";
     extraParams.push("%" + salesman + "%");
   }
   if (rayon) {
@@ -167,7 +167,7 @@ const getBrowse = async (params, user = {}) => {
     " UNION SELECT retj_nomor Nomor,date_format(retj_tanggal,\"%Y-%m-%d\") Tanggal,"
     + " month(retj_tanggal) Bulan,year(retj_tanggal) Tahun,'' Group_Produk,"
     + " (SELECT sls_nama FROM tsalesman inner join tsalescustomer ON sls_kode=sc_sls_kode where sc_cus_kode=fp_cus_kode) Marketing,"
-    + " sls_nama Rayon,(SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = so_sla_kode limit 1) Salesman,"
+    + " sls_nama Rayon,(SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = COALESCE(NULLIF(so_sla_kode, \"\"), fp_sla_kode) limit 1) Salesman,"
     + " cus_nama Outlet,'' Golongan,'' JenisCustomer,brg_kode Kode,brg_nama Nama,brg_merk Merk,ktg_nama Kategori,"
     + " (SELECT ktg_nama FROM tkategori where ktg_kode=SUBSTRING_INDEX(brg_ktg_kode, \".\", 2)) SubDepartemen,"
     + " (SELECT ktg_nama FROM tkategori where ktg_kode=SUBSTRING_INDEX(brg_ktg_kode, \".\", 1)) Departemen," + divisiExpr + ","
@@ -222,7 +222,7 @@ const getBrowse = async (params, user = {}) => {
     + " '' Group_produk,"
     + " (SELECT sls_nama FROM tsalesman inner join tsalescustomer ON sls_kode=sc_sls_kode where sc_cus_kode=fp_cus_kode) Marketing,"
     + " sls_nama Rayon,"
-    + " (SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = so_sla_kode LIMIT 1) Salesman,"
+    + " (SELECT sla_nama FROM tsalesmanaktif WHERE sla_kode = COALESCE(NULLIF(so_sla_kode, \"\"), fp_sla_kode) LIMIT 1) Salesman,"
     + " cus_nama Outlet,cus_gc_kode Golongan,jc_nama JenisCustomer,0 Kode,'EKSPEDISI' Nama,'' Merk,'' Kategori,'' SubDepartemen,'' Departemen,'' Divisi,"
     + " '' Satuan,'Tidak' IsPf,'Tidak' Eceran,'Tidak' isCatalog,0 fpd_cn,"
     + " 1 Qty,0 Nilai,0 Nilaiblmppn,0 Kontrak "

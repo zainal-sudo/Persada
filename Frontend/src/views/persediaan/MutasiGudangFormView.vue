@@ -4,6 +4,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { isAuthExpiredError } from "@/api/axios";
 import BaseForm from "@/components/BaseForm.vue";
+import DsSelect from "@/components/DsSelect.vue";
 import SearchModal from "@/components/SearchModal.vue";
 import { useAfterSave } from "@/composables/useAfterSave";
 import { useDetailGrid } from "@/composables/useDetailGrid";
@@ -38,6 +39,9 @@ const form = ref<MutasiGudangForm>({
 
 // ── Lookup Options ───────────────────────────────────────────────────
 const gudangOptions = ref<{ kode: string; nama: string }[]>([]);
+const gudangSelectOptions = computed(() =>
+  gudangOptions.value.map((g) => ({ value: g.kode, label: `${g.kode} - ${g.nama}` })),
+);
 const skuOptions = ref<any[]>([]);
 const skuLoading = ref(false);
 
@@ -445,21 +449,21 @@ const onQtyInput = (e: Event, d: MutasiGudangDetail, idx: number) => {
           <div class="mg-groupbody">
             <div class="f-row">
               <label class="f-lbl">Gudang Asal <span class="req">*</span></label>
-              <select v-model="form.gudangAsal" class="f-inp">
-                <option value="" disabled>-- Pilih Gudang --</option>
-                <option v-for="g in gudangOptions" :key="g.kode" :value="g.kode">
-                  {{ g.kode }} - {{ g.nama }}
-                </option>
-              </select>
+              <DsSelect
+                v-model="form.gudangAsal"
+                :options="gudangSelectOptions"
+                variant="form"
+                placeholder="-- Pilih Gudang --"
+              />
             </div>
             <div class="f-row">
               <label class="f-lbl">Gudang Tujuan <span class="req">*</span></label>
-              <select v-model="form.gudangTujuan" class="f-inp">
-                <option value="" disabled>-- Pilih Gudang --</option>
-                <option v-for="g in gudangOptions" :key="g.kode" :value="g.kode">
-                  {{ g.kode }} - {{ g.nama }}
-                </option>
-              </select>
+              <DsSelect
+                v-model="form.gudangTujuan"
+                :options="gudangSelectOptions"
+                variant="form"
+                placeholder="-- Pilih Gudang --"
+              />
             </div>
             <div class="f-row">
               <label class="f-lbl">Keterangan</label>

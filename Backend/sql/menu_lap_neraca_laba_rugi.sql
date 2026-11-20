@@ -38,12 +38,17 @@ SET @next_id     := (SELECT IFNULL(MAX(MEN_ID), 0) + 1 FROM tmenu);
 INSERT INTO tmenu
   (MEN_ID, MEN_NAMA, MEN_KETERANGAN, MEN_NAMA2, men_route, men_icon,
    men_parent_id, men_parent_id2, men_order, men_view, men_modul)
-SELECT @next_id, 'ufrmLapNeraca', 'Laporan Neraca', 'LaporanNeraca1',
+SELECT @next_id, 'ufrmLapNeraca', 'Laporan Neraca', 'Laporan Neraca',
        '/laporan/lap-neraca', 'pi pi-table',
        @ref_parent, @ref_parent2, @ref_order + 1, 'LapNeracaView', 1
  WHERE @menu_neraca IS NULL AND @ref_parent IS NOT NULL;
 
 SET @menu_neraca := (SELECT MEN_ID FROM tmenu WHERE men_route = '/laporan/lap-neraca' LIMIT 1);
+
+UPDATE tmenu
+   SET MEN_NAMA2 = 'Laporan Neraca',
+       MEN_KETERANGAN = 'Laporan Neraca'
+ WHERE men_route = '/laporan/lap-neraca';
 
 -- -------------------------------------------------------------
 -- 2) Menu: /laporan/lap-laba-rugi
@@ -54,12 +59,17 @@ SET @next_id := (SELECT IFNULL(MAX(MEN_ID), 0) + 1 FROM tmenu);
 INSERT INTO tmenu
   (MEN_ID, MEN_NAMA, MEN_KETERANGAN, MEN_NAMA2, men_route, men_icon,
    men_parent_id, men_parent_id2, men_order, men_view, men_modul)
-SELECT @next_id, 'ufrmLapLabaRugi', 'Laporan Laba Rugi', 'LaporanLabaRugi1',
+SELECT @next_id, 'ufrmLapLabaRugi', 'Laporan Laba Rugi', 'Laporan Laba Rugi',
        '/laporan/lap-laba-rugi', 'pi pi-chart-line',
        @ref_parent, @ref_parent2, @ref_order + 2, 'LapLabaRugiView', 1
  WHERE @menu_lr IS NULL AND @ref_parent IS NOT NULL;
 
 SET @menu_lr := (SELECT MEN_ID FROM tmenu WHERE men_route = '/laporan/lap-laba-rugi' LIMIT 1);
+
+UPDATE tmenu
+   SET MEN_NAMA2 = 'Laporan Laba Rugi',
+       MEN_KETERANGAN = 'Laporan Laba Rugi'
+ WHERE men_route = '/laporan/lap-laba-rugi';
 
 -- -------------------------------------------------------------
 -- 3) Hak akses user: samakan dengan menu laporan acuan (lap-ytd)

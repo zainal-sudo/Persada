@@ -42,8 +42,6 @@ const form = ref<FakturManualForm>({
   freight: 0,
   amount: 0,
   taxAmount: 0,
-  dp: 0,
-  cn: 0,
   top: 0,
   detail: [],
 });
@@ -67,10 +65,6 @@ const subtotalBruto = computed(() => {
   return form.value.detail.reduce((sum, d) => sum + Number(d.total || 0), 0);
 });
 
-const totalCN = computed(() => {
-  return form.value.detail.reduce((sum, d) => sum + Number(d.nilaiCN || 0), 0);
-});
-
 const hitung = () => {
   const subtotal = subtotalBruto.value;
   const discPrValue = Number(form.value.discFakturPr) || 0;
@@ -84,17 +78,6 @@ const hitung = () => {
   } else {
     form.value.taxAmount = 0;
     form.value.amount = setelahDisc + Number(form.value.freight);
-  }
-
-  // CN: faktur-level menimpa per-item (paritas Delphi chkCNClick)
-  if (chkCNFaktur.value && cnFakturPersen.value > 0) {
-    if (form.value.isTax === 1) {
-      form.value.cn = (cnFakturPersen.value / 100) * (form.value.amount / getAngkaPPN(form.value.tanggal));
-    } else {
-      form.value.cn = (cnFakturPersen.value / 100) * form.value.amount;
-    }
-  } else {
-    form.value.cn = totalCN.value;
   }
 };
 
@@ -189,8 +172,6 @@ const selectBarang = (brg: any) => {
   d.harga = 0;
   d.discPr = 0;
   d.total = 0;
-  d.cn = 0;
-  d.nilaiCN = 0;
 
   showBarangModal.value = false;
   hitung();
@@ -278,8 +259,6 @@ const addSelectedTambahBarang = () => {
       total: 0,
       expired: "",
       kurang: 0,
-      cn: 0,
-      nilaiCN: 0,
       gudang: "",
     });
   }
@@ -300,7 +279,6 @@ const removeRow = (idx: number) => {
 
 const updateRowTotal = (d: FakturManualDetail) => {
   d.total = d.qty * d.harga * (100 - d.discPr) / 100;
-  d.nilaiCN = d.cn * d.total / 100;
   hitung();
 };
 
@@ -316,8 +294,6 @@ const DETAIL_COL_WIDTHS = [
   { key: 'discPr', width: 60 },
   { key: 'total', width: 100 },
   { key: 'expired', width: 80 },
-  { key: 'cn', width: 60 },
-  { key: 'nilaiCN', width: 90 },
   { key: 'action', width: 30 },
 ] as const;
 
@@ -381,16 +357,9 @@ const onDiscPrInput = (e: Event, d: FakturManualDetail, idx: number) => {
   updateRowTotal(d);
 };
 
-const onCnInput = (e: Event, d: FakturManualDetail, idx: number) => {
-  const el = e.target as HTMLInputElement;
-  rawInputValues['cn-' + idx] = el.value;
-  d.cn = parseInput(el.value);
-  updateRowTotal(d);
-};
-
 // ── Navigasi grid detail (pola DOFormView — keyboard-first) ─────────
 // Kolom interaktif FPM: sku (picker modal), nama, qty, idBatch, harga,
-// discPr, expired (date), cn — mengikuti urutan visual kolom tabel.
+// discPr, expired (date) — mengikuti urutan visual kolom tabel.
 const fpmCellId = (c: string, r: number) => `fpm-cell-${c}-${r}`;
 
 const fpmTypeEdit = (r: number, c: string, key: string) => {
@@ -404,12 +373,12 @@ const fpmTypeEdit = (r: number, c: string, key: string) => {
 };
 
 const fpmGrid = useDetailGrid({
-  cols: ["sku", "nama", "qty", "idBatch", "harga", "discPr", "expired", "cn"],
+  cols: ["sku", "nama", "qty", "idBatch", "harga", "discPr", "expired"],
   rowCount: () => form.value.detail.length,
   cellId: fpmCellId,
   cellPrefix: "fpm-cell",
   onPicker: (r, c) => { if (c === "sku") openBarangModal(r); },
-  typeEditCols: ["nama", "idBatch", "qty", "harga", "discPr", "cn"],
+  typeEditCols: ["nama", "idBatch", "qty", "harga", "discPr"],
   onTypeEdit: fpmTypeEdit,
 });
 
@@ -459,47 +428,6 @@ const onTanggalChange = () => {
 const onFreightInput = (e: Event) => {
   rawInputValues['freight'] = (e.target as HTMLInputElement).value;
   form.value.freight = parseInput((e.target as HTMLInputElement).value);
-  hitung();
-};
-
-// ── CN faktur-level (paritas chkCNClick Delphi) ──────────────────────
-const chkCNFaktur = ref(false);
-const cnFakturPersen = ref(0);
-
-const onChkCNFaktur = async () => {
-  // Guard: bila CN per-item > 0 → blokir
-  if (chkCNFaktur.value && totalCN.value > 0) {
-    toast.warning("CN ini menggunakan metode per Item");
-    chkCNFaktur.value = false;
-    return;
-  }
-  if (chkCNFaktur.value && form.value.cusKode && form.value.tanggal) {
-    try {
-      const res = await fakturManualFormApi.getCN(form.value.cusKode, form.value.tanggal);
-      cnFakturPersen.value = Number(res.cnPotongInvoice || 0);
-    } catch {
-      cnFakturPersen.value = 0;
-    }
-  } else {
-    cnFakturPersen.value = 0;
-  }
-  hitung();
-};
-
-// ── DP auto dari SO (paritas chkDPClick Delphi) ─────────────────────
-const chkDP = ref(false);
-
-const onChkDP = async () => {
-  if (chkDP.value && form.value.nomorSO && form.value.nomor) {
-    try {
-      const res = await fakturManualFormApi.getDP(form.value.nomorSO, form.value.nomor);
-      form.value.dp = Number(res.dp || 0);
-    } catch {
-      form.value.dp = 0;
-    }
-  } else {
-    form.value.dp = 0;
-  }
   hitung();
 };
 
@@ -616,8 +544,6 @@ const resetForm = () => {
     freight: 0,
     amount: 0,
     taxAmount: 0,
-    dp: 0,
-    cn: 0,
     top: 0,
     detail: [],
   };
@@ -723,8 +649,6 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
                   <th :style="detailColWidthStyle('discPr')" class="tr">Disc%</th>
                   <th :style="detailColWidthStyle('total')" class="tr">Total</th>
                   <th :style="detailColWidthStyle('expired')" class="tc">Expired</th>
-                  <th :style="detailColWidthStyle('cn')" class="tr">CN%</th>
-                  <th :style="detailColWidthStyle('nilaiCN')" class="tr">Nilai CN</th>
                   <th :style="detailColWidthStyle('action')" class="tc">✕</th>
                 </tr>
               </thead>
@@ -758,14 +682,12 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
                   <td :style="detailColWidthStyle('discPr')"><input type="text" inputmode="decimal" class="cell-inp tr" :id="fpmCellId('discPr', idx)" :class="{ 'cell-active': isActiveCell(idx, 'discPr') }" :value="getInputValue('discPr-' + idx, d.discPr)" @focus="fpmOnGridFocus('discPr', idx); startEdit('discPr-' + idx, $event, d.discPr)" @input="onDiscPrInput($event, d, idx)" @blur="endEdit('discPr-' + idx, $event, d.discPr); fpmGridBlur()" /></td>
                   <td class="tr bold" :style="detailColWidthStyle('total')">{{ fmt(d.total) }}</td>
                   <td :style="detailColWidthStyle('expired')"><DsDatePicker v-model="d.expired" variant="cell" :id="fpmCellId('expired', idx)" @focus="fpmOnGridFocus('expired', idx)" @blur="fpmGridBlur()" /></td>
-                  <td :style="detailColWidthStyle('cn')"><input type="text" inputmode="decimal" class="cell-inp tr" :id="fpmCellId('cn', idx)" :class="{ 'cell-active': isActiveCell(idx, 'cn') }" :value="getInputValue('cn-' + idx, d.cn)" @focus="fpmOnGridFocus('cn', idx); startEdit('cn-' + idx, $event, d.cn)" @input="onCnInput($event, d, idx)" @blur="endEdit('cn-' + idx, $event, d.cn); fpmGridBlur()" /></td>
-                  <td class="tr bold accent" :style="detailColWidthStyle('nilaiCN')">{{ fmt(d.nilaiCN) }}</td>
                   <td class="tc" :style="detailColWidthStyle('action')">
                     <button class="btn-del" type="button" @click="removeRow(idx)">✕</button>
                   </td>
                 </tr>
                 <tr v-if="form.detail.length === 0">
-                  <td colspan="13" class="empty-state">
+                  <td colspan="11" class="empty-state">
                     Pilih SO atau tambah barang manual.
                   </td>
                 </tr>
@@ -785,21 +707,6 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
         </div>
         <div class="fpm-footer-right">
           <div class="calc-box">
-            <div class="calc-row">
-              <label class="check-lbl" style="width: auto">
-                <input type="checkbox" v-model="chkDP" @change="onChkDP" style="accent-color: var(--ds-primary, #0284c7)" />
-                DP
-              </label>
-              <span style="margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums">{{ fmt(form.dp) }}</span>
-            </div>
-            <div class="calc-row">
-              <label class="check-lbl" style="width: auto">
-                <input type="checkbox" v-model="chkCNFaktur" @change="onChkCNFaktur" style="accent-color: var(--ds-primary, #0284c7)" />
-                CN
-              </label>
-              <span v-if="chkCNFaktur && cnFakturPersen > 0" style="font-size:10px;color:var(--ds-text-muted,#8494A7)">({{ cnFakturPersen }}%)</span>
-              <span style="margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums">{{ fmt(form.cn) }}</span>
-            </div>
             <div class="calc-row">
               <label>Disc (%)</label>
               <input
@@ -1514,5 +1421,4 @@ textarea:focus-visible {
 .tr { text-align: right; }
 .mono { font-family: var(--ds-font-mono, "Consolas", monospace); font-size: 10px; }
 .bold { font-weight: 700; }
-.accent { color: var(--ds-primary, #0284c7); }
 </style>

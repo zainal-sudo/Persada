@@ -388,7 +388,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <ChatWidget v-if="authStore.isAiUser" />
+    <ChatWidget v-if="false" />
   </v-app>
 
   <WhatsNewDialog />

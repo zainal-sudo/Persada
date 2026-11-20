@@ -3,13 +3,16 @@
 // Hanya rekening dengan tkelompok.ISNERACA = 0.
 // Nilai per bulan = SUM(kredit - debet).
 // Struktur baris (sama seperti Delphi):
-//   - akun kelompok 10 (PENDAPATAN USAHA)
+//   - grup PENDAPATAN USAHA
+//   - akun kelompok 10
 //   - TOTAL PENJUALAN            = SUM(kol 10)
 //   - akun kelompok 9 (BPP)
 //   - LABA KOTOR                 = SUM(kol 10, 9)
-//   - akun kelompok 12, 13 (BIAYA)
+//   - grup BIAYA
+//   - akun kelompok 12, 13
 //   - TOTAL BIAYA                = SUM(kol 12, 13)
-//   - akun kelompok 11, 14 (PENDAPATAN DILUAR USAHA)
+//   - grup PENDAPATAN DILUAR USAHA
+//   - akun kelompok 11, 14
 //   - TOTAL PENDAPATAN           = SUM(kol 11, 14)
 //   - LABA BERSIH                = SUM(semua kol ISNERACA = 0)
 const db = require("../../config/database");
@@ -76,11 +79,21 @@ async function getBrowse({ tahun, bulan1, bulan2 }) {
 
   const rows = [];
 
+  const pushGroup = (label) => {
+    rows.push({
+      keterangan: label,
+      isGroup: true,
+      isTotal: false,
+      nilai: {},
+    });
+  };
+
   const pushAccounts = (kols) => {
     for (const a of accounts) {
       if (!kols.includes(a.kolId)) continue;
       rows.push({
         keterangan: a.akun,
+        isGroup: false,
         isTotal: false,
         nilai: rekMap.get(a.kode) || {},
       });
@@ -97,15 +110,18 @@ async function getBrowse({ tahun, bulan1, bulan2 }) {
       }
       nilai[m.bulan] = v;
     }
-    rows.push({ keterangan: label, isTotal: true, nilai });
+    rows.push({ keterangan: label, isGroup: false, isTotal: true, nilai });
   };
 
+  pushGroup("PENDAPATAN USAHA");
   pushAccounts([10]);
   pushTotal("TOTAL PENJUALAN", [10]);
   pushAccounts([9]);
   pushTotal("LABA KOTOR", [10, 9]);
+  pushGroup("BIAYA");
   pushAccounts([12, 13]);
   pushTotal("TOTAL BIAYA", [12, 13]);
+  pushGroup("PENDAPATAN DILUAR USAHA");
   pushAccounts([11, 14]);
   pushTotal("TOTAL PENDAPATAN", [11, 14]);
   pushTotal("LABA BERSIH", [9, 10, 11, 12, 13, 14]);

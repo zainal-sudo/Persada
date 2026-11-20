@@ -154,6 +154,7 @@ const getDetailForm = async (nomor) => {
             IFNULL(h.inv_disc_faktur, 0) AS discFaktur,
             IFNULL(h.inv_disc_fakturpr, 0) AS discFakturPr,
             IFNULL(h.inv_freight, 0) AS freight,
+            IFNULL(h.inv_materai, 0) AS materai,
             IFNULL(h.inv_isbayar, 0) AS isBayar,
             IFNULL(h.inv_bayar, 0) AS bayar,
             IFNULL(h.inv_ispajak, 0) AS isPajak,
@@ -209,7 +210,7 @@ const saveData = async (payload, user) => {
   const {
     isEdit, nomor, tanggal, jthtempo, bpbNomor, nobukti, memo,
     supKode, discFaktur, discFakturPr, amount, taxAmount,
-    isTax, freight, tglBukti, detail,
+    isTax, freight, materai, tglBukti, detail,
   } = payload;
 
   if (await cekTutupPeriode(tanggal))
@@ -248,12 +249,12 @@ const saveData = async (payload, user) => {
            inv_sup_kode = ?, inv_bpb_nomor = ?, inv_memo = ?,
            inv_nobukti = ?, inv_disc_faktur = ?, inv_disc_fakturpr = ?,
            inv_amount = ?, inv_taxamount = ?, inv_istax = ?,
-           inv_jthtempo = ?, inv_tglbukti = ?, inv_freight = ?,
+           inv_jthtempo = ?, inv_tglbukti = ?, inv_freight = ?, inv_materai = ?,
            date_modified = NOW(), user_modified = ?
          WHERE inv_nomor = ?`,
         [
           supKode, bpbNomor, memo, nobukti, discFaktur, discFakturPr,
-          amount, taxAmount, isTax, jthtempo, tglBukti, freight,
+          amount, taxAmount, isTax, jthtempo, tglBukti, freight, materai,
           user.kode, nomor,
         ]
       );
@@ -263,13 +264,13 @@ const saveData = async (payload, user) => {
         `INSERT INTO tinv_hdr
            (inv_nomor, inv_bpb_nomor, inv_nobukti, inv_tanggal, inv_jthtempo,
             inv_memo, inv_sup_kode, inv_disc_faktur, inv_disc_fakturpr,
-            inv_amount, inv_taxamount, inv_istax, inv_freight, inv_tglbukti,
+            inv_amount, inv_taxamount, inv_istax, inv_freight, inv_materai, inv_tglbukti,
             date_create, user_create)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
         [
           actualNomor, bpbNomor, nobukti, tanggal, jthtempo, memo,
           supKode, discFaktur, discFakturPr, amount, taxAmount,
-          isTax, freight, tglBukti, user.kode,
+          isTax, freight, materai, tglBukti, user.kode,
         ]
       );
     }

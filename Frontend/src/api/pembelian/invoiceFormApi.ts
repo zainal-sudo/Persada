@@ -32,6 +32,7 @@ export interface InvoiceForm {
   taxAmount: number;
   isTax: number;
   freight: number;
+  materai: number;
   isBayar: number;
   bayar: number;
   isPajak: number;

@@ -55,6 +55,7 @@ const props = withDefaults(
     selected?: any[];
     loadingDetails?: Set<string>;
     itemsPerPage?: number;
+    showPagination?: boolean;
     filterState?: Record<string, any>;
     summaryKey?: string;
     summaryLabel?: string;
@@ -88,6 +89,7 @@ const props = withDefaults(
     expanded: () => [],
     loadingDetails: () => new Set<string>(),
     itemsPerPage: 50,
+    showPagination: true,
     filterState: () => ({}),
     exportFn: undefined,
     printFn: undefined,
@@ -610,10 +612,12 @@ const pageEnd = computed(() =>
   Math.min(currentPage.value * perPage.value, totalItems.value),
 );
 const pagedItems = computed(() =>
-  filteredItems.value.slice(
-    (currentPage.value - 1) * perPage.value,
-    currentPage.value * perPage.value,
-  ),
+  props.showPagination
+    ? filteredItems.value.slice(
+        (currentPage.value - 1) * perPage.value,
+        currentPage.value * perPage.value,
+      )
+    : filteredItems.value,
 );
 const goToPage = (p: number) => {
   currentPage.value = Math.max(1, Math.min(p, totalPages.value));
@@ -994,6 +998,7 @@ watch(
             </div>
           </div>
           <div class="grid-bar-right">
+            <template v-if="showPagination">
             <!-- Baris per halaman -->
             <div class="per-page-wrap">
               <span class="page-info">Baris:</span>
@@ -1040,6 +1045,7 @@ watch(
                 »
               </button>
             </div>
+            </template>
           </div>
         </div>
         <div
@@ -1064,7 +1070,7 @@ watch(
             density="compact"
             fixed-header
             hide-default-footer
-            :items-per-page="perPage"
+            :items-per-page="showPagination ? perPage : -1"
             class="base-table"
             :row-props="resolvedRowProps"
             @click:row="handleRowClick"

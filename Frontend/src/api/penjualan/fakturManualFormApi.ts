@@ -13,8 +13,6 @@ export interface FakturManualDetail {
   total: number;
   expired: string;
   kurang: number;
-  cn: number;
-  nilaiCN: number;
   gudang: string;
 }
 
@@ -35,8 +33,6 @@ export interface FakturManualForm {
   freight: number;
   amount: number;
   taxAmount: number;
-  dp: number;
-  cn: number;
   top?: number;
   locked?: number;
   detail: FakturManualDetail[];
@@ -71,22 +67,6 @@ export const fakturManualFormApi = {
   getTop: async (cusKode: string) => {
     const { data } = await api.get("/penjualan/faktur-manual/form/get-top", {
       params: { cusKode },
-    });
-    return data.data;
-  },
-
-  // GET /api/penjualan/faktur-manual/form/dp?nomorSO=&nomorFP=
-  getDP: async (nomorSO: string, nomorFP: string = "") => {
-    const { data } = await api.get("/penjualan/faktur-manual/form/dp", {
-      params: { nomorSO, nomorFP },
-    });
-    return data.data;
-  },
-
-  // GET /api/penjualan/faktur-manual/form/cn?cusKode=&tanggal=
-  getCN: async (cusKode: string, tanggal: string) => {
-    const { data } = await api.get("/penjualan/faktur-manual/form/cn", {
-      params: { cusKode, tanggal },
     });
     return data.data;
   },

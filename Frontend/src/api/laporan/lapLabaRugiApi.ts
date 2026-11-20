@@ -8,6 +8,7 @@ export interface LapLabaRugiMonth {
 
 export interface LapLabaRugiRow {
   keterangan: string;
+  isGroup?: boolean;
   isTotal: boolean;
   /** nilai per nomor bulan, mis. { 1: 1000, 2: 2500 } */
   nilai: Record<number, number>;

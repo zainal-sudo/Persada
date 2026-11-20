@@ -51,13 +51,6 @@ const saved = getSaved();
 const filterState = ref({
   startDate: saved?.startDate ?? firstDay,
   endDate: saved?.endDate ?? getLocal(now),
-  customerCode: saved?.customerCode ?? "",
-  customerName: saved?.customerName ?? "",
-  barangName: saved?.barangName ?? "",
-  isProductFocus: saved?.isProductFocus ?? false,
-  isKontrak: saved?.isKontrak ?? false,
-  byInkaso: saved?.byInkaso ?? false,
-  linkMarketing: saved?.linkMarketing ?? false,
 });
 
 const startDate = computed({
@@ -68,35 +61,6 @@ const endDate = computed({
   get: () => filterState.value.endDate,
   set: (v) => { filterState.value = { ...filterState.value, endDate: v }; },
 });
-const customerCode = computed({
-  get: () => filterState.value.customerCode,
-  set: (v) => { filterState.value = { ...filterState.value, customerCode: v }; },
-});
-const customerName = computed({
-  get: () => filterState.value.customerName,
-  set: (v) => { filterState.value = { ...filterState.value, customerName: v }; },
-});
-const barangName = computed({
-  get: () => filterState.value.barangName,
-  set: (v) => { filterState.value = { ...filterState.value, barangName: v }; },
-});
-const isProductFocus = computed({
-  get: () => filterState.value.isProductFocus,
-  set: (v) => { filterState.value = { ...filterState.value, isProductFocus: v }; },
-});
-const isKontrak = computed({
-  get: () => filterState.value.isKontrak,
-  set: (v) => { filterState.value = { ...filterState.value, isKontrak: v }; },
-});
-const byInkaso = computed({
-  get: () => filterState.value.byInkaso,
-  set: (v) => { filterState.value = { ...filterState.value, byInkaso: v }; },
-});
-const linkMarketing = computed({
-  get: () => filterState.value.linkMarketing,
-  set: (v) => { filterState.value = { ...filterState.value, linkMarketing: v }; },
-});
-
 watch(
   filterState,
   (val) => {
@@ -519,36 +483,6 @@ const doExportPivot = async () => {
         <DsDatePicker v-model="startDate" variant="toolbar" />
         <span class="filter-sep">s/d</span>
         <DsDatePicker v-model="endDate" variant="toolbar" />
-      </div>
-
-      <div class="filter-group">
-        <span class="filter-lbl">Customer</span>
-        <input v-model="customerCode" type="text" placeholder="Kode" class="text-inp" style="width: 90px" />
-        <input v-model="customerName" type="text" placeholder="Nama" class="text-inp" style="width: 160px" />
-      </div>
-
-      <div class="filter-group">
-        <span class="filter-lbl">Brg</span>
-        <input v-model="barangName" type="text" placeholder="Nama barang..." class="text-inp" style="width: 160px" />
-      </div>
-
-      <div class="filter-group chek">
-        <label class="checkbox-label">
-          <input v-model="isKontrak" type="checkbox" />
-          <span>Kontrak</span>
-        </label>
-        <label class="checkbox-label">
-          <input v-model="isProductFocus" type="checkbox" />
-          <span>Produk Fokus</span>
-        </label>
-        <label class="checkbox-label">
-          <input v-model="byInkaso" type="checkbox" />
-          <span>Inkaso</span>
-        </label>
-        <label class="checkbox-label">
-          <input v-model="linkMarketing" type="checkbox" />
-          <span>Link Marketing</span>
-        </label>
       </div>
 
       <div class="filter-divider" />

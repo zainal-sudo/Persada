@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { isAuthExpiredError } from "@/api/axios";
 import BaseBrowse from "@/components/BaseBrowse.vue";
 import { getLapLabaRugi, type LapLabaRugiData } from "@/api/laporan/lapLabaRugiApi";
 import { exportStyledHeader, type ExportColumn } from "@/utils/styledExport";
-import { IconFileInvoice, IconFileSpreadsheet } from "@tabler/icons-vue";
+import { IconFileInvoice, IconFileSpreadsheet, IconPrinter } from "@tabler/icons-vue";
 
+const router = useRouter();
 const toast = useToast();
 
 const STORAGE_KEY = "laporan_lapLabaRugi";
@@ -51,6 +53,8 @@ const loadData = async () => {
   }
 };
 
+onMounted(loadData);
+
 const months = computed(() => data.value.months || []);
 
 // Headers: Keterangan + kolom bulan (dinamis sesuai rentang) + Total
@@ -67,6 +71,7 @@ const items = computed<Record<string, any>[]>(() =>
     const o: Record<string, any> = {
       no: i + 1,
       keterangan: r.keterangan,
+      isGroup: r.isGroup,
       isTotal: r.isTotal,
       total: r.total,
     };
@@ -78,10 +83,18 @@ const items = computed<Record<string, any>[]>(() =>
 const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(v || 0);
 
 // Delphi: baris total diberi warna; LABA BERSIH dibedakan.
+const totalClassByLabel: Record<string, string> = {
+  "TOTAL PENJUALAN": "row-total-penjualan",
+  "LABA KOTOR": "row-total-laba-kotor",
+  "TOTAL BIAYA": "row-total-biaya",
+  "TOTAL PENDAPATAN": "row-total-pendapatan",
+};
+
 const rowPropsFn = (d: any) => {
   const raw = d?.item?.raw ?? d?.item ?? d;
+  if (raw?.isGroup) return { class: "row-group" };
   if (raw?.keterangan === "LABA BERSIH") return { class: "row-net" };
-  if (raw?.isTotal) return { class: "row-total" };
+  if (raw?.isTotal) return { class: totalClassByLabel[raw.keterangan] || "row-total" };
   return {};
 };
 
@@ -90,6 +103,18 @@ const periodeLabel = computed(() => {
   if (!ms.length) return String(tahun.value);
   return `${ms[0].label} - ${ms[ms.length - 1].label} ${tahun.value}`;
 });
+
+const goPrint = () => {
+  if (!items.value?.length) { toast.warning("Tidak ada data untuk dicetak."); return; }
+  router.push({
+    name: "lapLabaRugiPrint",
+    query: {
+      tahun: tahun.value,
+      bulan1: bulan1.value,
+      bulan2: bulan2.value,
+    },
+  });
+};
 
 const isExporting = ref(false);
 const doExport = async () => {
@@ -121,14 +146,20 @@ const doExport = async () => {
       :items="items"
       :is-loading="isLoading"
       :fixed-layout="false"
+      :show-pagination="false"
       item-value="no"
       :filter-values="filterValues"
-      :auto-refresh="false"
+      :auto-refresh="true"
       :auto-summary="false"
       :row-props-fn="rowPropsFn"
+      :print-fn="goPrint"
       @refresh="loadData"
     >
       <template #extra-actions>
+        <v-btn size="small" class="tb-btn tb-btn-neutral" data-fkey="print" :disabled="isLoading || !items.length" @click="goPrint">
+          <template #prepend><IconPrinter :size="13" :stroke-width="1.8" /></template>
+          <span class="tb-fkey">[F12]</span> Cetak
+        </v-btn>
         <v-btn size="small" class="tb-btn tb-btn-success" data-fkey="export" @click="doExport" :loading="isExporting">
           <template #prepend><IconFileSpreadsheet :size="13" :stroke-width="1.8" /></template>
           <span class="tb-fkey">[F8]</span> Export
@@ -151,8 +182,9 @@ const doExport = async () => {
         </div>
       </template>
 
-      <template v-for="key in headerKeys" :key="'cell-' + key" #[`item.${key}`]="{ value }">
+      <template v-for="key in headerKeys" :key="'cell-' + key" #[`item.${key}`]="{ item, value }">
         <span v-if="key === 'keterangan'">{{ value }}</span>
+        <span v-else-if="item.isGroup" class="num-cell"></span>
         <span v-else class="num-cell">{{ fmt(value) }}</span>
       </template>
     </BaseBrowse>
@@ -173,6 +205,11 @@ const doExport = async () => {
 </style>
 
 <style>
-.base-table tbody tr.row-total td { font-weight: 700; }
-.base-table tbody tr.row-net td { font-weight: 800; background: #E8ECF1; }
+.base-table tbody tr.row-group td { font-weight: 800; background: #DDEBF7; text-transform: uppercase; letter-spacing: 0.02em; }
+.base-table tbody tr.row-total td { font-weight: 700; background: #F1F3F5; }
+.base-table tbody tr.row-total-penjualan td { font-weight: 700; background: #E3F2FD; }
+.base-table tbody tr.row-total-laba-kotor td { font-weight: 700; background: #FFF3E0; }
+.base-table tbody tr.row-total-biaya td { font-weight: 700; background: #FDE2E2; }
+.base-table tbody tr.row-total-pendapatan td { font-weight: 700; background: #E0F7FA; }
+.base-table tbody tr.row-net td { font-weight: 800; background: #C7F9CC; }
 </style>

@@ -5,8 +5,9 @@ const ctrl = require("../../controllers/laporan/lapLabaRugiController");
 const { verifyToken, checkPermission } = require("../../middleware/authMiddleware");
 const { resolveMenuId } = require("../../middleware/resolveMenuId");
 
+router.use(verifyToken);
 router.use(resolveMenuId);
 
-router.get("/", verifyToken, checkPermission("view"), ctrl.getBrowse);
+router.get("/", checkPermission("view"), ctrl.getBrowse);
 
 module.exports = router;

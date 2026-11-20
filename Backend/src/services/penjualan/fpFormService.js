@@ -338,8 +338,9 @@ const syncDoHdr = async (nomorDO) => {
 };
 
 // ── Hitung HPP freeze barang (Opsi 2) ────────────────────────────────
-// Cost saat barang keluar = SUM(mst_stok_out × mst_hargabeli) atas SEMUA
-// DO milik SO (1 SO = banyak pengiriman), per (brg + expired).
+// Cost saat barang keluar = SUM(mst_stok_out × IF(mst_avgcost > 0,
+// mst_avgcost, mst_hargabeli)) atas SEMUA DO milik SO (1 SO = banyak
+// pengiriman), per (brg + expired).
 //
 // Idealnya nilai per baris tfp_dtl = konterpart brg + expired-nya sendiri.
 // Dipanggil DI LUAR loop baris detail (sekali per FP) karena hasilnya Map;
@@ -349,7 +350,8 @@ const hitungHppMap = async (conn, nomorSO) => {
   const [rows] = await conn.query(
     `SELECT m.mst_brg_kode AS brg,
             DATE_FORMAT(m.mst_expired_date, '%Y-%m-%d') AS expired,
-            COALESCE(SUM(m.mst_stok_out * m.mst_hargabeli), 0) AS hpp
+            COALESCE(SUM(m.mst_stok_out
+              * IF(IFNULL(m.mst_avgcost, 0) > 0, m.mst_avgcost, IFNULL(m.mst_hargabeli, 0))), 0) AS hpp
      FROM tmasterstok m
      INNER JOIN tdo_hdr do ON do.do_nomor = m.mst_noreferensi
      WHERE do.do_so_nomor = ?
