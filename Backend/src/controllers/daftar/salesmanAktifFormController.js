@@ -1,9 +1,9 @@
 // controllers/daftar/salesmanAktifFormController.js
 const svc = require("../../services/daftar/salesmanAktifFormService");
 
-const getRayon = async (req, res) => {
+const getFormasiOptions = async (req, res) => {
   try {
-    const data = await svc.getRayon(req.query.search || "");
+    const data = await svc.getFormasiOptions(req.query.search || "");
     res.json({ success: true, data });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
@@ -28,4 +28,4 @@ const saveData = async (req, res) => {
   }
 };
 
-module.exports = { getRayon, getDetailForm, saveData };
+module.exports = { getFormasiOptions, getDetailForm, saveData };

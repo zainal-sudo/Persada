@@ -3,20 +3,18 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useToast } from "vue-toastification";
 import { isAuthExpiredError } from "@/api/axios";
-import { useAuthStore } from "@/stores/authStore";
 import BaseForm from "@/components/BaseForm.vue";
 import { IconUserCheck } from "@tabler/icons-vue";
 import {
   salesmanAktifFormApi,
   type SalesmanAktifForm,
-  type RayonOption,
+  type FormasiOption,
 } from "@/api/daftar/salesmanAktifFormApi";
 import { useAfterSave } from "@/composables/useAfterSave";
 
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();
-const authStore = useAuthStore();
 
 const isEdit = computed(() => !!route.params.kode || !!route.params.nomor);
 const editKode = computed(() =>
@@ -34,31 +32,24 @@ const emptyForm = (): SalesmanAktifForm => ({
   nama: "",
   isaktif: true,
   tglMasuk: today,
-  detail: [],
+  formasiId: 0,
 });
 
 const form = ref<SalesmanAktifForm>(emptyForm());
-const rayonOptions = ref<RayonOption[]>([]);
-const newRayonKode = ref("");
-
-// Rayon yang sudah dipilih → tidak muncul lagi di dropdown
-const availableRayon = computed(() => {
-  const used = new Set(form.value.detail.map((d) => d.slsKode));
-  return rayonOptions.value.filter((r) => !used.has(r.kode));
-});
+const formasiOptions = ref<FormasiOption[]>([]);
 
 // ── Load Data ────────────────────────────────────────────────────────
-const loadRayonOptions = async () => {
+const loadFormasiOptions = async () => {
   try {
-    rayonOptions.value = await salesmanAktifFormApi.getRayon();
+    formasiOptions.value = await salesmanAktifFormApi.getFormasiOptions();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
-    toast.error(e.response?.data?.message || "Gagal memuat data area/rayon.");
+    toast.error(e.response?.data?.message || "Gagal memuat data formasi.");
   }
 };
 
 const loadData = async () => {
-  await loadRayonOptions();
+  await loadFormasiOptions();
   if (!isEdit.value) return;
 
   isLoading.value = true;
@@ -71,10 +62,7 @@ const loadData = async () => {
       ...data,
       isEdit: true,
       isaktif: Number(data.isaktif) === 1,
-      detail: (data.detail || []).map((d) => ({
-        slsKode: d.slsKode,
-        slsNama: d.slsNama,
-      })),
+      formasiId: Number(data.formasiId) || 0,
     };
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
@@ -85,24 +73,6 @@ const loadData = async () => {
   }
 };
 
-// ── Detail Grid ──────────────────────────────────────────────────────
-const addRayon = () => {
-  const kode = newRayonKode.value;
-  if (!kode) return;
-  const opt = rayonOptions.value.find((r) => r.kode === kode);
-  if (!opt) return;
-  if (form.value.detail.some((d) => d.slsKode === kode)) {
-    toast.warning("Area/rayon sudah ada di daftar.");
-    return;
-  }
-  form.value.detail.push({ slsKode: opt.kode, slsNama: opt.nama });
-  newRayonKode.value = "";
-};
-
-const removeRayon = (idx: number) => {
-  form.value.detail.splice(idx, 1);
-};
-
 // ── Save ─────────────────────────────────────────────────────────────
 const confirmSave = async (action: "new" | "close") => {
   if (!form.value.kode.trim()) {
@@ -111,10 +81,6 @@ const confirmSave = async (action: "new" | "close") => {
   }
   if (!form.value.nama.trim()) {
     toast.warning("Nama salesman wajib diisi.");
-    return;
-  }
-  if (form.value.detail.length === 0) {
-    toast.warning("Minimal 1 area/rayon harus diisi.");
     return;
   }
 
@@ -176,6 +142,15 @@ onMounted(() => {
         />
       </div>
       <div class="form-row">
+        <label class="form-label">Formasi</label>
+        <select v-model.number="form.formasiId" class="form-input">
+          <option :value="0">- Tanpa formasi -</option>
+          <option v-for="f in formasiOptions" :key="f.id" :value="f.id">
+            {{ f.nama }}
+          </option>
+        </select>
+      </div>
+      <div class="form-row">
         <label class="form-label">Aktif</label>
         <input v-model="form.isaktif" type="checkbox" class="form-check" />
         <span class="form-hint">Centang bila salesman masih aktif</span>
@@ -186,63 +161,11 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- ═══ DETAIL AREA/RAYON ═══ -->
-    <div class="detail-section">
-      <div class="detail-header">
-        <span class="detail-title">Area/Rayon yang Di-handle</span>
-      </div>
-
-      <div class="detail-add-row">
-        <select v-model="newRayonKode" class="detail-select">
-          <option value="" disabled>Pilih area/rayon...</option>
-          <option v-for="r in availableRayon" :key="r.kode" :value="r.kode">
-            {{ r.kode }} — {{ r.nama }}
-          </option>
-        </select>
-        <v-btn
-          size="small"
-          class="tb-btn tb-btn-primary"
-          :disabled="!newRayonKode"
-          @click="addRayon"
-        >
-          Tambah
-        </v-btn>
-      </div>
-
-      <div class="detail-table-wrap">
-        <table class="detail-table">
-          <thead>
-            <tr>
-              <th style="width: 40px" class="tc">No</th>
-              <th style="width: 110px">Kode</th>
-              <th style="min-width: 220px">Nama Area/Rayon</th>
-              <th style="width: 60px" class="tc">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, idx) in form.detail" :key="item.slsKode">
-              <td class="tc">{{ idx + 1 }}</td>
-              <td class="mono">{{ item.slsKode }}</td>
-              <td>{{ item.slsNama }}</td>
-              <td class="tc">
-                <button
-                  type="button"
-                  class="del-btn"
-                  title="Hapus baris"
-                  @click="removeRayon(idx)"
-                >
-                  &times;
-                </button>
-              </td>
-            </tr>
-            <tr v-if="form.detail.length === 0">
-              <td colspan="4" class="tc empty-cell">
-                Belum ada area/rayon. Pilih di atas lalu klik Tambah.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="sa-info">
+      <p>
+        Area/rayon dan target salesman mengikuti Formasi yang dipilih. Atur
+        area/rayon serta target pada menu <strong>Formasi</strong>.
+      </p>
     </div>
   </BaseForm>
 </template>
@@ -313,114 +236,15 @@ onMounted(() => {
   color: #6b7280;
 }
 
-/* Detail Section */
-.detail-section {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 8px 16px;
-  gap: 8px;
-  background: white;
-}
-
-.detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-
-.detail-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ds-primary, #0284c7);
-  text-transform: uppercase;
-}
-
-.detail-add-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.detail-select {
-  width: 340px;
-  height: 28px;
-  border: 1px solid var(--ds-border, #a0aab8);
-  border-radius: 0;
-  padding: 0 8px;
-  font-size: 12px;
-  outline: none;
-  background: white;
-}
-
-.detail-select:focus {
-  border-color: var(--ds-primary, #0284c7);
-}
-
-.detail-table-wrap {
-  min-height: 0;
-  overflow: auto;
-  border: 1px solid var(--ds-border-light, #dde1e6);
-  border-radius: 0;
-  max-width: 560px;
-}
-
-.detail-table {
-  width: 100%;
-  border-collapse: collapse;
+.sa-info {
+  padding: 12px 16px;
   font-size: 11px;
+  color: #6b7280;
 }
 
-.detail-table thead tr {
-  background: var(--ds-primary, #0284c7);
-}
-
-.detail-table th {
-  color: white;
-  font-weight: 700;
-  padding: 5px 8px;
-  white-space: nowrap;
-  text-align: left;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  border: 1px solid var(--ds-border-light, #dde1e6);
-}
-
-.detail-table td {
-  padding: 3px 8px;
-  border: 1px solid var(--ds-border-light, #dde1e6);
-  vertical-align: middle;
-}
-
-.detail-table tbody tr:hover td {
-  background: rgba(59, 89, 152, 0.04);
-}
-
-.tc {
-  text-align: center;
-}
-
-.del-btn {
-  border: none;
-  background: transparent;
-  color: #dc2626;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0 6px;
-  line-height: 1;
-}
-
-.del-btn:hover {
-  color: #991b1b;
-}
-
-.empty-cell {
-  color: #9e9e9e;
-  font-style: italic;
-  padding: 12px;
+.sa-info p {
+  margin: 0;
+  max-width: 560px;
+  line-height: 1.5;
 }
 </style>

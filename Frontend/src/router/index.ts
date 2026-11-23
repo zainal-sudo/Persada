@@ -793,6 +793,39 @@ const router = createRouter({
     browseRoute: "salesmanAktifBrowse",
   },
 },
+// ── Master Formasi ───────────────────────────────────────────────
+{
+  path: "/daftar/formasi",
+  name: "formasiBrowse",
+  component: () => import("@/views/daftar/FormasiView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Daftar Formasi",
+  },
+},
+{
+  path: "/daftar/formasi/create",
+  name: "formasiCreate",
+  component: () => import("@/views/daftar/FormasiFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Tambah Formasi",
+    browseRoute: "formasiBrowse",
+  },
+},
+{
+  path: "/daftar/formasi/edit/:id",
+  name: "formasiEdit",
+  component: () => import("@/views/daftar/FormasiFormView.vue"),
+  meta: {
+    layout: "DefaultLayout",
+    requiresAuth: true,
+    title: "Ubah Formasi",
+    browseRoute: "formasiBrowse",
+  },
+},
 // ── Daftar Supplier ──────────────────────────────────────────────
 {
   path: "/daftar/supplier",

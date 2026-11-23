@@ -3,9 +3,7 @@ const db = require("../../config/database");
 
 /**
  * Browse Master Salesman (tsalesmanaktif).
- * 1 salesman bisa handle beberapa Area/Rayon (relasi tsalesmanaktif_dtl
- * ke tsalesman = master Area/Rayon). Kolom Rayon = daftar nama area,
- * dipisah koma untuk tampilan.
+ * Salesman menunjuk 1 Formasi; Formasi yang menampung area/rayon dan target.
  */
 const getBrowse = async () => {
   const [rows] = await db.query(
@@ -14,12 +12,9 @@ const getBrowse = async () => {
        h.sla_nama AS Nama,
        IF(h.sla_isaktif = 1, 'Ya', 'Tidak') AS Aktif,
        DATE_FORMAT(h.sla_tgl_masuk, '%Y-%m-%d') AS TglMasuk,
-       COUNT(d.slad_sls_kode) AS JumlahRayon,
-       IFNULL(GROUP_CONCAT(s.sls_nama ORDER BY d.slad_nourut SEPARATOR ', '), '') AS Rayon
+       IFNULL(f.tf_nama, '') AS Formasi
      FROM tsalesmanaktif h
-     LEFT JOIN tsalesmanaktif_dtl d ON d.slad_sla_kode = h.sla_kode
-     LEFT JOIN tsalesman s ON s.sls_kode = d.slad_sls_kode
-     GROUP BY h.sla_kode, h.sla_nama, h.sla_isaktif, h.sla_tgl_masuk
+     LEFT JOIN tformasi f ON f.tf_id = h.sla_formasi_id
      ORDER BY h.sla_kode`
   );
   return rows;
@@ -47,7 +42,10 @@ const deleteData = async (kode) => {
   const conn = await db.getConnection();
   await conn.beginTransaction();
   try {
-    await conn.query(`DELETE FROM tsalesmanaktif_dtl WHERE slad_sla_kode = ?`, [kode]);
+    await conn.query(
+      `DELETE FROM tsalesmanaktif_dtl WHERE slad_sla_kode = ?`,
+      [kode]
+    );
     await conn.query(`DELETE FROM tsalesmanaktif WHERE sla_kode = ?`, [kode]);
     await conn.commit();
   } catch (e) {

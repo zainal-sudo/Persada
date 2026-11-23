@@ -6,8 +6,7 @@ export interface SalesmanAktifRow {
   Nama: string;
   Aktif: string;
   TglMasuk: string;
-  JumlahRayon: number;
-  Rayon: string;
+  Formasi: string;
 }
 
 export const salesmanAktifApi = {

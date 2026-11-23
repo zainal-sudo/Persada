@@ -15,7 +15,19 @@ const getMaxKode = async () => {
   return `SLS-${String(nextNum).padStart(3, "0")}`;
 };
 
-// ── Get Target Bulanan ───────────────────────────────────────────────
+// ── Lookup Formasi ───────────────────────────────────────────────────
+const getFormasiOptions = async (search = "") => {
+  const [rows] = await db.query(
+    `SELECT tf_id AS id, tf_nama AS nama
+       FROM tformasi
+      WHERE (? = '' OR tf_nama LIKE ?)
+      ORDER BY tf_nama`,
+    [search, `%${search}%`]
+  );
+  return rows;
+};
+
+// ── Get Target Bulanan (legacy, tidak dipakai di form Area/Rayon) ────
 // Delphi loadtogrid:
 // SELECT ID, NAMA, IFNULL(St_TARGETSALES,0) TARGET
 // FROM tbulan LEFT JOIN tsalesmantarget
@@ -47,8 +59,11 @@ const getDetailForm = async (kode) => {
        IFNULL(sls_kota, '') AS kota,
        IFNULL(sls_telp, '') AS telp,
        DATE_FORMAT(sls_tglmasuk, '%Y-%m-%d') AS tglMasuk,
-       sls_cabang AS cabang
+       sls_cabang AS cabang,
+       IFNULL(sls_formasi_id, 0) AS formasiId,
+       IFNULL(f.tf_nama, '') AS formasiNama
      FROM tsalesman
+     LEFT JOIN tformasi f ON f.tf_id = tsalesman.sls_formasi_id
      WHERE sls_kode = ?`,
     [kode]
   );
@@ -69,8 +84,7 @@ const saveData = async (payload, user) => {
     telp,
     tglMasuk,
     cabang,
-    tahun,
-    target,
+    formasiId,
   } = payload;
 
   const conn = await db.getConnection();
@@ -84,37 +98,26 @@ const saveData = async (payload, user) => {
         `UPDATE tsalesman SET
            sls_nama = ?, sls_alamat = ?, sls_kota = ?,
            sls_telp = ?, sls_tglmasuk = ?, sls_cabang = ?,
+           sls_formasi_id = ?,
            date_modified = NOW(), user_modified = ?
          WHERE sls_kode = ?`,
-        [nama, alamat, kota, telp, tglMasuk, cabang, user.kode, actualKode]
+        [
+          nama, alamat, kota, telp, tglMasuk, cabang,
+          formasiId || null, user.kode, actualKode,
+        ]
       );
     } else {
       actualKode = await getMaxKode();
       await conn.query(
         `INSERT INTO tsalesman
            (sls_kode, sls_nama, sls_alamat, sls_kota, sls_telp,
-            sls_tglmasuk, sls_cabang, date_create, user_create)
-         VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
-        [actualKode, nama, alamat, kota, telp, tglMasuk, cabang, user.kode]
+            sls_tglmasuk, sls_cabang, sls_formasi_id, date_create, user_create)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)`,
+        [
+          actualKode, nama, alamat, kota, telp, tglMasuk, cabang,
+          formasiId || null, user.kode,
+        ]
       );
-    }
-
-    // Simpan target bulanan
-    await conn.query(
-      `DELETE FROM tsalesmantarget
-       WHERE st_sls_kode = ? AND st_tahun = ?`,
-      [actualKode, tahun]
-    );
-
-    for (const t of target) {
-      if (Number(t.target) !== 0) {
-        await conn.query(
-          `INSERT INTO tsalesmantarget
-             (st_sls_kode, st_periode, st_tahun, st_targetsales)
-           VALUES (?, ?, ?, ?)`,
-          [actualKode, t.periode, tahun, Number(t.target)]
-        );
-      }
     }
 
     await conn.commit();
@@ -129,6 +132,7 @@ const saveData = async (payload, user) => {
 
 module.exports = {
   getMaxKode,
+  getFormasiOptions,
   getTargetBulanan,
   getDetailForm,
   saveData,

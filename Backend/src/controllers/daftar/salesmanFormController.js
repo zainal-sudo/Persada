@@ -9,6 +9,15 @@ const getMaxKode = async (req, res) => {
   }
 };
 
+const getFormasiOptions = async (req, res) => {
+  try {
+    const data = await svc.getFormasiOptions(req.query.search || "");
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 const getTargetBulanan = async (req, res) => {
   try {
     const { kode, tahun } = req.query;
@@ -45,6 +54,7 @@ const saveData = async (req, res) => {
 
 module.exports = {
   getMaxKode,
+  getFormasiOptions,
   getTargetBulanan,
   getDetailForm,
   saveData,

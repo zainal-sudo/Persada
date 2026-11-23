@@ -9,7 +9,8 @@ export interface SalesmanForm {
   telp: string;
   tglMasuk: string;
   cabang: string;
-  target: TargetBulanan[];
+  formasiId: number;
+  formasiNama?: string;
 }
 
 export interface TargetBulanan {
@@ -18,10 +19,22 @@ export interface TargetBulanan {
   target: number;
 }
 
+export interface FormasiOption {
+  id: number;
+  nama: string;
+}
+
 export const salesmanFormApi = {
   getMaxKode: async (): Promise<string> => {
     const { data } = await api.get("/daftar/salesman/form/get-max-kode");
     return data.data.kode;
+  },
+
+  getFormasiOptions: async (search = ""): Promise<FormasiOption[]> => {
+    const { data } = await api.get("/daftar/salesman/form/formasi-options", {
+      params: { search },
+    });
+    return data.data as FormasiOption[];
   },
 
   getDetailForm: async (kode: string): Promise<SalesmanForm> => {

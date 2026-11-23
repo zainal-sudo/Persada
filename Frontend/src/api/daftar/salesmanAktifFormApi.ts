@@ -7,25 +7,22 @@ export interface SalesmanAktifForm {
   nama: string;
   isaktif: boolean;
   tglMasuk: string;
-  detail: RayonDetail[];
+  formasiId: number;
+  formasiNama?: string;
 }
 
-export interface RayonDetail {
-  slsKode: string;
-  slsNama: string;
-}
-
-export interface RayonOption {
-  kode: string;
+export interface FormasiOption {
+  id: number;
   nama: string;
 }
 
 export const salesmanAktifFormApi = {
-  getRayon: async (search = ""): Promise<RayonOption[]> => {
-    const { data } = await api.get("/daftar/salesman-aktif/form/rayon", {
-      params: { search },
-    });
-    return data.data as RayonOption[];
+  getFormasiOptions: async (search = ""): Promise<FormasiOption[]> => {
+    const { data } = await api.get(
+      "/daftar/salesman-aktif/form/formasi-options",
+      { params: { search } },
+    );
+    return data.data as FormasiOption[];
   },
 
   getDetailForm: async (kode: string): Promise<SalesmanAktifForm> => {

@@ -9,7 +9,7 @@ import { IconUsers } from "@tabler/icons-vue";
 import {
   salesmanFormApi,
   type SalesmanForm,
-  type TargetBulanan,
+  type FormasiOption,
 } from "@/api/daftar/salesmanFormApi";
 import { useAfterSave } from "@/composables/useAfterSave";
 
@@ -26,7 +26,7 @@ const isSaving = ref(false);
 const today = new Date().toISOString().slice(0, 10);
 
 // ── Form State ───────────────────────────────────────────────────────
-const form = ref<SalesmanForm>({
+const emptyForm = (): SalesmanForm => ({
   isEdit: false,
   kode: "",
   nama: "",
@@ -35,22 +35,28 @@ const form = ref<SalesmanForm>({
   telp: "",
   tglMasuk: today,
   cabang: authStore.cabangKode,
-  target: [],
+  formasiId: 0,
 });
 
-// Tahun periode target
-const currentYear = new Date().getFullYear();
-const tahunOptions = Array.from({ length: 7 }, (_, i) => currentYear - 6 + i);
-const tahun = ref(currentYear);
+const form = ref<SalesmanForm>(emptyForm());
+const formasiOptions = ref<FormasiOption[]>([]);
 
 // ── Load Data ────────────────────────────────────────────────────────
+const loadFormasiOptions = async () => {
+  try {
+    formasiOptions.value = await salesmanFormApi.getFormasiOptions();
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error("Gagal memuat data formasi.");
+  }
+};
+
 const loadData = async () => {
+  await loadFormasiOptions();
   const kode = route.params.kode as string;
   if (!kode) {
     form.value.isEdit = false;
-    form.value.target = [];
     await loadMaxKode();
-    await loadTargetBulanan(form.value.kode);
     return;
   }
 
@@ -62,9 +68,8 @@ const loadData = async () => {
       ...data,
       isEdit: true,
       kode: data.kode || kode,
+      formasiId: Number(data.formasiId) || 0,
     };
-    tahun.value = new Date(data.tglMasuk).getFullYear();
-    await loadTargetBulanan();
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message || "Gagal memuat data area/rayon.");
@@ -83,39 +88,12 @@ const loadMaxKode = async () => {
   }
 };
 
-const loadTargetBulanan = async (overrideKode?: string) => {
-  try {
-    const kode = overrideKode ?? form.value.kode;
-    const data = await salesmanFormApi.getTargetBulanan(
-      kode,
-      tahun.value
-    );
-    form.value.target = data.map((t: any) => ({
-      periode: t.periode,
-      nama: t.nama,
-      target: t.target ?? 0,
-    }));
-  } catch (e: any) {
-    if (isAuthExpiredError(e)) return;
-    toast.error("Gagal memuat target bulanan.");
-  }
-};
-
-// Ganti tahun
-const onTahunChange = async () => {
-  await loadTargetBulanan();
-};
-
 // ── Save ─────────────────────────────────────────────────────────────
 const confirmSave = async (action: "new" | "close") => {
   if (isSaving.value) return;
   isSaving.value = true;
   try {
-    const payload = {
-      ...form.value,
-      tahun: tahun.value,
-    };
-    const res = await salesmanFormApi.save(payload);
+    await salesmanFormApi.save(form.value);
     handlePostSave(action, form.value.kode);
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
@@ -128,17 +106,7 @@ const confirmSave = async (action: "new" | "close") => {
 // ── Navigation ───────────────────────────────────────────────────────
 
 const resetForm = () => {
-  form.value = {
-    isEdit: false,
-    kode: "",
-    nama: "",
-    alamat: "",
-    kota: "",
-    telp: "",
-    tglMasuk: today,
-    cabang: authStore.cabangKode,
-    target: [],
-  };
+  form.value = emptyForm();
   loadMaxKode();
 };
 
@@ -148,9 +116,6 @@ const { handlePostSave } = useAfterSave({ onReset: resetForm });
 onMounted(() => {
   loadData();
 });
-
-// ── Formatting ───────────────────────────────────────────────────────
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 </script>
 
 <template>
@@ -176,6 +141,15 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
           maxlength="50"
           placeholder="Nama area/rayon..."
         />
+      </div>
+      <div class="form-row">
+        <label class="form-label">Formasi</label>
+        <select v-model.number="form.formasiId" class="form-input">
+          <option :value="0">- Tanpa formasi -</option>
+          <option v-for="f in formasiOptions" :key="f.id" :value="f.id">
+            {{ f.nama }}
+          </option>
+        </select>
       </div>
       <div class="form-row">
         <label class="form-label">Alamat</label>
@@ -207,52 +181,6 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
       <div class="form-row">
         <label class="form-label">Tanggal Masuk</label>
         <DsDatePicker v-model="form.tglMasuk" variant="form" class="form-input" />
-      </div>
-    </div>
-
-    <!-- ═══ TARGET SALESMAN ═══ -->
-    <div class="target-section">
-      <div class="target-header">
-        <span class="target-title">Target Area/Rayon</span>
-        <div class="target-tahun">
-          <label class="form-label">Tahun Periode</label>
-          <select v-model="tahun" class="tahun-select" @change="onTahunChange">
-            <option v-for="t in tahunOptions" :key="t" :value="t">
-              {{ t }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <div class="target-table-wrap">
-        <table class="target-table">
-          <thead>
-            <tr>
-              <th style="width: 50px" class="tc">No</th>
-              <th style="width: 150px">Bulan</th>
-              <th style="width: 150px" class="tr">Target</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(item, idx) in form.target" :key="item.periode">
-              <td class="tc">{{ idx + 1 }}</td>
-              <td>{{ item.nama }}</td>
-              <td class="tr">
-                <input
-                  v-model.number="item.target"
-                  type="number"
-                  class="target-input"
-                  min="0"
-                />
-              </td>
-            </tr>
-            <tr v-if="form.target.length === 0">
-              <td colspan="3" class="tc empty-cell">
-                Belum ada data target.
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </BaseForm>
@@ -291,12 +219,13 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
   flex: 1;
   max-width: 400px;
   height: 28px;
-  border: 1px solid var(--ds-border, #A0AAB8);
+  border: 1px solid var(--ds-border, #a0aab8);
   border-radius: 0;
   padding: 0 8px;
   font-size: 12px;
   outline: none;
   box-sizing: border-box;
+  background: white;
 }
 
 .form-input:focus {
@@ -307,118 +236,5 @@ const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
 .readonly {
   background: #f3f4f6;
   color: #6b7280;
-}
-
-/* Target Section */
-.target-section {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 8px 16px;
-  gap: 8px;
-  background: white;
-}
-
-.target-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-  max-width: 520px;
-}
-
-.target-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ds-primary, #0284c7);
-  text-transform: uppercase;
-}
-
-.target-tahun {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tahun-select {
-  height: 28px;
-  border: 1px solid var(--ds-border, #A0AAB8);
-  border-radius: 0;
-  padding: 0 8px;
-  font-size: 12px;
-  outline: none;
-  background: white;
-}
-
-.tahun-select:focus {
-  border-color: var(--ds-primary, #0284c7);
-}
-
-.target-table-wrap {
-  min-height: 0;
-  overflow: auto;
-  border: 1px solid var(--ds-border-light, #dde1e6);
-  border-radius: 0;
-  max-width: 520px;
-}
-
-.target-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-
-.target-table thead tr {
-  background: var(--ds-primary, #0284c7);
-}
-
-.target-table th {
-  color: white;
-  font-weight: 700;
-  padding: 5px 8px;
-  white-space: nowrap;
-  text-align: left;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  border: 1px solid var(--ds-border-light, #dde1e6);
-}
-
-.target-table td {
-  padding: 3px 8px;
-  border: 1px solid var(--ds-border-light, #dde1e6);
-  vertical-align: middle;
-}
-
-.target-table tbody tr:hover td {
-  background: rgba(59, 89, 152, 0.04);
-}
-
-.target-input {
-  width: 120px;
-  height: 24px;
-  border: 1px solid var(--ds-border, #A0AAB8);
-  border-radius: 0;
-  padding: 0 6px;
-  font-size: 11px;
-  outline: none;
-  text-align: right;
-}
-
-.target-input:focus {
-  border-color: var(--ds-primary, #0284c7);
-}
-
-.tc {
-  text-align: center;
-}
-.tr {
-  text-align: right;
-}
-.empty-cell {
-  color: #9e9e9e;
-  font-style: italic;
-  padding: 12px;
 }
 </style>

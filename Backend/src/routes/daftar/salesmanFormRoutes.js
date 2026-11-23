@@ -8,6 +8,7 @@ const { resolveMenuId } = require("../../middleware/resolveMenuId");
 router.use(resolveMenuId);
 
 router.get("/get-max-kode", verifyToken, checkPermission("view"), ctrl.getMaxKode);
+router.get("/formasi-options", verifyToken, checkPermission("view"), ctrl.getFormasiOptions);
 router.get("/target-bulanan", verifyToken, checkPermission("view"), ctrl.getTargetBulanan);
 router.get("/detail/:kode", verifyToken, checkPermission("view"), ctrl.getDetailForm);
 router.get("/:kode", verifyToken, checkPermission("view"), ctrl.getDetailForm);

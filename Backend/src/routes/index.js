@@ -115,6 +115,9 @@ const salesmanFormRoutes = require("./daftar/salesmanFormRoutes");
 const salesmanAktifRoutes = require("./daftar/salesmanAktifRoutes");
 const salesmanAktifFormRoutes = require("./daftar/salesmanAktifFormRoutes");
 
+const formasiRoutes = require("./daftar/formasiRoutes");
+const formasiFormRoutes = require("./daftar/formasiFormRoutes");
+
 const supplierRoutes = require("./daftar/supplierRoutes");
 const supplierFormRoutes = require("./daftar/supplierFormRoutes");
 
@@ -301,6 +304,9 @@ router.use("/daftar/salesman/form", salesmanFormRoutes);
 
 router.use("/daftar/salesman-aktif", salesmanAktifRoutes);
 router.use("/daftar/salesman-aktif/form", salesmanAktifFormRoutes);
+
+router.use("/daftar/formasi", formasiRoutes);
+router.use("/daftar/formasi/form", formasiFormRoutes);
 
 router.use("/daftar/supplier", supplierRoutes);
 router.use("/daftar/supplier/form", supplierFormRoutes);

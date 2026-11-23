@@ -15,8 +15,10 @@ const getBrowse = async () => {
        IFNULL(sls_alamat, '') AS Alamat,
        IFNULL(sls_kota, '') AS Kota,
        IFNULL(sls_telp, '') AS Telp,
-       DATE_FORMAT(sls_tglmasuk, '%Y-%m-%d') AS TglMasuk
+       DATE_FORMAT(sls_tglmasuk, '%Y-%m-%d') AS TglMasuk,
+       IFNULL(f.tf_nama, '') AS Formasi
      FROM tsalesman
+     LEFT JOIN tformasi f ON f.tf_id = tsalesman.sls_formasi_id
      ORDER BY sls_kode`
   );
 

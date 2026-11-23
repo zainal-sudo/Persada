@@ -33,8 +33,7 @@ const {
     { key: "Nama", title: "Nama", width: 24 },
     { key: "Aktif", title: "Aktif", width: 8 },
     { key: "TglMasuk", title: "Tgl Masuk", width: 12 },
-    { key: "JumlahRayon", title: "Jml Rayon", width: 10 },
-    { key: "Rayon", title: "Area/Rayon", width: 40 },
+    { key: "Formasi", title: "Formasi", width: 30 },
   ],
 });
 
@@ -43,8 +42,7 @@ const headers = [
   { key: "Nama", title: "Nama", width: "200px" },
   { key: "Aktif", title: "Aktif", width: "70px" },
   { key: "TglMasuk", title: "Tgl Masuk", width: "110px", align: "center" as const },
-  { key: "JumlahRayon", title: "Jml Rayon", width: "90px", align: "center" as const },
-  { key: "Rayon", title: "Area/Rayon", minWidth: "240px" },
+  { key: "Formasi", title: "Formasi", minWidth: "220px" },
 ];
 
 const onAdd = () => {

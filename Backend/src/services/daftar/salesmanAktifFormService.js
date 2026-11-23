@@ -1,14 +1,14 @@
 // services/daftar/salesmanAktifFormService.js
 const db = require("../../config/database");
 
-// ── Lookup Area/Rayon (master tsalesman) ──────────────────────────────
-const getRayon = async (search = "") => {
+// ── Lookup Formasi ────────────────────────────────────────────────────
+const getFormasiOptions = async (search = "") => {
   const [rows] = await db.query(
-    `SELECT sls_kode AS kode, sls_nama AS nama
-     FROM tsalesman
-     WHERE sls_kode LIKE ? OR sls_nama LIKE ?
-     ORDER BY sls_kode`,
-    [`%${search}%`, `%${search}%`]
+    `SELECT tf_id AS id, tf_nama AS nama
+       FROM tformasi
+      WHERE (? = '' OR tf_nama LIKE ?)
+      ORDER BY tf_nama`,
+    [search, `%${search}%`]
   );
   return rows;
 };
@@ -17,52 +17,31 @@ const getRayon = async (search = "") => {
 const getDetailForm = async (kode) => {
   const [[h]] = await db.query(
     `SELECT
-       sla_kode AS kode,
-       sla_nama AS nama,
-       IFNULL(sla_isaktif, 0) AS isaktif,
-       DATE_FORMAT(sla_tgl_masuk, '%Y-%m-%d') AS tglMasuk
-     FROM tsalesmanaktif
-     WHERE sla_kode = ?`,
+       a.sla_kode AS kode,
+       a.sla_nama AS nama,
+       IFNULL(a.sla_isaktif, 0) AS isaktif,
+       DATE_FORMAT(a.sla_tgl_masuk, '%Y-%m-%d') AS tglMasuk,
+       IFNULL(a.sla_formasi_id, 0) AS formasiId,
+       IFNULL(f.tf_nama, '') AS formasiNama
+     FROM tsalesmanaktif a
+     LEFT JOIN tformasi f ON f.tf_id = a.sla_formasi_id
+     WHERE a.sla_kode = ?`,
     [kode]
   );
   if (!h) throw new Error("Salesman tidak ditemukan.");
-
-  const [detail] = await db.query(
-    `SELECT
-       d.slad_sls_kode AS slsKode,
-       IFNULL(s.sls_nama, '') AS slsNama,
-       d.slad_nourut AS nourut
-     FROM tsalesmanaktif_dtl d
-     LEFT JOIN tsalesman s ON s.sls_kode = d.slad_sls_kode
-     WHERE d.slad_sla_kode = ?
-     ORDER BY d.slad_nourut ASC`,
-    [kode]
-  );
-
-  return { ...h, detail };
+  return h;
 };
 
 // ── Save Data ─────────────────────────────────────────────────────────
-// Kode diinput manual (sla_kode = nama/inisial salesman), detail rayon
-// disimpan full-replace (DELETE lalu INSERT ulang).
+// Salesman menunjuk 1 formasi. Tidak ada lagi setting multi area/rayon
+// di master salesman (area menempel ke formasi).
 const saveData = async (payload, user) => {
-  const { isEdit, kode, nama, isaktif, tglMasuk, detail } = payload;
+  const { isEdit, kode, nama, isaktif, tglMasuk, formasiId } = payload;
 
   if (!kode || !String(kode).trim())
     throw new Error("Kode salesman wajib diisi.");
   if (!nama || !String(nama).trim())
     throw new Error("Nama salesman wajib diisi.");
-  if (!Array.isArray(detail))
-    throw new Error("Detail area/rayon tidak valid.");
-
-  const rayonList = detail
-    .filter((d) => d.slsKode && String(d.slsKode).trim())
-    .map((d, i) => ({ slsKode: String(d.slsKode).trim(), nourut: i + 1 }));
-  if (rayonList.length === 0)
-    throw new Error("Minimal 1 area/rayon harus diisi.");
-  const uniq = new Set(rayonList.map((r) => r.slsKode));
-  if (uniq.size !== rayonList.length)
-    throw new Error("Ada area/rayon yang duplikat.");
 
   const conn = await db.getConnection();
   await conn.beginTransaction();
@@ -75,9 +54,16 @@ const saveData = async (payload, user) => {
       if (!exist) throw new Error("Salesman tidak ditemukan.");
       await conn.query(
         `UPDATE tsalesmanaktif SET
-           sla_nama = ?, sla_isaktif = ?, sla_tgl_masuk = ?
+           sla_nama = ?, sla_isaktif = ?, sla_tgl_masuk = ?,
+           sla_formasi_id = ?
          WHERE sla_kode = ?`,
-        [nama, Number(isaktif) ? 1 : 0, tglMasuk || null, kode]
+        [
+          nama,
+          Number(isaktif) ? 1 : 0,
+          tglMasuk || null,
+          formasiId || null,
+          kode,
+        ]
       );
     } else {
       const [[dup]] = await conn.query(
@@ -88,32 +74,10 @@ const saveData = async (payload, user) => {
         throw new Error(`Kode salesman "${kode}" sudah dipakai.`);
       await conn.query(
         `INSERT INTO tsalesmanaktif
-           (sla_kode, sla_nama, sla_isaktif, sla_tgl_masuk, sla_sls_kode)
-         VALUES (?, ?, ?, ?, '')`,
-        [kode, nama, Number(isaktif) ? 1 : 0, tglMasuk || null]
-      );
-    }
-
-    // Validasi semua rayon ada di master Area/Rayon
-    for (const r of rayonList) {
-      const [[s]] = await conn.query(
-        `SELECT sls_kode FROM tsalesman WHERE sls_kode = ?`,
-        [r.slsKode]
-      );
-      if (!s)
-        throw new Error(`Area/Rayon "${r.slsKode}" tidak ada di master.`);
-    }
-
-    await conn.query(
-      `DELETE FROM tsalesmanaktif_dtl WHERE slad_sla_kode = ?`,
-      [kode]
-    );
-    for (const r of rayonList) {
-      await conn.query(
-        `INSERT INTO tsalesmanaktif_dtl
-           (slad_sla_kode, slad_sls_kode, slad_nourut)
-         VALUES (?, ?, ?)`,
-        [kode, r.slsKode, r.nourut]
+           (sla_kode, sla_nama, sla_isaktif, sla_tgl_masuk, sla_sls_kode,
+            sla_formasi_id)
+         VALUES (?, ?, ?, ?, '', ?)`,
+        [kode, nama, Number(isaktif) ? 1 : 0, tglMasuk || null, formasiId || null]
       );
     }
 
@@ -127,4 +91,4 @@ const saveData = async (payload, user) => {
   }
 };
 
-module.exports = { getRayon, getDetailForm, saveData };
+module.exports = { getFormasiOptions, getDetailForm, saveData };

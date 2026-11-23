@@ -7,6 +7,7 @@ export interface SalesmanRow {
   Kota: string;
   Telp: string;
   TglMasuk: string;
+  Formasi: string;
 }
 
 export const salesmanApi = {

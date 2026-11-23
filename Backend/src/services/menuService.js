@@ -11,11 +11,24 @@ const HIDDEN_MENU_LABELS = new Set([
   "pembayaran biaya promosi",
 ]);
 
+/**
+ * Menu yang disembunyikan berdasarkan route (lebih stabil daripada label).
+ */
+const HIDDEN_MENU_ROUTES = new Set([
+  "/laporan/list-inkaso",
+  "/laporan/list-jual-per-faktur-margin",
+  "/laporan/lap-ytd",
+  "/laporan/transaksi-harian",
+  "/laporan/transaksi-harian2",
+]);
+
 const isHiddenMenu = (m) => {
   const label = String(m.MEN_NAMA2 || m.MEN_KETERANGAN || m.MEN_NAMA || "")
     .trim()
     .toLowerCase();
-  return HIDDEN_MENU_LABELS.has(label);
+  if (HIDDEN_MENU_LABELS.has(label)) return true;
+  const route = String(m.men_route || "").trim().toLowerCase();
+  return HIDDEN_MENU_ROUTES.has(route);
 };
 
 /**

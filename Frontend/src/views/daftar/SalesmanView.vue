@@ -32,6 +32,7 @@ const {
 const headers = [
   { key: "Kode", title: "Kode", width: "100px" },
   { key: "Nama", title: "Nama Area/Rayon", width: "200px" },
+  { key: "Formasi", title: "Formasi", minWidth: "180px" },
   { key: "Alamat", title: "Alamat", minWidth: "200px" },
   { key: "Kota", title: "Kota", width: "100px" },
   { key: "Telp", title: "Telp", width: "100px" },
