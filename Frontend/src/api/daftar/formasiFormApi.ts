@@ -17,6 +17,12 @@ export interface AreaOption {
   formasiId: number;
 }
 
+export interface TypeOption {
+  kode: string;
+  keterangan: string;
+  level: number;
+}
+
 export interface FormasiTarget {
   periode: number;
   nama: string;
@@ -71,6 +77,13 @@ export const formasiFormApi = {
       params: { search },
     });
     return data.data as AreaOption[];
+  },
+
+  getTypeOptions: async (search = ""): Promise<TypeOption[]> => {
+    const { data } = await api.get("/daftar/formasi/form/type-options", {
+      params: { search },
+    });
+    return data.data as TypeOption[];
   },
 
   getDetailForm: async (id: number): Promise<FormasiDetail> => {

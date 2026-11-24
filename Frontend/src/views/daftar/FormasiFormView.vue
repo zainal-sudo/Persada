@@ -11,6 +11,7 @@ import {
   type FormasiTarget,
   type SalesmanOption,
   type AreaOption,
+  type TypeOption,
 } from "@/api/daftar/formasiFormApi";
 import { useAfterSave } from "@/composables/useAfterSave";
 
@@ -37,6 +38,7 @@ const emptyForm = (): FormasiForm => ({
 const form = ref<FormasiForm>(emptyForm());
 const salesmanOptions = ref<SalesmanOption[]>([]);
 const areaOptions = ref<AreaOption[]>([]);
+const typeOptions = ref<TypeOption[]>([]);
 const newAreaKode = ref("");
 
 const currentYear = new Date().getFullYear();
@@ -52,12 +54,14 @@ const availableArea = computed(() => {
 
 const loadOptions = async () => {
   try {
-    const [salesman, area] = await Promise.all([
+    const [salesman, area, types] = await Promise.all([
       formasiFormApi.getSalesmanOptions(),
       formasiFormApi.getAreaOptions(),
+      formasiFormApi.getTypeOptions(),
     ]);
     salesmanOptions.value = salesman;
     areaOptions.value = area;
+    typeOptions.value = types;
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message || "Gagal memuat pilihan formasi.");
@@ -216,12 +220,18 @@ onMounted(() => {
       </div>
       <div class="form-row">
         <label class="form-label">Type</label>
-        <input
-          v-model="form.type"
-          class="form-input"
-          maxlength="20"
-          placeholder="Type..."
-        />
+        <select v-model="form.type" class="form-input">
+          <option value="">- Pilih type -</option>
+          <option
+            v-if="form.type && !typeOptions.some((t) => t.kode === form.type)"
+            :value="form.type"
+          >
+            {{ form.type }}
+          </option>
+          <option v-for="t in typeOptions" :key="t.kode" :value="t.kode">
+            {{ t.keterangan ? `${t.kode} — ${t.keterangan}` : t.kode }}
+          </option>
+        </select>
       </div>
       <div class="form-row">
         <label class="form-label">Atasan</label>

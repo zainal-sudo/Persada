@@ -35,6 +35,19 @@ const getAreaOptions = async (search = "") => {
   return rows;
 };
 
+const getTypeOptions = async (search = "") => {
+  const [rows] = await db.query(
+    `SELECT tt_kode AS kode,
+            IFNULL(tt_keterrangan, '') AS keterangan,
+            IFNULL(tt_level, 0) AS level
+       FROM ttype
+      WHERE (? = '' OR tt_kode LIKE ? OR IFNULL(tt_keterrangan, '') LIKE ?)
+      ORDER BY IFNULL(tt_level, 999), tt_kode`,
+    [search, `%${search}%`, `%${search}%`]
+  );
+  return rows;
+};
+
 const getDetailForm = async (id) => {
   const [[row]] = await db.query(
     `SELECT
@@ -220,6 +233,7 @@ module.exports = {
   getOptions,
   getSalesmanOptions,
   getAreaOptions,
+  getTypeOptions,
   getDetailForm,
   getTargetBulanan,
   saveData,

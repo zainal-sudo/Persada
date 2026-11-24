@@ -28,6 +28,15 @@ const getAreaOptions = async (req, res) => {
   }
 };
 
+const getTypeOptions = async (req, res) => {
+  try {
+    const data = await svc.getTypeOptions(req.query.search || "");
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(500).json({ success: false, message: e.message });
+  }
+};
+
 const getDetailForm = async (req, res) => {
   try {
     const data = await svc.getDetailForm(req.params.id);
@@ -62,6 +71,7 @@ module.exports = {
   getOptions,
   getSalesmanOptions,
   getAreaOptions,
+  getTypeOptions,
   getDetailForm,
   getTargetBulanan,
   saveData,
