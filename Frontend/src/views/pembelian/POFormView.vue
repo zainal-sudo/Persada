@@ -623,7 +623,8 @@ useDetailGrid({
       { key: 'nama', title: 'Nama' },
       { key: 'alamat', title: 'Alamat' },
     ]"
-    search-key="nama"
+    :server-search="true"
+    search-placeholder="Cari supplier..."
     @search="searchSupplier"
     @select="selectSupplier"
   />
@@ -638,7 +639,8 @@ useDetailGrid({
       { key: 'nama', title: 'Nama' },
       { key: 'satuan', title: 'Satuan' },
     ]"
-    search-key="nama"
+    :server-search="true"
+    search-placeholder="Cari barang..."
     @search="searchBarang"
     @select="selectBarang"
   />
