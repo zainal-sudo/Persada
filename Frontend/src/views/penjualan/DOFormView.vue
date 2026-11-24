@@ -772,17 +772,20 @@ const loadData = async () => {
 // ── Navigation ───────────────────────────────────────────────────────
 
 // ── Guard tanggal edit (paritas Delphi dtTanggalChange) ──────────────
-// Nomor DO mengandung yymm (CABANG-DO.yymm.NNNN) — di mode edit, tanggal
+// Nomor DO mengandung yymm (PREFIX.DO.yymm.NNNN) — di mode edit, tanggal
 // tidak boleh pindah bulan/tahun. Server memvalidasi ulang saat save.
 const tanggalOld = ref("");
 watch(
   () => form.value.tanggal,
   (nv) => {
     if (!isEdit.value || !form.value.nomor || !nv) return;
+    // Ambil yymm dari nomor (mis. AMP.DO.2611.0005 → "2611"); panjang PREFIX
+    // divisi bervariasi sehingga offset tetap tidak bisa dipakai.
+    const m = form.value.nomor.match(/DO\.(\d{4})\./);
+    if (!m) return;
     const yy = nv.slice(2, 4);
     const mm = nv.slice(5, 7);
-    const prefix = form.value.nomor.slice(0, 6) + yy + mm + ".";
-    if (prefix !== form.value.nomor.slice(0, 11)) {
+    if (m[1] !== `${yy}${mm}`) {
       toast.warning("Perubahan tanggal tidak bisa beda bulan dan tahun.");
       form.value.tanggal = tanggalOld.value || nv;
     } else {

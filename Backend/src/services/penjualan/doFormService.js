@@ -595,13 +595,12 @@ const saveData = async (payload, user) => {
         throw new Error("Transaksi ini sudah ada Invoice, tidak dapat diedit.");
 
       // Paritas Delphi dtTanggalChange: nomor DO mengandung yymm, jadi edit
-      // tidak boleh pindah bulan/tahun (prefix CABANG-DO.yymm. harus tetap).
-      const secondDot = nomor.indexOf(".", nomor.indexOf(".") + 1);
-      const prefixPart = nomor.slice(0, secondDot + 1).replace(/\d{4}\.$/, ""); // "01-DO."
-      const yy = String(new Date(tanggal).getFullYear()).slice(2);
-      const mm = String(new Date(tanggal).getMonth() + 1).padStart(2, "0");
-      const newPrefix = `${prefixPart}${yy}${mm}.`;
-      if (nomor.slice(0, secondDot + 1) !== newPrefix) {
+      // tidak boleh pindah bulan/tahun. Format nomor: PREFIX.DO.yymm.NNNN
+      // (PREFIX divisi panjangnya bervariasi), jadi ambil yymm lewat pola.
+      const m = nomor.match(/DO\.(\d{4})\./);
+      const yy = String(tanggal).slice(2, 4);
+      const mm = String(tanggal).slice(5, 7);
+      if (m && m[1] !== `${yy}${mm}`) {
         throw new Error("Perubahan tanggal tidak bisa beda bulan dan tahun");
       }
 
