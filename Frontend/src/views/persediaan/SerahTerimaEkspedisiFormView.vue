@@ -147,7 +147,7 @@ const otorisasiResolve = ref<((ok: boolean) => void) | null>(null);
 const pendingOtorisasiRow = ref<SerahTerimaEkspedisiDetail | null>(null);
 
 const askOtorisasi = (d: SerahTerimaEkspedisiDetail): Promise<boolean> => {
-  otorisasiKeterangan.value = `${d.nomor} - ${d.nama} - ${new Intl.NumberFormat("id-ID").format(d.nilai)}`;
+  otorisasiKeterangan.value = `${d.nomor} - ${d.nama} - ${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(d.nilai)}`;
   pendingOtorisasiRow.value = d;
   otorisasiKonteks.value = {
     jenis: "STE",

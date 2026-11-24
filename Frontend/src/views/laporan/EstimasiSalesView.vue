@@ -58,7 +58,7 @@ const moneyKeys = [
 
 const ratioKeys = ["ratiosales", "ratioinkaso"];
 
-const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtRatio = (v: number) => v ? `${Number(v).toFixed(2)}%` : "-";
 
 // Footer: sum for money columns + computed ratio

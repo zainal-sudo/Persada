@@ -376,7 +376,7 @@ onMounted(async () => {
 });
 
 // ── Formatting ───────────────────────────────────────────────────────
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 </script>
 
 <template>

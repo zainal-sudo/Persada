@@ -30,9 +30,9 @@ const rp = (n: number | undefined | null) => {
   const v = Number(n ?? 0);
   if (Math.abs(v) >= 1_000_000_000) return `Rp ${(v / 1_000_000_000).toLocaleString("id-ID", { maximumFractionDigits: 2 })} M`;
   if (Math.abs(v) >= 1_000_000) return `Rp ${(v / 1_000_000).toLocaleString("id-ID", { maximumFractionDigits: 1 })} jt`;
-  return `Rp ${v.toLocaleString("id-ID")}`;
+  return `Rp ${v.toLocaleString("id-ID", { maximumFractionDigits: 2 })}`;
 };
-const num = (n: number | undefined | null) => Number(n ?? 0).toLocaleString("id-ID");
+const num = (n: number | undefined | null) => Number(n ?? 0).toLocaleString("id-ID", { maximumFractionDigits: 2 });
 const bulanLabel = (ym: string) => {
   const [y, m] = ym.split("-");
   const nama = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];

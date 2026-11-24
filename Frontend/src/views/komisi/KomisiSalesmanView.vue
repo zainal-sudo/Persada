@@ -42,7 +42,7 @@ const loadData = async () => {
   }
 };
 
-const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtRatio = (v: number) => (v ? `${Number(v).toFixed(2)}%` : "-");
 
 // ── Pencarian instan per grid ─────────────────────────────────────

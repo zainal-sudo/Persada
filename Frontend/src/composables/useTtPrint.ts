@@ -26,7 +26,7 @@ const fmtPrint = (v: number) => {
   const neg = num < 0;
   const abs = Math.abs(num);
   const truncated = Math.floor(abs);
-  return (neg ? "-" : "") + truncated.toLocaleString("id-ID");
+  return (neg ? "-" : "") + truncated.toLocaleString("id-ID", { maximumFractionDigits: 2 });
 };
 
 // ── Header lines ──────────────────────────────────────────────────────

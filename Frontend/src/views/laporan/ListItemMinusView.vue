@@ -113,7 +113,7 @@ const headers: {
 // Kolom uang (Delphi: rata kanan + format ###,###,###)
 const moneyKeys = isFinanceUser.value ? ["hpp", "net", "Lastcost"] : ["net"];
 
-const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 
 // ── Footer (Delphi: skSum utk kolom uang) ────────────────────────────
 const footer = computed(() => {
@@ -257,7 +257,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
         maintainAspectRatio: false,
         plugins: {
           legend: { position: "right" },
-          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${new Intl.NumberFormat("id-ID").format(ctx.parsed ?? 0)}` } },
+          tooltip: { callbacks: { label: (ctx) => `${ctx.label}: ${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(ctx.parsed ?? 0)}` } },
         },
       },
     });
@@ -292,7 +292,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
         legend: { position: "top" },
         tooltip: {
           callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${new Intl.NumberFormat("id-ID").format((isHorizontalBar ? ctx.parsed.x : ctx.parsed.y) ?? 0)}`,
+            label: (ctx) => `${ctx.dataset.label}: ${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format((isHorizontalBar ? ctx.parsed.x : ctx.parsed.y) ?? 0)}`,
           },
         },
       },

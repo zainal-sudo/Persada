@@ -484,4 +484,74 @@ const saveEditJt = async (nomor, detail) => {
   return { nomor };
 };
 
-module.exports = { getBrowse, getBrowseDetail, deleteData, getPrintData, getBarisSlip, toggleKembali, toggleBayar, getHistoryBayar, getPrintDataRetur, getEditJt, saveEditJt, setPrinted };
+const getSetDiscOff = async (nomor) => {
+  const [[h]] = await db.query(
+    `SELECT h.fp_nomor AS nomor,
+            DATE_FORMAT(h.fp_tanggal, '%Y-%m-%d') AS tanggal,
+            IFNULL(h.fp_amount, 0) AS amount,
+            IFNULL(h.fp_taxamount, 0) AS taxAmount,
+            IFNULL(h.fp_memo, '') AS memo,
+            IFNULL(c.cus_nama, '') AS customer,
+            IFNULL(h.fp_biayapr, 0) AS biayaPr,
+            IFNULL(h.fp_biayarp, 0) AS biayaRp
+     FROM tfp_hdr h
+     INNER JOIN tcustomer c ON c.cus_kode = h.fp_cus_kode
+     WHERE h.fp_nomor = ?`,
+    [nomor]
+  );
+  if (!h) throw new Error("FP tidak ditemukan.");
+
+  const [detail] = await db.query(
+    `SELECT d.fpd_brg_kode AS kode,
+            b.brg_nama AS nama,
+            d.fpd_brg_satuan AS satuan,
+            d.fpd_qty AS jumlah,
+            d.fpd_harga AS harga,
+            IFNULL(d.fpd_discpr, 0) AS discPr,
+            ROUND(d.fpd_harga * d.fpd_qty * (100 - IFNULL(d.fpd_discpr, 0)) / 100, 2) AS nilai
+     FROM tfp_dtl d
+     INNER JOIN tbarang b ON b.brg_kode = d.fpd_brg_kode
+     WHERE d.fpd_fp_nomor = ?
+     ORDER BY d.fpd_nourut ASC`,
+    [nomor]
+  );
+
+  return { ...h, detail };
+};
+
+const saveSetDiscOff = async (nomor, biayaPr) => {
+  const [[h]] = await db.query(
+    `SELECT fp_nomor, fp_tanggal FROM tfp_hdr WHERE fp_nomor = ?`,
+    [nomor]
+  );
+  if (!h) throw new Error("FP tidak ditemukan.");
+
+  if (await cekTutupPeriode(h.fp_tanggal)) {
+    throw new Error("Periode ini sudah di tutup.");
+  }
+
+  const pr = Number(biayaPr) || 0;
+  const conn = await db.getConnection();
+  await conn.beginTransaction();
+  try {
+    // fp_biayapr di header
+    await conn.query(
+      `UPDATE tfp_hdr SET fp_biayapr = ? WHERE fp_nomor = ?`,
+      [pr, nomor]
+    );
+    // fpd_bp_pr di semua baris detail
+    await conn.query(
+      `UPDATE tfp_dtl SET fpd_bp_pr = ? WHERE fpd_fp_nomor = ?`,
+      [pr, nomor]
+    );
+    await conn.commit();
+  } catch (e) {
+    await conn.rollback();
+    throw e;
+  } finally {
+    conn.release();
+  }
+  return { nomor };
+};
+
+module.exports = { getBrowse, getBrowseDetail, deleteData, getPrintData, getBarisSlip, toggleKembali, toggleBayar, getHistoryBayar, getPrintDataRetur, getEditJt, saveEditJt, getSetDiscOff, saveSetDiscOff, setPrinted };

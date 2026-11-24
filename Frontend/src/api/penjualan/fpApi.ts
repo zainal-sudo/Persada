@@ -195,4 +195,17 @@ export const fpApi = {
   saveEditJt: async (nomor: string, detail: EditJtDetail[]): Promise<void> => {
     await api.post("/penjualan/fp/edit-jt/save", { nomor, detail });
   },
+
+  // GET /api/penjualan/fp/set-disc-off/:nomor
+  getSetDiscOff: async (nomor: string): Promise<{ nomor: string; tanggal: string; amount: number; taxAmount: number; customer: string; memo: string; biayaPr: number; biayaRp: number; detail: { kode: number; nama: string; satuan: string; jumlah: number; harga: number; discPr: number; nilai: number }[] }> => {
+    const { data } = await api.get<{ success: boolean; data: any }>(
+      `/penjualan/fp/set-disc-off/${encodeURIComponent(nomor)}`
+    );
+    return data.data;
+  },
+
+  // POST /api/penjualan/fp/set-disc-off/save
+  saveSetDiscOff: async (nomor: string, biayaPr: number): Promise<void> => {
+    await api.post("/penjualan/fp/set-disc-off/save", { nomor, biayaPr });
+  },
 };

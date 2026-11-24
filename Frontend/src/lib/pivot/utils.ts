@@ -99,8 +99,7 @@ export function formatNumber(
   format: NumberFormat = "us",
   options?: { maximumFractionDigits?: number },
 ): string {
-  const maxDigits =
-    options?.maximumFractionDigits ?? (Math.abs(value) >= 1000 ? 2 : 4);
+  const maxDigits = options?.maximumFractionDigits ?? 2;
   switch (format) {
     case "eu":
       return value.toLocaleString("de-DE", { maximumFractionDigits: maxDigits });

@@ -116,7 +116,7 @@ const contextMenuItems = computed(() => {
   ].filter(Boolean) as { label: string; icon?: string; action: (item: any) => void }[];
 });
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 
 const fmtDate = (val: string | null) => {
   if (!val) return "-";

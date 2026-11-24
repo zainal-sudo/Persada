@@ -18,6 +18,8 @@ router.get("/history-bayar/:nomor", verifyToken, checkPermission("view"), ctrl.g
 router.get("/print-retur/:nomor", verifyToken, checkPermission("print"), ctrl.getPrintDataRetur);
 router.get("/edit-jt/:nomor", verifyToken, checkPermission("view"), ctrl.getEditJt);
 router.post("/edit-jt/save", verifyToken, checkPermission("edit"), ctrl.saveEditJt);
+router.get("/set-disc-off/:nomor", verifyToken, checkPermission("view"), ctrl.getSetDiscOff);
+router.post("/set-disc-off/save", verifyToken, checkPermission("edit"), ctrl.saveSetDiscOff);
 router.delete("/:nomor", verifyToken, checkPermission("delete"), ctrl.deleteData);
 
 module.exports = router;

@@ -54,7 +54,7 @@ const canBukaMenu = computed(
     permission.canByRoute(route.path, "edit")
 );
 
-const fmtNum = (n: number) => new Intl.NumberFormat("id-ID").format(n || 0);
+const fmtNum = (n: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(n || 0);
 const fmtPct = (n: number) => (n ? `${n.toFixed(2)}%` : "-");
 
 // Ratio per baris dihitung live (Delphi: diisi saat load; footer tetap live

@@ -258,7 +258,7 @@ const detailColWidthStyle = (key: typeof DETAIL_COL_WIDTHS[number]['key']) => {
 };
 
 // ── Formatting & Parse ───────────────────────────────────────────────
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const formatCurrency = (v: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0);
 
 const parseInput = (raw: string): number => {

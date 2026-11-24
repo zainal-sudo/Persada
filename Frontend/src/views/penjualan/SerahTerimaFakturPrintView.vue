@@ -60,7 +60,7 @@ const fmtNilaiSt = (v: number) =>
   });
 
 // Nilai slip: format "###,###,###" (tanpa desimal)
-const fmtNilaiSlip = (v: number) => Number(v || 0).toLocaleString("en-US");
+const fmtNilaiSlip = (v: number) => Number(v || 0).toLocaleString("en-US", { maximumFractionDigits: 2 });
 
 // StrPadRight / StrPadLeft milik Delphi: padatkan tanpa memotong.
 const padR = (s: unknown, n: number, ch = " ") =>

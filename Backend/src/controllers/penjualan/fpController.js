@@ -117,4 +117,26 @@ const saveEditJt = async (req, res) => {
   }
 };
 
-module.exports = { getBrowse, getBrowseDetail, deleteData, getPrintData, getBarisSlip, toggleKembali, toggleBayar, getHistoryBayar, getPrintDataRetur, getEditJt, saveEditJt, setPrinted };
+const getSetDiscOff = async (req, res) => {
+  try {
+    const data = await svc.getSetDiscOff(decodeURIComponent(req.params.nomor));
+    res.json({ success: true, data });
+  } catch (e) {
+    res.status(404).json({ success: false, message: e.message });
+  }
+};
+
+const saveSetDiscOff = async (req, res) => {
+  try {
+    const { nomor, biayaPr } = req.body;
+    if (!nomor) {
+      return res.status(400).json({ success: false, message: "nomor wajib." });
+    }
+    const data = await svc.saveSetDiscOff(nomor, biayaPr);
+    res.json({ success: true, data, message: "Set Disc Off berhasil disimpan." });
+  } catch (e) {
+    res.status(400).json({ success: false, message: e.message });
+  }
+};
+
+module.exports = { getBrowse, getBrowseDetail, deleteData, getPrintData, getBarisSlip, toggleKembali, toggleBayar, getHistoryBayar, getPrintDataRetur, getEditJt, saveEditJt, getSetDiscOff, saveSetDiscOff, setPrinted };

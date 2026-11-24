@@ -167,7 +167,7 @@ const nextPage = () => {
 
 const formatValue = (val: any) => {
   if (typeof val === "number") {
-    return new Intl.NumberFormat("id-ID").format(val);
+    return new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(val);
   }
   return val ?? "";
 };

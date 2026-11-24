@@ -180,7 +180,7 @@ const updateRow = (d: BPBDetail, idx: number) => {
 };
 
 const fmt = (v: number) => new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0);
-const fmtInt = (v: number) => new Intl.NumberFormat("id-ID").format(Math.round(v || 0));
+const fmtInt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(Math.round(v || 0));
 
 const parseInput = (raw: string): number => {
   const cleaned = raw.replace(/,/g, "");

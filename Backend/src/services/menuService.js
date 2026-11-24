@@ -6,9 +6,11 @@ const db = require("../config/database");
  */
 const HIDDEN_MENU_LABELS = new Set([
   "laporan pencapaian marketing",
+  "laporan kunjungan marketing",
+  "kunjungan marketing",
+  "cetak kunjungan",
   "faktur pajak v3",
   "setting biaya promosi",
-  "pembayaran biaya promosi",
 ]);
 
 /**
@@ -20,6 +22,7 @@ const HIDDEN_MENU_ROUTES = new Set([
   "/laporan/lap-ytd",
   "/laporan/transaksi-harian",
   "/laporan/transaksi-harian2",
+  "/utility/cetak-kunjungan",
 ]);
 
 const isHiddenMenu = (m) => {

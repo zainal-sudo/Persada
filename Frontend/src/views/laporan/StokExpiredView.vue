@@ -96,7 +96,7 @@ const headers: {
   { key: "Stok", title: "Stok", width: "100px", align: "end" },
 ];
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtQty = (v: number) =>
   new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(v || 0);
 // ── Export

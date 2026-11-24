@@ -104,7 +104,7 @@ const detailHeaders = [
   { key: "Status", title: "Status", width: "100px" },
 ];
 
-const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmtMoney = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtPct = (v: number) =>
   new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0);
 

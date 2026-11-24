@@ -385,9 +385,59 @@ useEscClose(showJtDialog, () => {
   if (!jtSaving.value) showJtDialog.value = false;
 });
 
-const fmtJt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmtJt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
+
+// ── Set Disc Off ────────────────────────────────────────────────────
+const showDiscOffDialog = ref(false);
+const discOffLoading = ref(false);
+const discOffSaving = ref(false);
+const discOffData = ref<any>(null);
+
+const doSetDiscOff = async () => {
+  if (!isSingleSelected.value) {
+    toast.warning("Pilih satu data FP terlebih dahulu.");
+    return;
+  }
+  showDiscOffDialog.value = true;
+  discOffLoading.value = true;
+  try {
+    discOffData.value = await fpApi.getSetDiscOff(selectedItem.value!.Nomor);
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error(e.response?.data?.message || "Gagal memuat data Set Disc Off.");
+    showDiscOffDialog.value = false;
+  } finally {
+    discOffLoading.value = false;
+  }
+};
+
+const discOffTotal = computed(() => {
+  const d = discOffData.value;
+  if (!d) return 0;
+  return (Number(d.biayaPr) / 100) * (Number(d.amount) - Number(d.taxAmount)) + Number(d.biayaRp);
+});
+
+const discOffSave = async () => {
+  if (!discOffData.value) return;
+  discOffSaving.value = true;
+  try {
+    await fpApi.saveSetDiscOff(discOffData.value.nomor, Number(discOffData.value.biayaPr) || 0);
+    toast.success("Set Disc Off berhasil disimpan.");
+    showDiscOffDialog.value = false;
+    fetchData();
+  } catch (e: any) {
+    if (isAuthExpiredError(e)) return;
+    toast.error(e.response?.data?.message || "Gagal menyimpan Set Disc Off.");
+  } finally {
+    discOffSaving.value = false;
+  }
+};
+
+useEscClose(showDiscOffDialog, () => {
+  if (!discOffSaving.value) showDiscOffDialog.value = false;
+});
 // ── Formatting untuk tabel browse ─────────────────────────────────
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtDate = (val: string | null) => {
   if (!val) return "-";
   try {
@@ -474,6 +524,14 @@ const rowPropsFn = (data: any) => {
         @click="doEditJt"
       >
         Edit JT
+      </v-btn>
+      <v-btn
+        size="small"
+        class="tb-btn tb-btn-edit"
+        :disabled="!isSingleSelected"
+        @click="doSetDiscOff"
+      >
+        Set Disc Off
       </v-btn>
       <v-btn size="small" class="tb-btn tb-btn-success" data-fkey="export" @click="handleExport()" :loading="isExporting">
         <template #prepend><IconFileSpreadsheet :size="13" :stroke-width="1.8" /></template>
@@ -733,6 +791,85 @@ const rowPropsFn = (data: any) => {
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- ── Set Disc Off ── -->
+  <v-dialog v-model="showDiscOffDialog" max-width="750" scrollable persistent>
+    <v-card rounded="false">
+      <v-card-title class="d-flex align-center pa-3" style="font-size: 13px; font-weight: 700; border-top: 3px solid var(--ds-primary, #0284c7);">
+        Set Disc Off: {{ discOffData?.nomor }}
+      </v-card-title>
+      <v-card-text class="pa-3 pt-1">
+        <div v-if="discOffLoading" class="modal-loading">Memuat...</div>
+        <template v-else-if="discOffData">
+          <div class="jt-info">
+            <span><strong>Customer:</strong> {{ discOffData.customer }}</span>
+            <span><strong>Tanggal:</strong> {{ discOffData.tanggal }}</span>
+            <span><strong>Total FP:</strong> {{ fmtJt(discOffData.amount) }}</span>
+          </div>
+
+          <div class="do-group">
+            <label class="do-lbl">Memo</label>
+            <textarea :value="discOffData.memo" class="do-txa readonly-bg" rows="4" readonly></textarea>
+          </div>
+
+          <div class="do-group">
+            <label class="do-lbl">Biaya</label>
+            <input
+              v-model.number="discOffData.biayaPr"
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              class="cell-inp tr"
+              style="width: 90px;"
+            />
+            <span class="do-op">%</span>
+            <span class="do-op">=</span>
+            <span class="do-val">{{ fmtJt(discOffTotal) }}</span>
+          </div>
+
+          <div class="detail-table-header" style="max-height: 300px; overflow-y: auto; margin-top: 10px;">
+            <table class="jt-tbl">
+              <thead>
+                <tr>
+                  <th style="width: 40px" class="tc">No</th>
+                  <th style="width: 100px">Kode</th>
+                  <th>Nama Barang</th>
+                  <th style="width: 70px" class="tc">Satuan</th>
+                  <th style="width: 80px" class="tr">Jumlah</th>
+                  <th style="width: 110px" class="tr">Harga</th>
+                  <th style="width: 70px" class="tr">Disc%</th>
+                  <th style="width: 120px" class="tr">Nilai</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(r, idx) in discOffData.detail || []" :key="idx">
+                  <td class="tc row-no">{{ idx + 1 }}</td>
+                  <td class="mono">{{ r.kode }}</td>
+                  <td>{{ r.nama }}</td>
+                  <td class="tc">{{ r.satuan }}</td>
+                  <td class="tr">{{ fmtQty(r.jumlah) }}</td>
+                  <td class="tr">{{ fmt(r.harga) }}</td>
+                  <td class="tr">{{ r.discPr }}%</td>
+                  <td class="tr">{{ fmt(r.nilai) }}</td>
+                </tr>
+                <tr v-if="!(discOffData.detail || []).length">
+                  <td colspan="8" class="empty-state">Tidak ada item detail.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </template>
+      </v-card-text>
+      <v-card-actions class="pa-2" style="border-top: 1px solid var(--ds-border, #A0AAB8);">
+        <v-spacer />
+        <v-btn variant="text" size="small" @click="showDiscOffDialog = false" :disabled="discOffSaving">Batal</v-btn>
+        <v-btn color="primary" variant="flat" size="small" :loading="discOffSaving" :disabled="discOffLoading" @click="discOffSave">
+          Simpan
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped>
@@ -777,6 +914,17 @@ const rowPropsFn = (data: any) => {
 .jt-summary { display: flex; justify-content: flex-end; gap: 20px; font-size: 12px; padding: 6px 0 0; }
 .jt-selisih-bad { color: #dc2626; }
 .jt-selisih-ok { color: #059669; }
+
+/* ── Set Disc Off ── */
+.readonly-bg { background: var(--ds-surface-inset, #E0E4EA); color: var(--ds-text-secondary, #5A6A7E); }
+.do-group { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.do-group:has(.do-txa) { align-items: flex-start; }
+.do-lbl { font-size: 12px; font-weight: 600; color: #374151; min-width: 60px; }
+.do-txa { flex: 1; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 4px 8px; font-size: 12px; font-family: inherit; outline: none; resize: vertical; }
+.do-op { font-size: 12px; color: var(--ds-text-secondary, #5A6A7E); }
+.do-val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.do-group .cell-inp { height: 24px; border: 1px solid var(--ds-border, #A0AAB8); border-radius: 0; padding: 0 6px; font-size: 12px; outline: none; }
+.do-group .cell-inp:focus { border-color: var(--ds-primary, #0284c7); }
 
 .badge-closed { background: #E0E4EA; color: var(--ds-text-secondary, #5A6A7E); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }
 .badge-open { background: #E8EDF5; color: var(--ds-primary, #0284c7); padding: 1px 8px; border-radius: 0; font-size: 10px; font-weight: 700; }

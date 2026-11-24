@@ -348,7 +348,7 @@ onMounted(async () => {
 });
 
 // ── Formatting ───────────────────────────────────────────────────────
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);// ── Formatted Number Input (same as DOFormView) ──────────────────────
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);// ── Formatted Number Input (same as DOFormView) ──────────────────────
 const rawInputValues: Record<string, string> = {};
 
 const getInputValue = (key: string, modelValue: number, decimals = 0) => {

@@ -82,7 +82,7 @@ const headers = computed(() => {
   return h;
 });
 
-const fmtMoney = (v: any) => new Intl.NumberFormat("id-ID").format(Number(v) || 0);
+const fmtMoney = (v: any) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(Number(v) || 0);
 
 // ── Export
 const isExporting = ref(false);

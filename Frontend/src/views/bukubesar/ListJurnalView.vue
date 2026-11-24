@@ -254,7 +254,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
           tooltip: {
             callbacks: {
               label: (ctx) =>
-                `${ctx.label}: ${new Intl.NumberFormat("id-ID").format(ctx.parsed ?? 0)}`,
+                `${ctx.label}: ${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(ctx.parsed ?? 0)}`,
             },
           },
         },
@@ -302,7 +302,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
         tooltip: {
           callbacks: {
             label: (ctx) =>
-              `${ctx.dataset.label}: ${new Intl.NumberFormat("id-ID").format(
+              `${ctx.dataset.label}: ${new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(
                 (isHorizontalBar ? ctx.parsed.x : ctx.parsed.y) ?? 0,
               )}`,
           },
@@ -325,7 +325,7 @@ watch([activeTab, chartData, chartType], async ([tab]) => {
 
 const hasChartData = computed(() => chartData.value.labels.length > 0);
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtDate = (val: string | null) => {
   if (!val) return "-";
   try {

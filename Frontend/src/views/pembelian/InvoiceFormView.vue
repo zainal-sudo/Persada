@@ -114,7 +114,7 @@ const parseInput = (raw: string): number => {
   return isNaN(num) ? 0 : num;
 };
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtQty = (v: number) =>
   Number(v || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 

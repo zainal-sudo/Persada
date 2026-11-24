@@ -224,6 +224,7 @@ BEGIN
   DECLARE vPPN DOUBLE DEFAULT 0;
   DECLARE vFreight DOUBLE DEFAULT 0;
   DECLARE vHPP DOUBLE DEFAULT 0;
+  DECLARE vBiayaPromosi DOUBLE DEFAULT 0;
 
   CALL sp_cek_bpb_terinvoice(pBulan, pTahun);
 
@@ -235,8 +236,9 @@ BEGIN
     IFNULL(SUM((IFNULL(x.disc_fakturpr, 0) * x.penjualan / 100) + IFNULL(x.disc_faktur, 0)), 0),
     IFNULL(SUM(x.taxamount), 0),
     IFNULL(SUM(x.freight), 0),
-    IFNULL(SUM(x.amount), 0)
-  INTO vPenjualan, vPotongan, vPPN, vFreight, vPiutang
+    IFNULL(SUM(x.amount), 0),
+    IFNULL(SUM((IFNULL(x.biayapr, 0) * (IFNULL(x.amount, 0) - IFNULL(x.taxamount, 0) - IFNULL(x.retur, 0)) / 100) + IFNULL(x.biayarp, 0)), 0)
+  INTO vPenjualan, vPotongan, vPPN, vFreight, vPiutang, vBiayaPromosi
   FROM (
     SELECT
       h.fp_nomor,
@@ -245,9 +247,17 @@ BEGIN
       IFNULL(h.fp_taxamount, 0) AS taxamount,
       IFNULL(h.fp_freight, 0) AS freight,
       IFNULL(h.fp_amount, 0) AS amount,
+      IFNULL(h.fp_biayapr, 0) AS biayapr,
+      IFNULL(h.fp_biayarp, 0) AS biayarp,
+      IFNULL(r.retur, 0) AS retur,
       (((IFNULL(h.fp_amount, 0) - IFNULL(h.fp_freight, 0) - IFNULL(h.fp_taxamount, 0)) + IFNULL(h.fp_disc_faktur, 0))
         / NULLIF(100 - IFNULL(h.fp_disc_fakturpr, 0), 0)) * 100 AS penjualan
     FROM tfp_hdr h
+    LEFT JOIN (
+      SELECT retj_fp_nomor, SUM(retj_amount) AS retur
+      FROM tretj_hdr
+      GROUP BY retj_fp_nomor
+    ) r ON r.retj_fp_nomor = h.fp_nomor
     WHERE MONTH(h.fp_tanggal) = pBulan
       AND YEAR(h.fp_tanggal) = pTahun
   ) x;
@@ -287,6 +297,12 @@ BEGIN
 
   INSERT INTO tjurnalitem (jurd_jur_no, jurd_rek_kode, jurd_debet, jurd_kredit, jurd_nourut)
   VALUES (vNomor, '17.002', 0, vHPP, 7);
+
+  INSERT INTO tjurnalitem (jurd_jur_no, jurd_rek_kode, jurd_debet, jurd_kredit, jurd_nourut)
+  VALUES (vNomor, '24.004', vBiayaPromosi, 0, 8);
+
+  INSERT INTO tjurnalitem (jurd_jur_no, jurd_rek_kode, jurd_debet, jurd_kredit, jurd_nourut)
+  VALUES (vNomor, '19.008', 0, vBiayaPromosi, 9);
 END//
 
 DELIMITER ;
@@ -332,6 +348,7 @@ BEGIN
   DECLARE vFpFreight DOUBLE DEFAULT 0;
   DECLARE vFpPiutang DOUBLE DEFAULT 0;
   DECLARE vFpHpp DOUBLE DEFAULT 0;
+  DECLARE vFpBiayaPromosi DOUBLE DEFAULT 0;
 
   IF pBulan < 1 OR pBulan > 12 OR pTahun < 2000 OR pTahun > 2100 THEN
     SET vBisa = 0;
@@ -398,8 +415,9 @@ BEGIN
     IFNULL(SUM((IFNULL(x.disc_fakturpr, 0) * x.penjualan / 100) + IFNULL(x.disc_faktur, 0)), 0),
     IFNULL(SUM(x.taxamount), 0),
     IFNULL(SUM(x.freight), 0),
-    IFNULL(SUM(x.amount), 0)
-  INTO vFpPenjualan, vFpPotongan, vFpPPN, vFpFreight, vFpPiutang
+    IFNULL(SUM(x.amount), 0),
+    IFNULL(SUM((IFNULL(x.biayapr, 0) * (IFNULL(x.amount, 0) - IFNULL(x.taxamount, 0) - IFNULL(x.retur, 0)) / 100) + IFNULL(x.biayarp, 0)), 0)
+  INTO vFpPenjualan, vFpPotongan, vFpPPN, vFpFreight, vFpPiutang, vFpBiayaPromosi
   FROM (
     SELECT
       h.fp_nomor,
@@ -408,9 +426,17 @@ BEGIN
       IFNULL(h.fp_taxamount, 0) AS taxamount,
       IFNULL(h.fp_freight, 0) AS freight,
       IFNULL(h.fp_amount, 0) AS amount,
+      IFNULL(h.fp_biayapr, 0) AS biayapr,
+      IFNULL(h.fp_biayarp, 0) AS biayarp,
+      IFNULL(r.retur, 0) AS retur,
       (((IFNULL(h.fp_amount, 0) - IFNULL(h.fp_freight, 0) - IFNULL(h.fp_taxamount, 0)) + IFNULL(h.fp_disc_faktur, 0))
         / NULLIF(100 - IFNULL(h.fp_disc_fakturpr, 0), 0)) * 100 AS penjualan
     FROM tfp_hdr h
+    LEFT JOIN (
+      SELECT retj_fp_nomor, SUM(retj_amount) AS retur
+      FROM tretj_hdr
+      GROUP BY retj_fp_nomor
+    ) r ON r.retj_fp_nomor = h.fp_nomor
     WHERE MONTH(h.fp_tanggal) = pBulan
       AND YEAR(h.fp_tanggal) = pTahun
   ) x;
@@ -441,8 +467,8 @@ BEGIN
          'Jurnal DO', vDo, vDo, vBisa, vAlasan
   UNION ALL
   SELECT 'FP', CONCAT('J.FP.', LPAD(pBulan, 2, '0'), pTahun), vTanggal,
-         'Jurnal FP', vFpPiutang + vFpPotongan + vFpHpp,
-          vFpPenjualan + vFpPPN + vFpFreight + vFpHpp, vBisa, vAlasan
+         'Jurnal FP', vFpPiutang + vFpPotongan + vFpHpp + vFpBiayaPromosi,
+          vFpPenjualan + vFpPPN + vFpFreight + vFpHpp + vFpBiayaPromosi, vBisa, vAlasan
   ORDER BY nomor;
 END//
 

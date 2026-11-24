@@ -167,7 +167,7 @@ const loadRetur = async () => {
 const sisaHutang = (d: InvoiceBayarRow) =>
   Math.max((Number(d.nilai) || 0) - (Number(d.terbayar) || 0), 0);
 
-const fmtNum = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmtNum = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 
 const setBayarTampil = (d: InvoiceBayarRow) => {
   d.bayarTampil = d.bayar > 0 ? fmtNum(d.bayar) : "";
@@ -306,7 +306,7 @@ const resetForm = () => {
 
 const { handlePostSave } = useAfterSave({ onReset: resetForm });
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtDate = (val: string) => val;
 
 onMounted(async () => {

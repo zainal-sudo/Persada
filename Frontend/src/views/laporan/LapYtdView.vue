@@ -64,7 +64,7 @@ const headers = bands.map((b) => ({
 }));
 const headerKeys = headers.map((h) => h.key);
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtPct = (v: number) =>
   new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v || 0);
 

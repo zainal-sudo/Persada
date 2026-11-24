@@ -533,7 +533,7 @@ onMounted(async () => {
 });
 
 // ── Formatting ───────────────────────────────────────────────────────
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 
 // Total detail (hanya nilai > 0) — paritas cek saldo di validateSave.
 const totalDetail = computed(() =>

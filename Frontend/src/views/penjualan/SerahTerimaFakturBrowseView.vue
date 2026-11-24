@@ -190,7 +190,7 @@ const cetak = (mode: "st" | "slip") => {
   );
 };
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 
 const fmtDate = (val: string | null) => {
   if (!val) return "-";

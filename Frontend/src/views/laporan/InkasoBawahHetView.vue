@@ -130,7 +130,7 @@ const doExport = async () => {
   } catch { toast.error("Gagal export Excel."); } finally { isExporting.value = false; }
 };
 
-const fmtMoney = (v: any) => new Intl.NumberFormat("id-ID").format(Number(v) || 0);
+const fmtMoney = (v: any) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(Number(v) || 0);
 
 const fmtDate = (val: string | null | undefined) => {
   if (!val) return "-";

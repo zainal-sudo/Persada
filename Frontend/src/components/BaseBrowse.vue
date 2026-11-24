@@ -444,13 +444,13 @@ const summaryTotal = computed(() => {
   );
 });
 const summaryFormatted = computed(() =>
-  new Intl.NumberFormat("id-ID").format(summaryTotal.value),
+  new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(summaryTotal.value),
 );
 
 // Format nilai total sesuai numFmt (mis. "#,##0.00" = 2 desimal)
 const formatSummaryValue = (total: number, numFmt?: string) => {
   let minFrac = 0;
-  let maxFrac = 3;
+  let maxFrac = 2;
   if (numFmt) {
     const m = numFmt.match(/\.(0+)/);
     if (m) {

@@ -152,7 +152,7 @@ const visibleDetailHeaders = computed(() =>
   detailHeaders.filter((h) => h.key !== "Hargabeli" || isFinance.value)
 );
 
-const fmt = (v: number) => new Intl.NumberFormat("id-ID").format(v || 0);
+const fmt = (v: number) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 }).format(v || 0);
 const fmtQty = (v: number) =>
   new Intl.NumberFormat("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(v || 0);
 // ── Export
