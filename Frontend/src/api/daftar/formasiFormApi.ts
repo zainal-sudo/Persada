@@ -11,16 +11,15 @@ export interface SalesmanOption {
   nama: string;
 }
 
-export interface AreaOption {
-  kode: string;
-  nama: string;
-  formasiId: number;
-}
-
 export interface TypeOption {
   kode: string;
   keterangan: string;
   level: number;
+}
+
+export interface DivisiOption {
+  kode: string;
+  nama: string;
 }
 
 export interface FormasiTarget {
@@ -43,7 +42,6 @@ export interface FormasiForm {
   divisi: string;
   type: string;
   atasanKode: string;
-  areas: string[];
   target: FormasiTarget[];
   tahun?: number;
 }
@@ -72,18 +70,18 @@ export const formasiFormApi = {
     return data.data as SalesmanOption[];
   },
 
-  getAreaOptions: async (search = ""): Promise<AreaOption[]> => {
-    const { data } = await api.get("/daftar/formasi/form/area-options", {
-      params: { search },
-    });
-    return data.data as AreaOption[];
-  },
-
   getTypeOptions: async (search = ""): Promise<TypeOption[]> => {
     const { data } = await api.get("/daftar/formasi/form/type-options", {
       params: { search },
     });
     return data.data as TypeOption[];
+  },
+
+  getDivisiOptions: async (search = ""): Promise<DivisiOption[]> => {
+    const { data } = await api.get("/daftar/formasi/form/divisi-options", {
+      params: { search },
+    });
+    return data.data as DivisiOption[];
   },
 
   getDetailForm: async (id: number): Promise<FormasiDetail> => {

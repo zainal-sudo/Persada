@@ -15,13 +15,15 @@ const getMaxKode = async () => {
   return `SLS-${String(nextNum).padStart(3, "0")}`;
 };
 
-// ── Lookup Formasi ───────────────────────────────────────────────────
+// ── Lookup Formasi (hanya type dengan tt_level tertinggi di ttype) ───
 const getFormasiOptions = async (search = "") => {
   const [rows] = await db.query(
-    `SELECT tf_id AS id, tf_nama AS nama
-       FROM tformasi
-      WHERE (? = '' OR tf_nama LIKE ?)
-      ORDER BY tf_nama`,
+    `SELECT f.tf_id AS id, f.tf_nama AS nama
+       FROM tformasi f
+       INNER JOIN ttype t ON t.tt_kode = f.tf_type
+      WHERE t.tt_level = (SELECT MAX(tt_level) FROM ttype)
+        AND (? = '' OR f.tf_nama LIKE ?)
+      ORDER BY f.tf_nama`,
     [search, `%${search}%`]
   );
   return rows;

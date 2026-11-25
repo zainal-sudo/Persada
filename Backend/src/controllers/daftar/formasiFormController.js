@@ -19,18 +19,18 @@ const getSalesmanOptions = async (req, res) => {
   }
 };
 
-const getAreaOptions = async (req, res) => {
+const getTypeOptions = async (req, res) => {
   try {
-    const data = await svc.getAreaOptions(req.query.search || "");
+    const data = await svc.getTypeOptions(req.query.search || "");
     res.json({ success: true, data });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
   }
 };
 
-const getTypeOptions = async (req, res) => {
+const getDivisiOptions = async (req, res) => {
   try {
-    const data = await svc.getTypeOptions(req.query.search || "");
+    const data = await svc.getDivisiOptions(req.query.search || "");
     res.json({ success: true, data });
   } catch (e) {
     res.status(500).json({ success: false, message: e.message });
@@ -70,8 +70,8 @@ const saveData = async (req, res) => {
 module.exports = {
   getOptions,
   getSalesmanOptions,
-  getAreaOptions,
   getTypeOptions,
+  getDivisiOptions,
   getDetailForm,
   getTargetBulanan,
   saveData,

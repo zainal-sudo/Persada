@@ -9,9 +9,10 @@ import {
   formasiFormApi,
   type FormasiForm,
   type FormasiTarget,
+  type FormasiArea,
   type SalesmanOption,
-  type AreaOption,
   type TypeOption,
+  type DivisiOption,
 } from "@/api/daftar/formasiFormApi";
 import { useAfterSave } from "@/composables/useAfterSave";
 
@@ -31,37 +32,29 @@ const emptyForm = (): FormasiForm => ({
   divisi: "",
   type: "",
   atasanKode: "",
-  areas: [],
   target: [],
 });
 
 const form = ref<FormasiForm>(emptyForm());
+const areasList = ref<FormasiArea[]>([]);
 const salesmanOptions = ref<SalesmanOption[]>([]);
-const areaOptions = ref<AreaOption[]>([]);
 const typeOptions = ref<TypeOption[]>([]);
-const newAreaKode = ref("");
+const divisiOptions = ref<DivisiOption[]>([]);
 
 const currentYear = new Date().getFullYear();
 const tahunOptions = Array.from({ length: 7 }, (_, i) => currentYear - 6 + i);
 const tahun = ref(currentYear);
 
-const availableArea = computed(() => {
-  const used = new Set(form.value.areas);
-  return areaOptions.value.filter(
-    (a) => !used.has(a.kode) && (!a.formasiId || a.formasiId === form.value.id)
-  );
-});
-
 const loadOptions = async () => {
   try {
-    const [salesman, area, types] = await Promise.all([
+    const [salesman, types, divisis] = await Promise.all([
       formasiFormApi.getSalesmanOptions(),
-      formasiFormApi.getAreaOptions(),
       formasiFormApi.getTypeOptions(),
+      formasiFormApi.getDivisiOptions(),
     ]);
     salesmanOptions.value = salesman;
-    areaOptions.value = area;
     typeOptions.value = types;
+    divisiOptions.value = divisis;
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
     toast.error(e.response?.data?.message || "Gagal memuat pilihan formasi.");
@@ -102,8 +95,8 @@ const loadData = async () => {
       divisi: data.divisi,
       type: data.type,
       atasanKode: data.atasanKode,
-      areas: (data.areas || []).map((a) => a.kode),
     };
+    areasList.value = data.areas || [];
     await loadTarget(data.id);
   } catch (e: any) {
     if (isAuthExpiredError(e)) return;
@@ -117,24 +110,6 @@ const loadData = async () => {
 const onTahunChange = async () => {
   await loadTarget(form.value.id || 0);
 };
-
-const addArea = () => {
-  const kode = newAreaKode.value;
-  if (!kode) return;
-  if (form.value.areas.includes(kode)) {
-    toast.warning("Area/rayon sudah ada di daftar.");
-    return;
-  }
-  form.value.areas.push(kode);
-  newAreaKode.value = "";
-};
-
-const removeArea = (idx: number) => {
-  form.value.areas.splice(idx, 1);
-};
-
-const areaName = (kode: string) =>
-  areaOptions.value.find((a) => a.kode === kode)?.nama || kode;
 
 const formatTarget = (value: number): string =>
   new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(
@@ -179,7 +154,7 @@ const confirmSave = async (action: "new" | "close") => {
 
 const resetForm = async () => {
   form.value = emptyForm();
-  newAreaKode.value = "";
+  areasList.value = [];
   await loadTarget(0);
 };
 
@@ -211,12 +186,12 @@ onMounted(() => {
       </div>
       <div class="form-row">
         <label class="form-label">Divisi</label>
-        <input
-          v-model="form.divisi"
-          class="form-input"
-          maxlength="50"
-          placeholder="Divisi..."
-        />
+        <select v-model="form.divisi" class="form-input">
+          <option value="">- Pilih divisi -</option>
+          <option v-for="d in divisiOptions" :key="d.kode" :value="d.kode">
+            {{ d.nama && d.nama !== d.kode ? `${d.kode} — ${d.nama}` : d.kode }}
+          </option>
+        </select>
       </div>
       <div class="form-row">
         <label class="form-label">Type</label>
@@ -248,24 +223,7 @@ onMounted(() => {
       <section class="area-panel">
         <div class="panel-header">
           <span class="panel-title">Area/Rayon dalam Formasi</span>
-          <span class="panel-count">{{ form.areas.length }} area</span>
-        </div>
-
-        <div class="detail-add-row">
-          <select v-model="newAreaKode" class="detail-select">
-            <option value="" disabled>Pilih area/rayon...</option>
-            <option v-for="a in availableArea" :key="a.kode" :value="a.kode">
-              {{ a.kode }} — {{ a.nama }}
-            </option>
-          </select>
-          <v-btn
-            size="small"
-            class="tb-btn tb-btn-primary"
-            :disabled="!newAreaKode"
-            @click="addArea"
-          >
-            Tambah
-          </v-btn>
+          <span class="panel-count">{{ areasList.length }} area</span>
         </div>
 
         <div class="detail-table-wrap">
@@ -275,23 +233,17 @@ onMounted(() => {
                 <th style="width: 40px" class="tc">No</th>
                 <th style="width: 120px">Kode</th>
                 <th style="min-width: 220px">Nama Area/Rayon</th>
-                <th style="width: 60px" class="tc">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(kode, idx) in form.areas" :key="kode">
+              <tr v-for="(area, idx) in areasList" :key="area.kode">
                 <td class="tc">{{ idx + 1 }}</td>
-                <td class="mono">{{ kode }}</td>
-                <td>{{ areaName(kode) }}</td>
-                <td class="tc">
-                  <button type="button" class="del-btn" title="Hapus baris" @click="removeArea(idx)">
-                    &times;
-                  </button>
-                </td>
+                <td class="mono">{{ area.kode }}</td>
+                <td>{{ area.nama }}</td>
               </tr>
-              <tr v-if="form.areas.length === 0">
-                <td colspan="4" class="tc empty-cell">
-                  Belum ada area/rayon. Pilih di atas lalu klik Tambah.
+              <tr v-if="areasList.length === 0">
+                <td colspan="3" class="tc empty-cell">
+                  Belum ada area/rayon pada formasi ini. Pengaturan area dilakukan di modul Area/Rayon.
                 </td>
               </tr>
             </tbody>
@@ -443,7 +395,6 @@ onMounted(() => {
   color: #6b7280;
 }
 
-.detail-add-row,
 .target-tahun {
   display: flex;
   align-items: center;
@@ -451,7 +402,6 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.detail-select,
 .tahun-select {
   height: 28px;
   border: 1px solid var(--ds-border, #a0aab8);
@@ -460,11 +410,6 @@ onMounted(() => {
   font-size: 12px;
   outline: none;
   background: white;
-}
-
-.detail-select {
-  flex: 1;
-  min-width: 0;
 }
 
 .tahun-label {
@@ -545,21 +490,6 @@ onMounted(() => {
 
 .tr {
   text-align: right;
-}
-
-.del-btn {
-  border: none;
-  background: transparent;
-  color: #dc2626;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0 6px;
-  line-height: 1;
-}
-
-.del-btn:hover {
-  color: #991b1b;
 }
 
 .empty-cell {

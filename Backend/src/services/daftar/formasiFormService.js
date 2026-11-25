@@ -23,18 +23,6 @@ const getSalesmanOptions = async (search = "") => {
   return rows;
 };
 
-const getAreaOptions = async (search = "") => {
-  const [rows] = await db.query(
-    `SELECT sls_kode AS kode, sls_nama AS nama,
-            IFNULL(sls_formasi_id, 0) AS formasiId
-       FROM tsalesman
-      WHERE (? = '' OR sls_kode LIKE ? OR sls_nama LIKE ?)
-      ORDER BY sls_nama`,
-    [search, `%${search}%`, `%${search}%`]
-  );
-  return rows;
-};
-
 const getTypeOptions = async (search = "") => {
   const [rows] = await db.query(
     `SELECT tt_kode AS kode,
@@ -43,6 +31,18 @@ const getTypeOptions = async (search = "") => {
        FROM ttype
       WHERE (? = '' OR tt_kode LIKE ? OR IFNULL(tt_keterrangan, '') LIKE ?)
       ORDER BY IFNULL(tt_level, 999), tt_kode`,
+    [search, `%${search}%`, `%${search}%`]
+  );
+  return rows;
+};
+
+const getDivisiOptions = async (search = "") => {
+  const [rows] = await db.query(
+    `SELECT div_kode AS kode,
+            IFNULL(div_nama, '') AS nama
+       FROM tdivisi
+      WHERE (? = '' OR div_kode LIKE ? OR IFNULL(div_nama, '') LIKE ?)
+      ORDER BY div_kode`,
     [search, `%${search}%`, `%${search}%`]
   );
   return rows;
@@ -116,7 +116,6 @@ const saveData = async (payload, user) => {
     atasanKode,
     tahun,
     target,
-    areas,
   } = payload;
 
   if (!nama || !String(nama).trim())
@@ -167,25 +166,6 @@ const saveData = async (payload, user) => {
       actualId = ins.insertId;
     }
 
-    // Assign area ke formasi ini (full replace) bila dikirim.
-    if (Array.isArray(areas)) {
-      const kodeList = areas
-        .filter((a) => a && String(a).trim())
-        .map((a) => String(a).trim());
-      const uniq = [...new Set(kodeList)];
-
-      await conn.query(
-        `UPDATE tsalesman SET sls_formasi_id = NULL WHERE sls_formasi_id = ?`,
-        [actualId]
-      );
-      for (const kode of uniq) {
-        await conn.query(
-          `UPDATE tsalesman SET sls_formasi_id = ? WHERE sls_kode = ?`,
-          [actualId, kode]
-        );
-      }
-    }
-
     // Target bulanan (full replace untuk tahun yang dikirim).
     if (tahun && Array.isArray(target)) {
       await conn.query(
@@ -232,8 +212,8 @@ const saveData = async (payload, user) => {
 module.exports = {
   getOptions,
   getSalesmanOptions,
-  getAreaOptions,
   getTypeOptions,
+  getDivisiOptions,
   getDetailForm,
   getTargetBulanan,
   saveData,
