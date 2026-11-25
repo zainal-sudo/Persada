@@ -583,6 +583,47 @@ const saveData = async (payload, user) => {
       }
     }
 
+    // Validasi qty per SKU tidak boleh melebihi qty SO. Satu SKU bisa dipecah
+    // ke beberapa baris (beda batch/expired), jadi qty diakumulasi dulu.
+    const qtyPerSku = new Map();
+    const namaPerSku = new Map();
+    for (const d of detail || []) {
+      const qty = Number(d.qty);
+      if (qty <= 0 || !d.brgKode) continue;
+      qtyPerSku.set(d.brgKode, (qtyPerSku.get(d.brgKode) || 0) + qty);
+      if (!namaPerSku.has(d.brgKode)) namaPerSku.set(d.brgKode, d.brgNama || "");
+    }
+    for (const [brgKode, qty] of qtyPerSku) {
+      const [[soDtl]] = await conn.query(
+        `SELECT IFNULL(SUM(sod_qty), 0) AS sod_qty,
+                IFNULL(SUM(sod_qty_kirim), 0) AS sod_qty_kirim
+           FROM tso_dtl WHERE sod_so_nomor = ? AND sod_brg_kode = ?`,
+        [nomorSO, brgKode]
+      );
+      if (!soDtl || Number(soDtl.sod_qty) <= 0) {
+        throw new Error(`Barang ${brgKode} tidak ada pada SO ${nomorSO}.`);
+      }
+      let sudah = Number(soDtl.sod_qty_kirim || 0);
+      // Saat edit, qty DO ini sudah terhitung di sod_qty_kirim — keluarkan
+      // dulu agar tidak dihitung dua kali.
+      if (isEdit) {
+        const [[oldDtl]] = await conn.query(
+          `SELECT IFNULL(SUM(dod_qty), 0) AS total
+             FROM tdo_dtl WHERE dod_do_nomor = ? AND dod_brg_kode = ?`,
+          [nomor, brgKode]
+        );
+        sudah -= Number(oldDtl?.total || 0);
+      }
+      const sisa = Number(soDtl.sod_qty || 0) - sudah;
+      if (qty > sisa) {
+        const nama = namaPerSku.get(brgKode);
+        throw new Error(
+          `Qty ${nama ? `${nama} (${brgKode})` : brgKode} melebihi qty SO ` +
+          `(maksimal ${sisa}).`
+        );
+      }
+    }
+
     if (isEdit) {
       // Paritas Delphi ufrmBrowseDO.cekinvoice: DO yang sudah ada invoice
       // tidak boleh diedit.
